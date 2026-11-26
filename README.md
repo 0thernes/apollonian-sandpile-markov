@@ -1,5 +1,5 @@
 <!-- SPDX-License-Identifier: CC-BY-4.0 -->
-# Apollonian–Sandpile–Markov (`0TH-2026-017`)
+# Apollonian–Sandpile–Markov (`0TH-2026-018`)
 
 **Thin Vieta Reflection Groups, Apollonian–Octahedral Reciprocity Obstructions, Integer-Superharmonic Sandpile Envelopes, and Markov–Hurwitz Geodesic Spectra: A Zero-Mathlib Six-Kernel Formalization.**
 
@@ -14,7 +14,7 @@
 ![Visual overview of HKRS Apollonian packing, A2 sandpile Even-Laplacian rigidity, and Cohn-Markov Mod-32 tree](docs/media/social-preview.png)
 
 - **Author:** Alexander Stephen Donahue (Independent Researcher, Spokane, WA, USA · ORCID `0009-0006-8168-9648`)
-- **Archive ID:** `0TH-2026-017` (registered in [0thernes-research-archive](https://github.com/0thernes/0thernes-research-archive))
+- **Archive ID:** `0TH-2026-018` (registered in [0thernes-research-archive](https://github.com/0thernes/0thernes-research-archive))
 - **Live Interactive Observatory:** [https://0thernes.github.io/apollonian-sandpile-markov/studio/](https://0thernes.github.io/apollonian-sandpile-markov/studio/)
 - **Live Lean 4 Proof Blueprint:** [https://0thernes.github.io/apollonian-sandpile-markov/blueprint/](https://0thernes.github.io/apollonian-sandpile-markov/blueprint/)
 - **Frozen AMS-LaTeX White Paper:** [dist/Donahue_2026_apollonian_sandpile_markov.pdf](dist/Donahue_2026_apollonian_sandpile_markov.pdf)

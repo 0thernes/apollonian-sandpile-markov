@@ -591,7 +591,7 @@ def make_fig4() -> None:
             zorder=1,
         )
 
-    ax.text(50, 54.4, "Unified Vieta-Reflection Architecture & Six-Kernel Verification Pipeline (0TH-2026-017)",
+    ax.text(50, 54.4, "Unified Vieta-Reflection Architecture & Six-Kernel Verification Pipeline (0TH-2026-018)",
             ha="center", va="center", fontsize=12.4, fontweight="bold", color="#1a202c")
 
     # Tier 0: Root Generator

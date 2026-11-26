@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: CC-BY-4.0
 schema_version: "1.0"
 release_version: "1.0.0"
-archive_id: "0TH-2026-017"
+archive_id: "0TH-2026-018"
 repository: "https://github.com/0thernes/apollonian-sandpile-markov"
 author:
   name: "Alexander Stephen Donahue"

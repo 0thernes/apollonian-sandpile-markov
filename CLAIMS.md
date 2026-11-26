@@ -1,7 +1,7 @@
 <!-- SPDX-License-Identifier: CC-BY-4.0 -->
 # Claims Matrix (`CLAIMS.md`, v1.0.0)
 
-Every mathematical and empirical claim in `apollonian-sandpile-markov` (`0TH-2026-017`) is mapped below to its exact machine-checked Lean 4 declaration, independent computational oracle, and explicit epistemic tier.
+Every mathematical and empirical claim in `apollonian-sandpile-markov` (`0TH-2026-018`) is mapped below to its exact machine-checked Lean 4 declaration, independent computational oracle, and explicit epistemic tier.
 
 ## Tier 1 — Unconditionally Machine-Checked (Lean 4.35.0, Zero Mathlib, 6 Kernels)
 

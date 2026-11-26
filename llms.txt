@@ -1,4 +1,4 @@
-# apollonian-sandpile-markov (0TH-2026-017)
+# apollonian-sandpile-markov (0TH-2026-018)
 
 > Zero-Mathlib Lean 4.35.0 six-kernel formalization of 15 headline theorems unifying Apollonian/Octahedral reciprocity obstructions, Triangular Lattice A2 Even-Laplacian Sandpile Rigidity, and Markov-Hurwitz Mod-32 & 5-step Cluster Laurent positivity.
 

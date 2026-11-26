@@ -1,4 +1,4 @@
-# apollonian-sandpile-markov (0TH-2026-017) — Full Machine-Readable Summary
+# apollonian-sandpile-markov (0TH-2026-018) — Full Machine-Readable Summary
 
 Author: Alexander Stephen Donahue (Independent Researcher, Spokane, WA, USA; ORCID 0009-0006-8168-9648)
 Repository: https://github.com/0thernes/apollonian-sandpile-markov
