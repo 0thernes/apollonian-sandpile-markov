@@ -16,6 +16,7 @@ url: "https://0thernes.github.io/apollonian-sandpile-markov/"
 license:
   - Apache-2.0
   - CC-BY-4.0
+abstract: "A zero-Mathlib Lean 4.35.0 development of 15 statements, with Rust, C11 and Python programs for the finite data. Most statements formalize known results: the Haag-Kertzer-Rickards-Stange square obstruction for three Apollonian packings, Ying Zhang's theorem that even Markov numbers are 2 mod 32, the Hurwitz n=4 coefficient classification, and the Abelian sandpile toppling laws. The others are finite computations, mod-8 residue locking on one octahedral orbit, elementary identities, and an elementary triangular-lattice parity lemma. No open problem is solved."
 keywords:
   - apollonian-circle-packings
   - quadratic-reciprocity

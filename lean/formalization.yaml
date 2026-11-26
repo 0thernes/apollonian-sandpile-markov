@@ -17,7 +17,7 @@ verification:
     - propext
     - Classical.choice
     - Quot.sound
-  sorry_count: 0
+  sorry_count: 0  # built modules only; lean/PalomarChallenge.lean holds 16 intentional `by sorry` comparator stubs and is not a build target
   admit_count: 0
   native_decide_count: 0
   custom_axiom_count: 0
@@ -30,5 +30,8 @@ verification:
     - con-leche
     - con-ron
   contract_comparator: "lake comparator --config comparator.json --paranoid"
+  # Coverage (per .github/workflows/ci.yml): leanchecker and leanchecker-paranoid replay the Solution and PalomarSolution modules;
+  # nanoda_bin, con-leche and con-ron check an export of three root declarations and their dependency closure;
+  # lake comparator --paranoid checks the 16 targets in comparator.json.
 ai_assistance_disclosure:
-  statement: "AI systems assisted with code drafting, Lean tactic engineering, LaTeX formatting, and test automation under full human direction; every mathematical theorem is independently verified by six non-AI formal type-checking kernels and three independent computational oracles (Rust, ISO C11, Python)."
+  statement: "AI systems assisted with code drafting, Lean tactic engineering, LaTeX formatting, and test automation under human direction. The Lean statements are checked by the Lean kernel and replayed by the additional kernels listed above (coverage as noted); the finite data are recomputed in Rust, ISO C11 and Python. Most statements formalize known results; see CLAIMS.md."

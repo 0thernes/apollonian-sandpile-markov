@@ -1,39 +1,43 @@
 <!-- SPDX-License-Identifier: CC-BY-4.0 -->
-# Claims Matrix (`CLAIMS.md`, v1.0.0)
+# Claims Matrix (`CLAIMS.md`, v1.0.0, corrected 2026-11-26)
 
-Every mathematical and empirical claim in `apollonian-sandpile-markov` (`0TH-2026-018`) is mapped below to its exact machine-checked Lean 4 declaration, independent computational oracle, and explicit epistemic tier.
+Each claim in `apollonian-sandpile-markov` (`0TH-2026-018`) is mapped below to its Lean declaration, its scope as stated in Lean, and its relation to prior work. Wording was corrected on 2026-11-26 to match an independent statement audit ([audit log](https://github.com/0thernes/0thernes-research-archive/blob/main/docs/reviews/2026-11-26-statement-audit.md); see also [`ERRATA.md`](ERRATA.md)).
 
-## Tier 1 — Unconditionally Machine-Checked (Lean 4.35.0, Zero Mathlib, 6 Kernels)
+Overall: most statements are zero-Mathlib formalizations of known results; the rest are finite computations, elementary identities, and one elementary parity lemma (`T2d`) with no prior statement found. No statement is a bounded case of `STAT-058` or `NT-083`.
 
-| Claim ID | Lean Declaration (`ApollonianSandpileMarkov.Palomar.*`) | Statement Summary | Axioms |
-| :--- | :--- | :--- | :--- |
-| `T1a` | `t1a_descartes_lorentzian_and_gaussian_norm` | Descartes Lorentzian involutions, `(a+b)(a+c)=a^2+k^2`, Brahmagupta–Descartes BQF | `[propext, Classical.choice, Quot.sound]` |
-| `T1b` | `t1b_jacobi_reciprocity_master` | Zero-Mathlib Jacobi symbol, Eisenstein (1844) QR, `(-1/n)`, `(2/n)`, multiplicativity, squares=1 | `[propext, Classical.choice, Quot.sound]` |
-| `T1c` | `t1c_hkrs_apollonian_reciprocity_obstruction` | Zero-GCD Dehn-twist CRT global square obstruction on `(-3,5,8,8)`, `(-7,17,12,20)`, `(-11,21,24,28)` vs `(-4,8,9,9)` | `[propext, Classical.choice, Quot.sound]` |
-| `T1d` | `t1d_octahedral_lorentzian_and_sqrt_neg2_obstruction` | Octahedral $\mathbb{Q}(\sqrt{-2})$ 8 reflections, mod-8 locking & Jacobi obstruction on `(-6,10,17,40,24,17)` vs strip | `[propext, Classical.choice, Quot.sound]` |
-| `T1e` | `t1e_soddy_dimension_dichotomy_and_3d_contrast` | Exact Soddy integrality dichotomy `(d-1) ∣ 2 ↔ d=2 ∨ d=3` + 3D square hit `25=5^2` | `[propext, Classical.choice, Quot.sound]` |
-| `T2a` | `t2a_abelian_sandpile_confluence_and_least_action` | Universal Abelian commutativity, Discrete Least Action, Church–Rosser confluence | `[propext, Classical.choice, Quot.sound]` |
-| `T2b` | `t2b_dhar_critical_identity_and_grid_orders` | Exact `det(L_{2×2})=192`, `det(L_{3×3})=100,352` (Kronecker) + legal Dhar traces | `[propext, Quot.sound]` |
-| `T2c` | `t2c_lps_z2_superharmonic_and_isotropic_obstruction` | LPS $\mathbb{Z}^2$ torus Green's id, isotropic `K=3` obstruction, `K=2,3` witnesses | `[propext, Classical.choice, Quot.sound]` |
-| `T2d` | `t2d_triangular_a2_even_laplacian_rigidity_and_obstruction` | **Original $\mathbb{A}_2$ Even-Laplacian Rigidity:** `K % 2 = 0` universally obstructing `K=5`; `K=4,2` witnesses | `[propext, Classical.choice, Quot.sound]` |
-| `T2e` | `t2e_kalinin_shkolnikov_tropical_balancing_and_solitons` | Universal cyclic lattice polygon balancing, trivalent det invariance, 2-/3-soliton balances | `[propext, Classical.choice, Quot.sound]` |
-| `T3a` | `t3a_sl2z_fricke_cohn_markov_correspondence` | Universal $SL_2(\mathbb{Z})$ Fricke trace identity & infinite Cohn tree `tr/3` correspondence | `[propext, Classical.choice, Quot.sound]` |
-| `T3b` | `t3b_markov_coprimality_odd_primes_and_mod32` | Pairwise coprimality, odd `p ≡ 1 (4)`, odd `m ≡ 1 (4)`, **Exact Mod-32 (`m % 32 = 2`)**, sharp mod 64 | `[propext, Classical.choice, Quot.sound]` |
-| `T3c` | `t3c_hensel_sqrt_neg1_prime_power_uniqueness` | Universal Hensel lifting uniqueness of $\sqrt{-1} \pmod{p^k}$ for all odd primes `p`, `k ≥ 1` | `[propext, Classical.choice, Quot.sound]` |
-| `T3d` | `t3d_cluster_algebra_markov_laurent_positivity` | Symbolic 3-variable 5-step Markov cluster Laurent integrality & positivity (`(1,1,1) ↦ (2,5,29,433,37666)`) | `[propext, Classical.choice, Quot.sound]` |
-| `T3e` | `t3e_markov_hurwitz_n4_complete_classification` | Complete Markov–Hurwitz `n=4` classification (`a=1` all `≡ 2 mod 4`; `a=4` all odd; `a∈{2,3} ∪ [5,∞)` empty) | `[propext, Classical.choice, Quot.sound]` |
-| `NONVAC` | `NonVacuity.nonvac_all_hypotheses` | Constructive non-vacuity witnesses for all 15 theorem premises | `[propext, Classical.choice, Quot.sound]` |
-| `ADV` | `Adversarial.all_adversarial_refutations` | Sharp boundary counterexamples showing every structural hypothesis is tight | `[propext, Classical.choice, Quot.sound]` |
+## Tier 1 — Kernel-Checked in Lean 4.35.0 (zero Mathlib)
 
-## Tier 2 — Exact Independent Computational Verification (Rust, ISO C11, Python)
+Built modules contain no `sorry`, `admit` or `native_decide`; `lean/PalomarChallenge.lean` holds 16 intentional `by sorry` stubs as the comparator challenge and is not a build target. CI replays `Solution` and `PalomarSolution` with `leanchecker` and `leanchecker-paranoid`, checks an export of three root declarations and their dependency closure with `nanoda_bin`, `con-leche` and `con-ron`, and runs `lake comparator --paranoid` on the 16 targets in `lean/comparator.json`.
 
-- `C1`: Exact BFS orbit statistics (`results/rust_summary.json` & `results/exact_verification_report.json`) across all 4 Apollonian roots (`≤ 1000`), 2 Octahedral roots (`≤ 1500` / `≤ 400`), and 3D Soddy (`≤ 150`), bit-for-bit identical between Rust and Python.
-- `C2`: Exact Bareiss integer determinants `det(L_{A_2, 2×2}) = 1,092`, `det(L_{A_2, 3×3}) = 5,393,920`, and $15\times 15$ & $65\times 65$ Dhar critical identities (`results/figure_stats.json`).
-- `C3`: Exhaustive Markov tree audit up to $10^7$ (`56` triples, `56` distinct numbers, uniqueness=`true`, `61` odd primes `p ≡ 1 (4)`, `0` violations, even mod-64 set `{2, 34}`) and Hurwitz `n=4` search `≤ 120`.
+| Claim ID | Lean Declaration (`ApollonianSandpileMarkov.Palomar.*`) | What Lean states | Status / prior work | Axioms |
+| :--- | :--- | :--- | :--- | :--- |
+| `T1a` | `t1a_descartes_lorentzian_and_gaussian_norm` | Apollonian reflections are involutions preserving the Descartes form; `(a+b)(a+c)=a^2+k^2`; a two-square product identity | Classical algebra; lemma for `T1c` | `[propext, Classical.choice, Quot.sound]` |
+| `T1b` | `t1b_jacobi_reciprocity_master` | Jacobi symbol via Euler's criterion: `(-1/n)`, `(2/n)`, reciprocity for coprime odd `m,n`, multiplicativity, `(a^2/n)=1` | Classical; Eisenstein (1844) proof route | `[propext, Classical.choice, Quot.sound]` |
+| `T1c` | `t1c_hkrs_apollonian_reciprocity_obstruction` | No square curvature in the packings of `(-3,5,8,8)`, `(-7,17,12,20)`, `(-11,21,24,28)`; `(-4,8,9,9)` has Descartes form 0 and contains 9 | Formalization of Haag–Kertzer–Rickards–Stange (Ann. of Math. 2024, arXiv:2307.02749) for three packings. `(-4,8,9,9)` is not unobstructed: HKRS list `3n^2`, `6n^2`, `n^4`, `4n^4` obstructions for it. The mod-24 comparison is computational | `[propext, Classical.choice, Quot.sound]` |
+| `T1d` | `t1d_octahedral_lorentzian_and_sqrt_neg2_obstruction` | Eight octahedral reflections; `sqrt(-2)` norm identity; residues `(2,2,1,0,0,1)` mod 8 on the orbit of `(-6,10,17,40,24,17)`, so `b1,b2` are not squares and `b3,b6` are not twice a square; five closed Jacobi evaluations | Mod-8 residue locking only; no reciprocity argument is formalized. Octahedral reciprocity obstructions: Shi, Shi, Whitehead, Williams-Tracy, Zhang, arXiv:2510.21702 (2025) | `[propext, Classical.choice, Quot.sound]` |
+| `T1e` | `t1e_soddy_dimension_dichotomy_and_3d_contrast` | `(d-1) ∣ 2 ↔ d=2 ∨ d=3` for `d ≥ 2`; five 3D Soddy involutions, form preservation for the first; one reflection gives `25` | Elementary; the divisibility fact is not linked in Lean to `d`-dimensional reflections | `[propext, Classical.choice, Quot.sound]` |
+| `T2a` | `t2a_abelian_sandpile_confluence_and_least_action` | Toppling commutativity, least action bound, and uniqueness of legal stabilizing traces, for symmetric zero-diagonal adjacency with arbitrary degrees | Known (Dhar 1990; least action principle). No sink condition and no termination theorem | `[propext, Classical.choice, Quot.sound]` |
+| `T2b` | `t2b_dhar_critical_identity_and_grid_orders` | `det(L_{2×2}) = 192`; for the 3×3 grid an integer similarity to a block-diagonal matrix whose block determinants multiply to `100,352`; explicit legal Dhar traces | Finite computations. The 9×9 determinant and the Matrix–Tree link are not formalized | `[propext, Quot.sound]` |
+| `T2c` | `t2c_lps_z2_superharmonic_and_isotropic_obstruction` | No integer `u` with `4u = 3(x^2+y^2)+ψ`, `ψ` periodic, has `Z^2` Laplacian `≤ 3`; constant-Laplacian `2, 3` witnesses | One isotropic case, not the Levine–Pegden–Smart classification; overlap with LPS (2017) not checked | `[propext, Classical.choice, Quot.sound]` |
+| `T2d` | `t2d_triangular_a2_even_laplacian_rigidity_and_obstruction` | If `M*u = Ax^2+Bxy+Cy^2+Dx+Ey+ψ` (integer `u`, periodic `ψ`), `M*K = 4A-2B+4C`, and the A2 Laplacian of `u` is `≤ K`, then `K` is even; `K=4, 2` attained | Elementary parity lemma; no prior statement found in two searches. Covers only bounds equal to the mean curvature; says nothing about height-5 sandpile configurations | `[propext, Classical.choice, Quot.sound]` |
+| `T2e` | `t2e_kalinin_shkolnikov_tropical_balancing_and_solitons` | Lattice-polygon edge-normal closure identity; `det(v1,v2)=det(v2,v3)=det(v3,v1)` when `v1+v2+v3=0`; closed numeric checks | Elementary identities. The Kalinin–Shkolnikov theorem is not formalized; the name is descriptive only | `[propext, Classical.choice, Quot.sound]` |
+| `T3a` | `t3a_sl2z_fricke_cohn_markov_correspondence` | Fricke trace identity for determinant-1 matrices; Cohn-tree nodes give Markov triples via `tr/3` | Classical (Fricke; Cohn 1955). The export does not state `3 ∣ tr` | `[propext, Classical.choice, Quot.sound]` |
+| `T3b` | `t3b_markov_coprimality_odd_primes_and_mod32` | For tree triples from `(1,1,1)`: pairwise coprime; odd prime divisors `≡ 1 (4)`; odd entries `≡ 1 (4)`; even entries `≡ 2 (32)`; `(2,1,1)`, `(34,13,1)` occur | Formalization of Ying Zhang, Acta Arith. 128 (2007) 295–301, arXiv:math/0612620 (mod-32 theorem). Markov's theorem that all triples lie in the tree is not formalized | `[propext, Classical.choice, Quot.sound]` |
+| `T3c` | `t3c_hensel_sqrt_neg1_prime_power_uniqueness` | Uniqueness of `sqrt(-1)` modulo `p^k` up to sign, `p` odd prime, `k ≥ 1` | Standard | `[propext, Classical.choice, Quot.sound]` |
+| `T3d` | `t3d_cluster_algebra_markov_laurent_positivity` | Exchange identities along one 5-step Markov-quiver mutation sequence with subtraction-free numerators; values `≥ 1` at positive inputs; `(1,1,1) ↦ (2,5,29,433,37666)` | Finite instance of Fomin–Zelevinsky (2002) and Lee–Schiffler (2015). Coefficient positivity holds by inspection, not as a stated theorem | `[propext, Classical.choice, Quot.sound]` |
+| `T3e` | `t3e_markov_hurwitz_n4_complete_classification` | Positive solutions of the `n=4` Hurwitz equation exist only for `a=1` (all `≡ 2 mod 4`) or `a=4` (all odd) | Classical (Hurwitz, 1907). The Vieta-orbit description of all solutions is not part of the export | `[propext, Classical.choice, Quot.sound]` |
+| `NONVAC` | `NonVacuity.nonvac_all_hypotheses` | Witnesses for theorem premises | Not a joint witness for every theorem: none for the `T2d` hypothesis bundle or `IsStabilizingOdometer` | `[propext, Classical.choice, Quot.sound]` |
+| `ADV` | `Adversarial.all_adversarial_refutations` | Six refutations of false variants | `adv6` is a corollary of `T3e`; the suite does not show every hypothesis is needed | `[propext, Classical.choice, Quot.sound]` |
 
-## Tier 3 — Explicitly Open Conjectures (NOT Claimed Solved)
+## Tier 2 — Computation (Rust, ISO C11, Python; not Lean)
 
-- `O1`: Complete classification of all reciprocity obstructions across all primitive integral Apollonian and Bianchi sphere packings.
-- `O2`: Full continuum PDE scaling limit of the $\mathbb{Z}^2$ and $\mathbb{A}_2$ sandpile identities (`STAT-058`).
-- `O3`: General-composite Markov Uniqueness Conjecture (`NT-083`).
-- `O4`: Machine-checked formalization of Lee–Schiffler all-depth cluster positivity and Hurwitz $n \ge 5$ asymptotics.
+- `C1`: BFS orbit statistics (`results/rust_summary.json`, `results/exact_verification_report.json`) for the 4 Apollonian roots (curvatures `≤ 1000`), 2 octahedral roots (`≤ 1500` / `≤ 400`) and the 3D Soddy root (`≤ 150`), with Rust and Python outputs compared in CI. The mod-24 residue sets quoted for `T1c` and `T1d` come from these computations.
+- `C2`: Bareiss integer determinants `det(L_{A_2, 2×2}) = 1,092`, `det(L_{A_2, 3×3}) = 5,393,920`, and 15×15 and 65×65 Dhar identity computations (`results/figure_stats.json`).
+- `C3`: Markov tree enumeration up to `10^7` (`56` triples, `56` distinct numbers, no uniqueness violation in this range, `61` odd primes `p ≡ 1 (4)`, even residues mod 64 `{2, 34}`) and a Hurwitz `n=4` search up to `120`. Finite ranges only.
+
+## Tier 3 — Open Problems (not claimed, not advanced)
+
+- `O1`: Classification of reciprocity obstructions across all primitive integral Apollonian and generalized circle or sphere packings.
+- `O2`: The continuum scaling limit of the $\mathbb{Z}^2$ and $\mathbb{A}_2$ sandpile identities (`STAT-058`).
+- `O3`: The Markov uniqueness conjecture (`NT-083`).
+- `O4`: A formalization of Lee–Schiffler all-depth cluster positivity and of Hurwitz equations for $n \ge 5$.

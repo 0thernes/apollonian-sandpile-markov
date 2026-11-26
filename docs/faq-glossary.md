@@ -4,16 +4,16 @@
 ## Frequently Asked Questions
 
 **Q: Does this paper solve the Markov Uniqueness Conjecture (`NT-083`) or the full sandpile scaling limit (`STAT-058`)?**
-No. Both overarching conjectures remain explicitly open (see `CLAIMS.md` and `LIMITATIONS.md`). We prove 15 concrete unconditional theorems surrounding them, including our original Triangular Lattice $\mathbb{A}_2$ Even-Laplacian Rigidity Theorem (`T2d`), our Exact Mod-32 Theorem for even Markov numbers (`T3b`), universal Hensel $\sqrt{-1} \pmod{p^k}$ uniqueness (`T3c`), 5-step symbolic cluster positivity (`T3d`), and complete Hurwitz $n=4$ classification (`T3e`).
+No. Both remain open, and no theorem here is a bounded case of either (see `CLAIMS.md` and `LIMITATIONS.md`); the links are thematic. The 15 Lean statements are mostly formalizations of known results, for example Zhang's 2007 theorem that even Markov numbers are 2 mod 32 (`T3b`), uniqueness of $\sqrt{-1} \pmod{p^k}$ (`T3c`), exchange identities along one five-step Markov-quiver mutation path (`T3d`), and the classical Hurwitz (1907) classification of admissible coefficients for $n=4$ (`T3e`). `T2d` is an elementary parity lemma on the triangular lattice with no prior statement found.
 
 **Q: Why build Lean 4 proofs without Mathlib?**
-Zero-Mathlib formalizations compile in seconds, avoid supply-chain drift, keep proof exports small enough to replay across six independent type-checking kernels (`lean 4.35.0`, `leanchecker`, `lean4lean`, `nanoda_bin`, `con-leche`, `con-ron`), and ensure zero `native_decide` or hidden tactics.
+Zero-Mathlib formalizations compile in seconds, avoid supply-chain drift, and keep proof exports small enough for the additional kernels run in CI (`leanchecker`, `lean4lean`, `nanoda_bin`, `con-leche`, `con-ron`; the last three check an export of three root declarations and their dependency closure). The built modules use no `native_decide`.
 
-**Q: Why do `(-7, 17, 12, 20)` and `(-4, 8, 9, 9)` behave oppositely despite identical mod-24 residues?**
-Both packings have the exact same local residue set `{0, 8, 9, 12, 17, 20} mod 24`, so local congruence tests cannot distinguish them. However, `(-7, 17, 12, 20)` carries a global quadratic reciprocity invariant `χ(q) = -1` (Theorem `T1c`), which forbids every perfect-square curvature across its entire infinite orbit.
+**Q: Why do `(-7, 17, 12, 20)` and `(-4, 8, 9, 9)` differ on squares despite identical mod-24 residues?**
+Both packings have the residue set `{0, 8, 9, 12, 17, 20} mod 24` (a computation), so congruences mod 24 cannot distinguish them. Haag, Kertzer, Rickards and Stange (Ann. of Math. 2024, arXiv:2307.02749) showed that a quadratic reciprocity invariant excludes all squares from `(-7, 17, 12, 20)`; `T1c` formalizes this exclusion for that packing and two others. `(-4, 8, 9, 9)` contains the square 9, but it is not unobstructed: HKRS list quadratic obstructions `3n^2`, `6n^2` and quartic obstructions `n^4`, `4n^4` for it.
 
-**Q: Why does the $65\times 65$ $\mathbb{A}_2$ sandpile identity form solid 4-chip plateaus instead of solid 5-chip seas?**
-By Theorem `T2d`, every integer-valued quadratic-plus-periodic function on $\mathbb{A}_2$ with $\Delta_{\mathbb{A}_2} u \le K$ and mean curvature $K$ MUST satisfy $K \equiv 0 \pmod 2$. Because $5$ is odd, solid $K=5$ seas are universally impossible on $\mathbb{A}_2$, forcing macroscopic flat plateaus down to even height $K=4$.
+**Q: Does `T2d` explain the 4-chip plateaus in the $65\times 65$ $\mathbb{A}_2$ sandpile identity?**
+No such link is proved. `T2d` states: if $M u$ is a quadratic $Ax^2+Bxy+Cy^2+Dx+Ey$ plus a periodic function, $M K = 4A-2B+4C$, and $\Delta_{\mathbb{A}_2} u \le K$ everywhere, then $K$ is even. The hypotheses force a constant Laplacian, so the lemma is elementary. It says nothing about sandpile configurations of height 5; the plateaus in the figure are an observation from computation.
 
 ## Glossary
 - **Vieta Involution:** The reflection $x_i \mapsto L_i(x_{-i}) - x_i$ flipping one root of a quadratic relation while holding the remaining coordinates fixed.

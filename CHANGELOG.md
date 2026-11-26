@@ -3,6 +3,15 @@
 
 All notable changes to `apollonian-sandpile-markov` (`0TH-2026-018`) are documented in this file following [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and [Semantic Versioning](https://semver.org/).
 
+## [Unreleased] - 2026-11-26
+
+### Changed (documentation only; no Lean, paper, data or PDF changes)
+- Corrected claim wording in `README.md`, `CLAIMS.md`, `LIMITATIONS.md`, `CITATION.cff`, `lean/formalization.yaml` and `docs/*.md` to match the 2026-11-26 statement audit ([audit log](https://github.com/0thernes/0thernes-research-archive/blob/main/docs/reviews/2026-11-26-statement-audit.md)).
+- `T3b` is now credited as a formalization of Ying Zhang's theorem (Acta Arith. 128 (2007), arXiv:math/0612620); `T1c` as a formalization of Haag–Kertzer–Rickards–Stange (2024) for three packings; `T3e` as the classical Hurwitz (1907) classification; arXiv:2510.21702 is cited for octahedral obstructions (`T1d`).
+- `(-4,8,9,9)` is no longer called unobstructed; `T2d` is described as an elementary parity lemma with its full hypothesis; `T2a`, `T2b`, `T2e`, `T3d` and `T3e` descriptions narrowed to what Lean states. The "Original Results" line of the 1.0.0 entry below is superseded by these descriptions.
+- Kernel-replay coverage and the 16 comparator `by sorry` stubs in `lean/PalomarChallenge.lean` are now stated explicitly.
+- `ERRATA.md`: added the "2026-11-26 statement audit" section listing errors in the frozen paper and known issues in the formal code.
+
 ## [1.0.0] - 2026-11-26
 
 ### Added
