@@ -1,0 +1,225 @@
+{
+  "pillar1": {
+    "hkrs_root1": {
+      "root": [
+        -3,
+        5,
+        8,
+        8
+      ],
+      "max_bend": 1000,
+      "quads_visited": 399,
+      "distinct_bends": 204,
+      "squares": [],
+      "mod24": [
+        0,
+        5,
+        8,
+        12,
+        20,
+        21
+      ],
+      "all_descartes_zero": true
+    },
+    "hkrs_root2": {
+      "root": [
+        -7,
+        17,
+        12,
+        20
+      ],
+      "max_bend": 1000,
+      "quads_visited": 263,
+      "distinct_bends": 156,
+      "squares": [],
+      "mod24": [
+        0,
+        8,
+        9,
+        12,
+        17,
+        20
+      ],
+      "all_descartes_zero": true
+    },
+    "hkrs_root3": {
+      "root": [
+        -11,
+        21,
+        24,
+        28
+      ],
+      "max_bend": 1000,
+      "quads_visited": 142,
+      "distinct_bends": 115,
+      "squares": [],
+      "mod24": [
+        0,
+        4,
+        12,
+        13,
+        16,
+        21
+      ],
+      "all_descartes_zero": true
+    },
+    "unobstructed_4899": {
+      "root": [
+        -4,
+        8,
+        9,
+        9
+      ],
+      "max_bend": 1000,
+      "quads_visited": 275,
+      "distinct_bends": 177,
+      "squares": [
+        9,
+        36,
+        144,
+        225,
+        441,
+        576,
+        729,
+        900
+      ],
+      "mod24": [
+        0,
+        8,
+        9,
+        12,
+        17,
+        20
+      ],
+      "all_descartes_zero": true
+    },
+    "octahedral_obstructed": {
+      "root": [
+        -6,
+        10,
+        17,
+        40,
+        24,
+        17
+      ],
+      "sextuples_visited": 93,
+      "distinct_bends": 230,
+      "pow2_squares": [],
+      "mod24": [
+        0,
+        1,
+        2,
+        8,
+        9,
+        10,
+        16,
+        17,
+        18
+      ],
+      "all_octahedral": true
+    },
+    "octahedral_strip": {
+      "root": [
+        0,
+        0,
+        1,
+        2,
+        2,
+        1
+      ],
+      "sextuples_visited": 97,
+      "distinct_bends": 138,
+      "pow2_squares": [
+        0,
+        1,
+        2,
+        8,
+        9,
+        16,
+        18,
+        25,
+        32,
+        49,
+        50,
+        64,
+        72,
+        81,
+        98,
+        121,
+        128,
+        144,
+        162,
+        169,
+        200,
+        225,
+        242,
+        256,
+        288,
+        289,
+        338,
+        361,
+        392,
+        400
+      ],
+      "mod24": [
+        0,
+        1,
+        2,
+        8,
+        9,
+        10,
+        16,
+        17,
+        18
+      ],
+      "all_octahedral": true
+    }
+  },
+  "pillar2": {
+    "z2_15x15_sum": 448,
+    "a2_15x15_sum": 704,
+    "z2_3x3_id": [
+      2,
+      1,
+      2,
+      1,
+      0,
+      1,
+      2,
+      1,
+      2
+    ],
+    "a2_3x3_id": [
+      4,
+      2,
+      3,
+      2,
+      0,
+      2,
+      3,
+      2,
+      4
+    ]
+  },
+  "pillar3": {
+    "markov_1e6": {
+      "max_val": 1000000,
+      "triples_count": 40,
+      "distinct_numbers": 40,
+      "uniqueness_holds": true,
+      "all_odd_mod4_eq1": true,
+      "all_even_mod32_eq2": true,
+      "even_mod64_residues": [
+        2,
+        34
+      ]
+    },
+    "cluster_5step_at_111": [
+      2,
+      5,
+      29,
+      433,
+      37666
+    ]
+  }
+}

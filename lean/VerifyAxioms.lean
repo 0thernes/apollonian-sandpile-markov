@@ -1,0 +1,32 @@
+-- SPDX-License-Identifier: Apache-2.0
+module
+
+import Solution
+import PalomarSolution
+
+/-!
+# Strict Axiom Allowlist Audit (`ApollonianSandpileMarkov` v1.0.0)
+
+Every exported headline theorem (`T1a`–`T3e`), the master conjunction, the non-vacuity certificate,
+and all 6 adversarial false-variant refutations (18 audited declarations) must depend strictly on
+a subset of `[propext, Classical.choice, Quot.sound]`.
+-/
+
+#print axioms ApollonianSandpileMarkov.Palomar.t1a_descartes_lorentzian_and_gaussian_norm
+#print axioms ApollonianSandpileMarkov.Palomar.t1b_jacobi_reciprocity_master
+#print axioms ApollonianSandpileMarkov.Palomar.t1c_hkrs_apollonian_reciprocity_obstruction
+#print axioms ApollonianSandpileMarkov.Palomar.t1d_octahedral_lorentzian_and_sqrt_neg2_obstruction
+#print axioms ApollonianSandpileMarkov.Palomar.t1e_soddy_dimension_dichotomy_and_3d_contrast
+#print axioms ApollonianSandpileMarkov.Palomar.t2a_abelian_sandpile_confluence_and_least_action
+#print axioms ApollonianSandpileMarkov.Palomar.t2b_dhar_critical_identity_and_grid_orders
+#print axioms ApollonianSandpileMarkov.Palomar.t2c_lps_z2_superharmonic_and_isotropic_obstruction
+#print axioms ApollonianSandpileMarkov.Palomar.t2d_triangular_a2_even_laplacian_rigidity_and_obstruction
+#print axioms ApollonianSandpileMarkov.Palomar.t2e_kalinin_shkolnikov_tropical_balancing_and_solitons
+#print axioms ApollonianSandpileMarkov.Palomar.t3a_sl2z_fricke_cohn_markov_correspondence
+#print axioms ApollonianSandpileMarkov.Palomar.t3b_markov_coprimality_odd_primes_and_mod32
+#print axioms ApollonianSandpileMarkov.Palomar.t3c_hensel_sqrt_neg1_prime_power_uniqueness
+#print axioms ApollonianSandpileMarkov.Palomar.t3d_cluster_algebra_markov_laurent_positivity
+#print axioms ApollonianSandpileMarkov.Palomar.t3e_markov_hurwitz_n4_complete_classification
+#print axioms ApollonianSandpileMarkov.Palomar.prove_all_apollonian_sandpile_markov_theorems
+#print axioms ApollonianSandpileMarkov.NonVacuity.nonvac_all_hypotheses
+#print axioms ApollonianSandpileMarkov.Adversarial.all_adversarial_refutations

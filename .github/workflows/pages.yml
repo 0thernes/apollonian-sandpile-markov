@@ -1,0 +1,39 @@
+# SPDX-License-Identifier: Apache-2.0
+name: Deploy Interactive 4-Mode Observatory, Blueprint & White Paper to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Assemble static site (portal + studio + blueprint + media + frozen PDF)
+        run: |
+          mkdir -p _site/studio _site/blueprint _site/media
+          cp docs/index.html _site/index.html
+          cp docs/media/social-preview.png _site/media/social-preview.png
+          cp studio/index.html _site/studio/index.html
+          cp blueprint/index.html _site/blueprint/index.html
+          cp dist/Donahue_2026_apollonian_sandpile_markov.pdf _site/Donahue_2026_apollonian_sandpile_markov.pdf
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: "_site"
+      - id: deployment
+        uses: actions/deploy-pages@v4

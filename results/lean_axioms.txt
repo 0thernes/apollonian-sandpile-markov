@@ -1,0 +1,50 @@
+'ApollonianSandpileMarkov.Palomar.t1a_descartes_lorentzian_and_gaussian_norm' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'ApollonianSandpileMarkov.Palomar.t1b_jacobi_reciprocity_master' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'ApollonianSandpileMarkov.Palomar.t1c_hkrs_apollonian_reciprocity_obstruction' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'ApollonianSandpileMarkov.Palomar.t1d_octahedral_lorentzian_and_sqrt_neg2_obstruction' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'ApollonianSandpileMarkov.Palomar.t1e_soddy_dimension_dichotomy_and_3d_contrast' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'ApollonianSandpileMarkov.Palomar.t2a_abelian_sandpile_confluence_and_least_action' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'ApollonianSandpileMarkov.Palomar.t2b_dhar_critical_identity_and_grid_orders' depends on axioms: [propext, Quot.sound]
+'ApollonianSandpileMarkov.Palomar.t2c_lps_z2_superharmonic_and_isotropic_obstruction' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'ApollonianSandpileMarkov.Palomar.t2d_triangular_a2_even_laplacian_rigidity_and_obstruction' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'ApollonianSandpileMarkov.Palomar.t2e_kalinin_shkolnikov_tropical_balancing_and_solitons' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'ApollonianSandpileMarkov.Palomar.t3a_sl2z_fricke_cohn_markov_correspondence' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'ApollonianSandpileMarkov.Palomar.t3b_markov_coprimality_odd_primes_and_mod32' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'ApollonianSandpileMarkov.Palomar.t3c_hensel_sqrt_neg1_prime_power_uniqueness' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'ApollonianSandpileMarkov.Palomar.t3d_cluster_algebra_markov_laurent_positivity' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'ApollonianSandpileMarkov.Palomar.t3e_markov_hurwitz_n4_complete_classification' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'ApollonianSandpileMarkov.Palomar.prove_all_apollonian_sandpile_markov_theorems' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'ApollonianSandpileMarkov.NonVacuity.nonvac_all_hypotheses' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ApollonianSandpileMarkov.Adversarial.all_adversarial_refutations' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]

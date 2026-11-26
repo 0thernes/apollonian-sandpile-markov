@@ -1,0 +1,32 @@
+{
+  "pillar1": {
+    "hkrs_root1": {"quads": 399, "bends": 204, "squares": 0, "chi_m1": 1596, "chi_p1": 0, "mod24": [0, 5, 8, 12, 20, 21]},
+    "hkrs_root2": {"quads": 263, "bends": 156, "squares": 0, "chi_m1": 1052, "chi_p1": 0, "mod24": [0, 8, 9, 12, 17, 20]},
+    "hkrs_root3": {"quads": 142, "bends": 115, "squares": 0, "chi_m1": 568, "chi_p1": 0, "mod24": [0, 4, 12, 13, 16, 21]},
+    "unobstructed_4899": {"quads": 275, "bends": 177, "squares": 8, "mod24": [0, 8, 9, 12, 17, 20]},
+    "octahedral_obstructed": {"sextuples": 93, "bends": 230, "pow2_squares": 0, "mod8_locked": true, "odd_jacobi_m1": true, "mod24": [0, 1, 2, 8, 9, 10, 16, 17, 18]},
+    "octahedral_strip": {"sextuples": 97, "bends": 138, "squares": 16, "double_squares": 15, "mod24": [0, 1, 2, 8, 9, 10, 16, 17, 18]},
+    "soddy3d_contrast": {"quintuples": 193, "bends": 68, "squares": 5, "all_q0": true}
+  },
+  "pillar2": {
+    "det_z2_2x2": 192,
+    "det_z2_3x3": 100352,
+    "det_a2_2x2": 1092,
+    "det_a2_3x3": 5393920,
+    "z2_15x15": {"confluent": true, "idempotent": true, "topplings": 17778, "sum_chips": 448},
+    "a2_15x15": {"confluent": true, "idempotent": true, "topplings": 15584, "sum_chips": 704}
+  },
+  "pillar3": {
+    "markov_max_val": 10000000,
+    "triples_count": 56,
+    "distinct_numbers": 56,
+    "uniqueness_holds": true,
+    "all_odd_mod4_eq1": true,
+    "all_even_mod32_eq2": true,
+    "even_mod64_residues": [2, 34],
+    "odd_prime_mod4_violations": 0,
+    "all_pairwise_coprime": true,
+    "cluster_5step_at_111": [2, 5, 29, 433, 37666],
+    "hurwitz_n4_le120_counts": {"a1": 4, "a2": 0, "a3": 0, "a4": 4, "a5_to_8": 0}
+  }
+}

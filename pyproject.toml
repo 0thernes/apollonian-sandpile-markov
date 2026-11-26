@@ -1,0 +1,44 @@
+# SPDX-License-Identifier: Apache-2.0
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "apollonian-sandpile-markov"
+version = "1.0.0"
+description = "Independent exact verification oracle for Apollonian-Octahedral reciprocity, Z^2/A_2 sandpiles, and Markov-Hurwitz spectra"
+readme = "README.md"
+license = { text = "Apache-2.0" }
+requires-python = ">=3.11"
+authors = [
+  { name = "Alexander Stephen Donahue", email = "0_0@0thernes.art" }
+]
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0",
+  "hypothesis>=6.100",
+  "matplotlib>=3.8",
+  "numpy>=1.26",
+  "jsonschema>=4.20",
+  "pyyaml>=6.0",
+  "requests>=2.31",
+  "ruff>=0.6",
+  "mypy>=1.11",
+]
+
+[project.scripts]
+asm-verify = "asm_verify:main"
+
+[tool.setuptools.packages.find]
+where = ["python"]
+
+[tool.ruff]
+line-length = 110
+target-version = "py311"
+
+[tool.mypy]
+python_version = "3.11"
+strict = false
+ignore_missing_imports = true

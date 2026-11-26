@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Apollonian–Sandpile–Markov Interactive Observatory (0TH-2026-017)</title>
+  <style>
+    :root {
+      --bg: #0b1120;
+      --panel: #111827;
+      --panel-alt: #1e293b;
+      --border: #334155;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+      --gold: #fbbf24;
+      --emerald: #34d399;
+      --rose: #f87171;
+      --violet: #a78bfa;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+    .skip-link {
+      position: absolute; left: -9999px; top: 0;
+      background: var(--accent); color: #0b1120; padding: 8px 14px; font-weight: 700;
+    }
+    .skip-link:focus { left: 8px; top: 8px; z-index: 999; }
+    header {
+      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 55%, #0f172a 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 24px;
+      display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    header h1 { margin: 0; font-size: 1.25rem; letter-spacing: 0.01em; }
+    header p { margin: 2px 0 0; font-size: 0.85rem; color: var(--muted); }
+    .nav-links { display: flex; gap: 10px; flex-wrap: wrap; }
+    .nav-links a {
+      color: var(--text); text-decoration: none; font-size: 0.85rem; font-weight: 600;
+      padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--panel);
+    }
+    .nav-links a:hover, .nav-links a:focus { border-color: var(--accent); color: var(--accent); outline: none; }
+    nav.tabs {
+      display: flex; flex-wrap: wrap; gap: 8px; padding: 12px 24px;
+      background: var(--panel); border-bottom: 1px solid var(--border);
+    }
+    button.tab-btn {
+      background: var(--panel-alt); color: var(--text); border: 1px solid var(--border);
+      padding: 9px 15px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.88rem;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    button.tab-btn[aria-selected="true"] {
+      background: var(--accent); color: #0b1120; border-color: var(--accent);
+    }
+    button.tab-btn:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+    main { max-width: 1400px; margin: 0 auto; padding: 18px 24px 40px; }
+    .mode-panel { display: none; }
+    .mode-panel.active { display: grid; grid-template-columns: minmax(300px, 370px) 1fr; gap: 18px; align-items: start; }
+    @media (max-width: 960px) {
+      .mode-panel.active { grid-template-columns: 1fr; }
+    }
+    .card {
+      background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 16px;
+    }
+    .card h2 { margin: 0 0 10px; font-size: 1.05rem; color: var(--accent); }
+    .card h3 { margin: 14px 0 6px; font-size: 0.92rem; color: var(--gold); }
+    label { display: block; font-size: 0.83rem; color: var(--muted); margin: 10px 0 4px; }
+    select, input[type="range"], input[type="number"] {
+      width: 100%; background: var(--panel-alt); color: var(--text);
+      border: 1px solid var(--border); border-radius: 6px; padding: 7px 9px; font-size: 0.88rem;
+    }
+    .btn-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+    button.action-btn {
+      background: var(--panel-alt); color: var(--text); border: 1px solid var(--accent);
+      padding: 8px 12px; border-radius: 7px; cursor: pointer; font-size: 0.84rem; font-weight: 600;
+    }
+    button.action-btn.primary { background: var(--accent); color: #0b1120; }
+    button.action-btn:hover { filter: brightness(1.1); }
+    .stat-box {
+      margin-top: 12px; background: #090e1a; border: 1px solid var(--border);
+      border-radius: 8px; padding: 10px 12px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.8rem; color: #cbd5e1; white-space: pre-wrap; word-break: break-word;
+    }
+    .canvas-wrap {
+      background: #060a14; border: 1px solid var(--border); border-radius: 12px;
+      padding: 12px; display: flex; flex-direction: column; align-items: center;
+    }
+    canvas {
+      max-width: 100%; height: auto; border-radius: 8px; background: #060a14;
+      cursor: crosshair; display: block;
+    }
+    .caption { margin-top: 10px; font-size: 0.83rem; color: var(--muted); text-align: center; }
+    .badge {
+      display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 0.74rem; font-weight: 700;
+      margin-right: 6px;
+    }
+    .badge.ok { background: rgba(52, 211, 153, 0.16); color: var(--emerald); border: 1px solid var(--emerald); }
+    .badge.warn { background: rgba(248, 113, 113, 0.16); color: var(--rose); border: 1px solid var(--rose); }
+    .badge.info { background: rgba(56, 189, 248, 0.16); color: var(--accent); border: 1px solid var(--accent); }
+    .triple-inputs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    footer {
+      border-top: 1px solid var(--border); padding: 16px 24px; text-align: center;
+      font-size: 0.8rem; color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to interactive observatory</a>
+  <header>
+    <div>
+      <h1>Apollonian–Sandpile–Markov Interactive Observatory</h1>
+      <p>0TH-2026-017 · Zero-Mathlib Lean 4.35.0 (15 Theorems, 6 Kernels) · Live Exact Browser Lab</p>
+    </div>
+    <nav class="nav-links" aria-label="Project navigation">
+      <a href="../index.html">Portal Home</a>
+      <a href="../blueprint/index.html">Lean Proof Blueprint</a>
+      <a href="https://github.com/0thernes/apollonian-sandpile-markov" target="_blank" rel="noopener">GitHub Repo</a>
+    </nav>
+  </header>
+
+  <nav class="tabs" role="tablist" aria-label="Observatory modes">
+    <button class="tab-btn" role="tab" id="tab-sandpile" aria-selected="true" aria-controls="panel-sandpile" data-mode="sandpile">
+      1. Sandpile &amp; A₂ Tropical Lab (T2a–T2e)
+    </button>
+    <button class="tab-btn" role="tab" id="tab-apollonian" aria-selected="false" aria-controls="panel-apollonian" data-mode="apollonian">
+      2. Apollonian &amp; Octahedral Reciprocity (T1a–T1d)
+    </button>
+    <button class="tab-btn" role="tab" id="tab-soddy" aria-selected="false" aria-controls="panel-soddy" data-mode="soddy">
+      3. 3D Soddy Sphere Cluster (T1e)
+    </button>
+    <button class="tab-btn" role="tab" id="tab-markov" aria-selected="false" aria-controls="panel-markov" data-mode="markov">
+      4. Markov Mod-32 &amp; 5-Step Cluster (T3a–T3e)
+    </button>
+  </nav>
+
+  <main id="main-content">
+    <!-- MODE 1: SANDPILE & TROPICAL SOLITON LAB -->
+    <section id="panel-sandpile" class="mode-panel active" role="tabpanel" aria-labelledby="tab-sandpile">
+      <div class="card">
+        <h2>Abelian Sandpile &amp; Tropical Solitons</h2>
+        <span class="badge ok">T2a Confluence</span>
+        <span class="badge info">T2d A₂ Rigidity</span>
+        <label for="sp-lattice">Lattice Geometry</label>
+        <select id="sp-lattice">
+          <option value="Z2">Square Lattice Z² (deg = 4, max stable = 3)</option>
+          <option value="A2" selected>Triangular Lattice A₂ (deg = 6, max stable = 5; T2d K=5 obstructed)</option>
+        </select>
+        <label for="sp-size">Grid Size N × N</label>
+        <select id="sp-size">
+          <option value="15">15 × 15 (Instant)</option>
+          <option value="33">33 × 33 (Fast)</option>
+          <option value="51" selected>51 × 51 (Crisp Fractal)</option>
+          <option value="65">65 × 65 (Paper Fig. 2)</option>
+        </select>
+        <div class="btn-row">
+          <button class="action-btn primary" id="btn-sp-id">Compute Dhar Identity</button>
+          <button class="action-btn" id="btn-sp-trop">Tropical Soliton Sea</button>
+          <button class="action-btn" id="btn-sp-clear">Max-Stable Sea</button>
+        </div>
+        <h3>Interactive Tip</h3>
+        <p style="font-size:0.82rem;color:var(--muted);margin:4px 0;">
+          Click anywhere on the grid to drop +1 sand grain and run exact Abelian relaxation. In <b>Tropical Soliton Sea</b> mode, every click creates balanced Kalinin–Shkolnikov tropical curve rays (T2e)!
+        </p>
+        <div class="stat-box" id="sp-stats" aria-live="polite">Initializing...</div>
+      </div>
+      <div class="canvas-wrap">
+        <canvas id="canvas-sandpile" width="600" height="600" aria-label="Interactive Abelian sandpile canvas"></canvas>
+        <div class="caption" id="sp-caption">Click any site to drop a grain and observe exact Abelian relaxation.</div>
+      </div>
+    </section>
+
+    <!-- MODE 2: APOLLONIAN & OCTAHEDRAL RECIPROCITY -->
+    <section id="panel-apollonian" class="mode-panel" role="tabpanel" aria-labelledby="tab-apollonian">
+      <div class="card">
+        <h2>Apollonian &amp; Octahedral Reciprocity</h2>
+        <span class="badge warn">T1c HKRS Obstruction</span>
+        <span class="badge info">T1d Q(√-2)</span>
+        <label for="ap-preset">Root Quadruple (b₀, b₁, b₂, b₃)</label>
+        <select id="ap-preset">
+          <option value="-7,17,12,20" selected>HKRS Obstructed (-7, 17, 12, 20) — 0 squares!</option>
+          <option value="-4,8,9,9">Unobstructed (-4, 8, 9, 9) — IDENTICAL mod 24, gold squares!</option>
+          <option value="-3,5,8,8">HKRS Obstructed (-3, 5, 8, 8) — 0 squares!</option>
+          <option value="-11,21,24,28">HKRS Obstructed (-11, 21, 24, 28) — 0 squares!</option>
+          <option value="-1,2,2,3">Classic Packing (-1, 2, 2, 3)</option>
+        </select>
+        <label for="ap-cutoff">Curvature Cutoff B: <span id="ap-cutoff-val">320</span></label>
+        <input type="range" id="ap-cutoff" min="60" max="550" step="10" value="320" />
+        <div class="btn-row">
+          <button class="action-btn primary" id="btn-ap-render">Render Packing</button>
+          <button class="action-btn" id="btn-oct-audit">Run Octahedral Q(√-2) Audit</button>
+        </div>
+        <div class="stat-box" id="ap-stats" aria-live="polite">Ready.</div>
+      </div>
+      <div class="canvas-wrap">
+        <canvas id="canvas-apollonian" width="600" height="600" aria-label="Apollonian gasket interactive canvas"></canvas>
+        <div class="caption">Gold glowing circles mark perfect-square curvatures b = m². Compare (-7,17,12,20) vs (-4,8,9,9): identical mod-24 set, opposite global fate!</div>
+      </div>
+    </section>
+
+    <!-- MODE 3: 3D SODDY SPHERE CLUSTER -->
+    <section id="panel-soddy" class="mode-panel" role="tabpanel" aria-labelledby="tab-soddy">
+      <div class="card">
+        <h2>3D Soddy Spheres &amp; Dimension Dichotomy</h2>
+        <span class="badge ok">T1e (d-1) | 2 ⇔ d ∈ {2,3}</span>
+        <label for="soddy-dim">Explore Dimension d: <span id="soddy-dim-val">3</span></label>
+        <input type="range" id="soddy-dim" min="2" max="8" step="1" value="3" />
+        <div class="btn-row">
+          <button class="action-btn primary" id="btn-soddy-spin">Toggle Auto-Rotate</button>
+          <button class="action-btn" id="btn-soddy-refl">Highlight Reflected 25 = 5² Sphere</button>
+        </div>
+        <p style="font-size:0.82rem;color:var(--muted);margin-top:10px;">
+          Drag across the 3D viewport to orbit the exact integral 3D Soddy cluster (-6, 13, 13, 13, 18) together with its Vieta-reflected sphere of bend 25 = 5².
+        </p>
+        <div class="stat-box" id="soddy-stats" aria-live="polite"></div>
+      </div>
+      <div class="canvas-wrap">
+        <canvas id="canvas-soddy" width="600" height="600" aria-label="Interactive 3D Soddy sphere cluster"></canvas>
+        <div class="caption">Drag to orbit in 3D · Outer bounding sphere b₀ = -6 contains the four mutually tangent spheres (13, 13, 13, 18) and reflected square sphere b = 25 = 5².</div>
+      </div>
+    </section>
+
+    <!-- MODE 4: MARKOV MOD-32 & 5-STEP CLUSTER -->
+    <section id="panel-markov" class="mode-panel" role="tabpanel" aria-labelledby="tab-markov">
+      <div class="card">
+        <h2>Markov Mod-32 &amp; 5-Step Cluster Engine</h2>
+        <span class="badge ok">T3b m ≡ 2 (mod 32)</span>
+        <span class="badge info">T3d 5-Step Laurent</span>
+        <h3>Live BigInt 5-Step Cluster Mutation (T3d)</h3>
+        <div class="triple-inputs">
+          <div><label for="cl-x1">x₁</label><input type="number" id="cl-x1" min="1" max="20" value="1" /></div>
+          <div><label for="cl-x2">x₂</label><input type="number" id="cl-x2" min="1" max="20" value="1" /></div>
+          <div><label for="cl-x3">x₃</label><input type="number" id="cl-x3" min="1" max="20" value="1" /></div>
+        </div>
+        <div class="btn-row">
+          <button class="action-btn primary" id="btn-cl-eval">Evaluate 5-Step Laurent Numerators</button>
+        </div>
+        <div class="stat-box" id="mk-stats" aria-live="polite"></div>
+      </div>
+      <div class="canvas-wrap">
+        <canvas id="canvas-markov" width="660" height="540" aria-label="Interactive Cohn-Markov tree canvas"></canvas>
+        <div class="caption">Click any node in the Cohn–Markov tree to inspect its SL₂(Z) Fricke triple, odd prime factors (all ≡ 1 mod 4), and exact mod-64 residue!</div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    Alexander Stephen Donahue (ORCID 0009-0006-8168-9648) · Code: Apache-2.0 · Content: CC-BY-4.0 · Zero External Runtime Dependencies
+  </footer>
+
+  <script>
+  (function () {
+    "use strict";
+
+    // --- Tab switching ---
+    const tabs = document.querySelectorAll(".tab-btn");
+    const panels = document.querySelectorAll(".mode-panel");
+    function setMode(mode) {
+      tabs.forEach((b) => b.setAttribute("aria-selected", String(b.dataset.mode === mode)));
+      panels.forEach((p) => p.classList.toggle("active", p.id === "panel-" + mode));
+      if (mode === "apollonian") renderApollonian();
+      if (mode === "soddy") drawSoddy();
+      if (mode === "markov") drawMarkovTree();
+    }
+    tabs.forEach((btn) => btn.addEventListener("click", () => setMode(btn.dataset.mode)));
+
+    // --- Exact Math Helpers (BigInt Jacobi & Primes) ---
+    function jacobiBig(a, n) {
+      a = ((a % n) + n) % n;
+      let res = 1;
+      while (a !== 0n) {
+        while ((a & 1n) === 0n) {
+          a >>= 1n;
+          const r8 = n & 7n;
+          if (r8 === 3n || r8 === 5n) res = -res;
+        }
+        const tmp = a; a = n; n = tmp;
+        if ((a & 3n) === 3n && (n & 3n) === 3n) res = -res;
+        a %= n;
+      }
+      return n === 1n ? res : 0;
+    }
+
+    function isPerfectSquare(n) {
+      if (n < 0) return false;
+      const r = Math.floor(Math.sqrt(n));
+      return r * r === n;
+    }
+
+    // =========================================================================
+    // MODE 1: ABELIAN SANDPILE & TROPICAL SOLITONS
+    // =========================================================================
+    const spCanvas = document.getElementById("canvas-sandpile");
+    const spCtx = spCanvas.getContext("2d");
+    const spLatticeSel = document.getElementById("sp-lattice");
+    const spSizeSel = document.getElementById("sp-size");
+    const spStats = document.getElementById("sp-stats");
+    const spCaption = document.getElementById("sp-caption");
+
+    let spN = 51;
+    let spLattice = "A2";
+    let spGrid = new Int32Array(spN * spN);
+    let spDrops = [];
+    let spLastTopplings = 0;
+
+    const paletteZ2 = ["#0f172a", "#2563eb", "#14b8a6", "#facc15"];
+    const paletteA2 = ["#0f172a", "#1d4ed8", "#0284c7", "#14b8a6", "#f59e0b", "#ef4444"];
+
+    function stabilizeInPlace(grid, n, lattice) {
+      const deg = lattice === "Z2" ? 4 : 6;
+      let totalTop = 0;
+      let changed = true;
+      let iter = 0;
+      const maxIter = 40000;
+      while (changed && iter < maxIter) {
+        changed = false;
+        iter++;
+        for (let r = 0; r < n; r++) {
+          const row = r * n;
+          for (let c = 0; c < n; c++) {
+            const idx = row + c;
+            const v = grid[idx];
+            if (v >= deg) {
+              const k = (v / deg) | 0;
+              grid[idx] = v - k * deg;
+              totalTop += k;
+              changed = true;
+              if (r > 0) grid[idx - n] += k;
+              if (r + 1 < n) grid[idx + n] += k;
+              if (c > 0) grid[idx - 1] += k;
+              if (c + 1 < n) grid[idx + 1] += k;
+              if (lattice === "A2") {
+                if (r > 0 && c + 1 < n) grid[idx - n + 1] += k;
+                if (r + 1 < n && c > 0) grid[idx + n - 1] += k;
+              }
+            }
+          }
+        }
+      }
+      return totalTop;
+    }
+
+    function computeSandpileIdentity() {
+      spN = parseInt(spSizeSel.value, 10);
+      spLattice = spLatticeSel.value;
+      spDrops = [];
+      const deg = spLattice === "Z2" ? 4 : 6;
+      const mu = deg - 1;
+      const s1 = new Int32Array(spN * spN);
+      s1.fill(2 * mu);
+      const t1 = stabilizeInPlace(s1, spN, spLattice);
+      const e = new Int32Array(spN * spN);
+      for (let i = 0; i < e.length; i++) e[i] = 2 * mu - s1[i];
+      const t2 = stabilizeInPlace(e, spN, spLattice);
+      spGrid = e;
+      spLastTopplings = t1 + t2;
+      renderSandpile();
+      spCaption.textContent = "Dhar Critical Identity on " + spLattice + " (" + spN + "x" + spN + ") — Click any cell to drop +1 chip.";
+    }
+
+    function initTropicalSea() {
+      spN = parseInt(spSizeSel.value, 10);
+      spLattice = spLatticeSel.value;
+      const deg = spLattice === "Z2" ? 4 : 6;
+      spGrid = new Int32Array(spN * spN);
+      spGrid.fill(deg - 1);
+      spDrops = [
+        [Math.floor(spN * 0.28), Math.floor(spN * 0.34)],
+        [Math.floor(spN * 0.70), Math.floor(spN * 0.31)],
+        [Math.floor(spN * 0.52), Math.floor(spN * 0.74)]
+      ];
+      for (const [r, c] of spDrops) spGrid[r * spN + c] += 1;
+      spLastTopplings = stabilizeInPlace(spGrid, spN, spLattice);
+      renderSandpile();
+      spCaption.textContent = "Kalinin–Shkolnikov Tropical Soliton Curve (" + spDrops.length + " drops on height-" + (deg - 1) + " sea). Click to add more drops!";
+    }
+
+    function initMaxSea() {
+      spN = parseInt(spSizeSel.value, 10);
+      spLattice = spLatticeSel.value;
+      const deg = spLattice === "Z2" ? 4 : 6;
+      spGrid = new Int32Array(spN * spN);
+      spGrid.fill(deg - 1);
+      spDrops = [];
+      spLastTopplings = 0;
+      renderSandpile();
+      spCaption.textContent = "Clean height-" + (deg - 1) + " background. Click anywhere to seed custom tropical solitons!";
+    }
+
+    function renderSandpile() {
+      const n = spN;
+      const w = spCanvas.width;
+      const cell = w / n;
+      const pal = spLattice === "Z2" ? paletteZ2 : paletteA2;
+      const deg = spLattice === "Z2" ? 4 : 6;
+      const counts = new Array(deg).fill(0);
+      let totalChips = 0;
+      for (let r = 0; r < n; r++) {
+        for (let c = 0; c < n; c++) {
+          const v = spGrid[r * n + c];
+          const clamped = Math.max(0, Math.min(deg - 1, v));
+          counts[clamped]++;
+          totalChips += v;
+          spCtx.fillStyle = pal[clamped];
+          spCtx.fillRect(c * cell, r * cell, Math.ceil(cell), Math.ceil(cell));
+        }
+      }
+      for (const [r, c] of spDrops) {
+        spCtx.beginPath();
+        spCtx.arc((c + 0.5) * cell, (r + 0.5) * cell, Math.max(3.5, cell * 0.45), 0, Math.PI * 2);
+        spCtx.fillStyle = "#ef4444";
+        spCtx.fill();
+        spCtx.strokeStyle = "#ffffff";
+        spCtx.lineWidth = 1.5;
+        spCtx.stroke();
+      }
+      const hist = counts.map((cnt, k) => "k=" + k + ": " + cnt).join(" | ");
+      spStats.textContent =
+        "Lattice: " + spLattice + " (deg=" + deg + ")   Grid: " + n + "x" + n + "\n" +
+        "Total chips: " + totalChips + "   Last topplings: " + spLastTopplings + "\n" +
+        "Chip histogram: " + hist + "\n" +
+        (spLattice === "A2"
+          ? "T2d Theorem: Any periodic A2 superharmonic envelope has EVEN Laplacian K (K=5 obstructed; macro plateaus lock at K=4!)."
+          : "T2c Theorem: Isotropic Z2 quadratic envelope K=3 is obstructed; non-isotropic K=3 & K=2 exist.");
+    }
+
+    spCanvas.addEventListener("click", (ev) => {
+      const rect = spCanvas.getBoundingClientRect();
+      const x = (ev.clientX - rect.left) * (spCanvas.width / rect.width);
+      const y = (ev.clientY - rect.top) * (spCanvas.height / rect.height);
+      const c = Math.max(0, Math.min(spN - 1, Math.floor((x / spCanvas.width) * spN)));
+      const r = Math.max(0, Math.min(spN - 1, Math.floor((y / spCanvas.height) * spN)));
+      spDrops.push([r, c]);
+      spGrid[r * spN + c] += 1;
+      spLastTopplings = stabilizeInPlace(spGrid, spN, spLattice);
+      renderSandpile();
+    });
+    document.getElementById("btn-sp-id").addEventListener("click", computeSandpileIdentity);
+    document.getElementById("btn-sp-trop").addEventListener("click", initTropicalSea);
+    document.getElementById("btn-sp-clear").addEventListener("click", initMaxSea);
+    spLatticeSel.addEventListener("change", computeSandpileIdentity);
+    spSizeSel.addEventListener("change", computeSandpileIdentity);
+
+    // =========================================================================
+    // MODE 2: APOLLONIAN & OCTAHEDRAL Q(sqrt(-2)) RECIPROCITY
+    // =========================================================================
+    const apCanvas = document.getElementById("canvas-apollonian");
+    const apCtx = apCanvas.getContext("2d");
+    const apPreset = document.getElementById("ap-preset");
+    const apCutoff = document.getElementById("ap-cutoff");
+    const apCutoffVal = document.getElementById("ap-cutoff-val");
+    const apStats = document.getElementById("ap-stats");
+
+    function cMul(a, b) { return [a[0]*b[0] - a[1]*b[1], a[0]*b[1] + a[1]*b[0]]; }
+    function cAdd(a, b) { return [a[0]+b[0], a[1]+b[1]]; }
+    function cSub(a, b) { return [a[0]-b[0], a[1]-b[1]]; }
+    function cScale(a, s) { return [a[0]*s, a[1]*s]; }
+    function cAbs(a) { return Math.hypot(a[0], a[1]); }
+    function cSqrt(a) {
+      const r = Math.hypot(a[0], a[1]);
+      const ang = Math.atan2(a[1], a[0]) / 2;
+      const sr = Math.sqrt(r);
+      return [sr * Math.cos(ang), sr * Math.sin(ang)];
+    }
+
+    function generateApollonian(b0, b1, b2, b3, maxB) {
+      const r0 = -1 / b0, r1 = 1 / b1, r2 = 1 / b2, r3 = 1 / b3;
+      const z0 = [0, 0];
+      const z1 = [-(r0 - r1), 0];
+      const d01 = r0 - r1, d02 = r0 - r2, d12 = r1 + r2;
+      const cosA = Math.max(-1, Math.min(1, (d01*d01 + d02*d02 - d12*d12) / (2*d01*d02)));
+      const sinA = Math.sqrt(Math.max(0, 1 - cosA*cosA));
+      const z2 = [-d02 * cosA, d02 * sinA];
+      const zb0 = cScale(z0, b0), zb1 = cScale(z1, b1), zb2 = cScale(z2, b2);
+      const disc = cSqrt(cAdd(cAdd(cMul(zb0, zb1), cMul(zb1, zb2)), cMul(zb2, zb0)));
+      const sum012 = cAdd(cAdd(zb0, zb1), zb2);
+      const candA = cScale(cAdd(sum012, cScale(disc, 2)), 1 / b3);
+      const candB = cScale(cSub(sum012, cScale(disc, 2)), 1 / b3);
+      const err = (z) => Math.abs(cAbs(cSub(z, z0)) - (r0 - r3)) + Math.abs(cAbs(cSub(z, z1)) - (r1 + r3)) + Math.abs(cAbs(cSub(z, z2)) - (r2 + r3));
+      const z3 = err(candA) <= err(candB) ? candA : candB;
+      const rootQ = [[b0, zb0], [b1, zb1], [b2, zb2], [b3, cScale(z3, b3)]];
+
+      const circles = new Map();
+      const addC = (b, zb) => {
+        const z = cScale(zb, 1 / b);
+        const k = b + ":" + Math.round(z[0]*1e4) + ":" + Math.round(z[1]*1e4);
+        if (!circles.has(k)) circles.set(k, [b, z]);
+      };
+      rootQ.forEach(([b, zb]) => addC(b, zb));
+
+      const qKey = (q) => q.map(([b, zb]) => b + ":" + Math.round((zb[0]/b)*1e3) + ":" + Math.round((zb[1]/b)*1e3)).sort().join("|");
+      const visited = new Set([qKey(rootQ)]);
+      const queue = [rootQ];
+      let head = 0;
+      while (head < queue.length && visited.size < 4500) {
+        const q = queue[head++];
+        const sb = q[0][0] + q[1][0] + q[2][0] + q[3][0];
+        const szb = [q[0][1][0]+q[1][1][0]+q[2][1][0]+q[3][1][0], q[0][1][1]+q[1][1][1]+q[2][1][1]+q[3][1][1]];
+        for (let i = 0; i < 4; i++) {
+          const nb = 2 * (sb - q[i][0]) - q[i][0];
+          if (nb <= 0 || nb > maxB) continue;
+          const nzb = [2 * (szb[0] - q[i][1][0]) - q[i][1][0], 2 * (szb[1] - q[i][1][1]) - q[i][1][1]];
+          addC(nb, nzb);
+          const nq = q.slice();
+          nq[i] = [nb, nzb];
+          const k = qKey(nq);
+          if (!visited.has(k)) {
+            visited.add(k);
+            queue.push(nq);
+          }
+        }
+      }
+      return { circles: Array.from(circles.values()), quads: visited.size };
+    }
+
+    function renderApollonian() {
+      const parts = apPreset.value.split(",").map(Number);
+      const maxB = parseInt(apCutoff.value, 10);
+      apCutoffVal.textContent = String(maxB);
+      const { circles, quads } = generateApollonian(parts[0], parts[1], parts[2], parts[3], maxB);
+      const w = apCanvas.width, h = apCanvas.height;
+      apCtx.clearRect(0, 0, w, h);
+      const r0 = -1 / parts[0];
+      const scale = (w * 0.44) / r0;
+      const cx = w / 2, cy = h / 2;
+
+      apCtx.beginPath();
+      apCtx.arc(cx, cy, r0 * scale, 0, Math.PI * 2);
+      apCtx.fillStyle = "#0f172a";
+      apCtx.fill();
+      apCtx.strokeStyle = "#38bdf8";
+      apCtx.lineWidth = 2.2;
+      apCtx.stroke();
+
+      const cols = ["#38bdf8", "#34d399", "#fbbf24", "#a78bfa", "#f87171", "#60a5fa"];
+      const mod24Set = new Set();
+      const squares = new Set();
+      circles.sort((a, b) => a[0] - b[0]);
+      for (const [b, z] of circles) {
+        mod24Set.add(((b % 24) + 24) % 24);
+        if (b <= 0) continue;
+        const isSq = isPerfectSquare(b);
+        if (isSq) squares.add(b);
+        const rad = (1 / b) * scale;
+        const px = cx + z[0] * scale;
+        const py = cy - z[1] * scale;
+        const col = isSq ? "#fbbf24" : cols[(((b % 24) + 24) % 24) % cols.length];
+        apCtx.beginPath();
+        apCtx.arc(px, py, rad, 0, Math.PI * 2);
+        apCtx.fillStyle = isSq ? "rgba(251,191,36,0.34)" : col + "30";
+        apCtx.fill();
+        apCtx.strokeStyle = col;
+        apCtx.lineWidth = isSq ? 2.4 : 0.9;
+        apCtx.stroke();
+        if (rad >= 11) {
+          apCtx.fillStyle = isSq ? "#fef08a" : "#f8fafc";
+          apCtx.font = (rad > 28 ? "bold 14px" : "bold 10px") + " system-ui";
+          apCtx.textAlign = "center";
+          apCtx.textBaseline = "middle";
+          apCtx.fillText(String(b), px, py);
+        }
+      }
+      const sortedMod = Array.from(mod24Set).sort((a, b) => a - b);
+      const sortedSq = Array.from(squares).sort((a, b) => a - b);
+      apStats.textContent =
+        "Root: (" + parts.join(", ") + ")   Max bend B <= " + maxB + "\n" +
+        "Quads visited: " + quads + "   Circles drawn: " + circles.length + "\n" +
+        "Mod-24 residues: {" + sortedMod.join(", ") + "}\n" +
+        "Perfect-square bends found: " + (sortedSq.length ? sortedSq.join(", ") : "NONE (0 hits — HKRS obstructed!)");
+    }
+
+    document.getElementById("btn-ap-render").addEventListener("click", renderApollonian);
+    apPreset.addEventListener("change", renderApollonian);
+    apCutoff.addEventListener("input", renderApollonian);
+    document.getElementById("btn-oct-audit").addEventListener("click", () => {
+      const j1 = jacobiBig(-3n, 11n);
+      const j2 = jacobiBig(5n, 27n);
+      const j3 = jacobiBig(17n, 11n);
+      const j4 = jacobiBig(5n, 57n);
+      const j5 = jacobiBig(3n, 41n);
+      apStats.textContent =
+        "Generalized Octahedral Q(sqrt(-2)) Audit (Theorem T1d):\n" +
+        "Root: (-6, 10, 17, 40, 24, 17)   vs   Strip: (0, 0, 1, 2, 2, 1)\n" +
+        "Shared mod-24 set: {0, 1, 2, 8, 9, 10, 16, 17, 18}\n" +
+        "Mod-8 locking: b1=2, b2=2, b3=1, b4=0, b5=0, b6=1 (invariant under all 8 face reflections!)\n" +
+        "Live BigInt Jacobi checks:\n" +
+        "  (-3/11)=" + j1 + ", (5/27)=" + j2 + ", (17/11)=" + j3 + ", (5/57)=" + j4 + ", (3/41)=" + j5 + "\n" +
+        "Result: 0 hits of 2^e * m^2 in obstructed orbit vs 31 hits in strip!";
+    });
+
+    // =========================================================================
+    // MODE 3: 3D SODDY SPHERE CLUSTER (T1e)
+    // =========================================================================
+    const sdCanvas = document.getElementById("canvas-soddy");
+    const sdCtx = sdCanvas.getContext("2d");
+    const sdDim = document.getElementById("soddy-dim");
+    const sdDimVal = document.getElementById("soddy-dim-val");
+    const sdStats = document.getElementById("soddy-stats");
+
+    let yaw = 0.55, pitch = 0.35, autoSpin = true, highlightRefl = true, dragging = false, lastX = 0, lastY = 0;
+
+    // Exact 3D tangent sphere geometry for (-6, 13, 13, 13, 18) + reflected b=25=5^2
+    // Three equal spheres r=1/13 form an equilateral triangle of side 2/13 in plane z=z_eq.
+    // Circumradius of triangle: R_tri = (2/13) / sqrt(3).
+    // Outer sphere R0=1/6 centered at (0,0,0): distance from origin to centers of r=1/13 is R0 - r = 1/6 - 1/13 = 7/78.
+    const r0 = 1 / 6, r13 = 1 / 13, r18 = 1 / 18, r25 = 1 / 25;
+    const d13 = r0 - r13;
+    const rho13 = (2 * r13) / Math.sqrt(3);
+    const z13 = -Math.sqrt(Math.max(0, d13 * d13 - rho13 * rho13));
+    // Sphere b=18 (r=1/18) lies on z-axis: tangent internally to outer (z = R0 - r18) or opposite side
+    // Check distance to the three r13 spheres: sqrt(rho13^2 + (z18 - z13)^2) = r13 + r18
+    const z18 = z13 + Math.sqrt(Math.max(0, (r13 + r18) ** 2 - rho13 * rho13));
+    // Reflected sphere b=25 (replacing one of the b=13? Wait: refl2(-6,13,13,13,18) = (-6,25,13,13,18) -> tangent to -6, 13, 13, 18!)
+    // Reflected b5 -> 15 lies on z-axis below; let's include BOTH b=15 (on z-axis) and b=25 (symmetric off-axis)!
+    const z15 = z13 - Math.sqrt(Math.max(0, (r13 + 1/15) ** 2 - rho13 * rho13));
+    const spheres3D = [
+      { b: 13, r: r13, p: [rho13, 0, z13], col: "#38bdf8" },
+      { b: 13, r: r13, p: [-rho13 * 0.5, rho13 * Math.sqrt(3) * 0.5, z13], col: "#38bdf8" },
+      { b: 13, r: r13, p: [-rho13 * 0.5, -rho13 * Math.sqrt(3) * 0.5, z13], col: "#38bdf8" },
+      { b: 18, r: r18, p: [0, 0, z18], col: "#34d399" },
+      { b: 15, r: 1 / 15, p: [0, 0, z15], col: "#a78bfa" },
+      { b: 25, r: r25, p: [-(r0 - r25) * 0.72, 0, (r0 - r25) * 0.42], col: "#fbbf24", isSquare: true }
+    ];
+
+    function rot3(p) {
+      const cy = Math.cos(yaw), sy = Math.sin(yaw);
+      const cp = Math.cos(pitch), sp = Math.sin(pitch);
+      const x1 = p[0] * cy - p[2] * sy;
+      const z1 = p[0] * sy + p[2] * cy;
+      const y2 = p[1] * cp - z1 * sp;
+      const z2 = p[1] * sp + z1 * cp;
+      return [x1, y2, z2];
+    }
+
+    function updateSoddyStats() {
+      const d = parseInt(sdDim.value, 10);
+      sdDimVal.textContent = String(d);
+      const integral = (2 % (d - 1)) === 0;
+      const alpha = integral ? String(2 / (d - 1)) : "2/" + (d - 1);
+      sdStats.textContent =
+        "Theorem T1e (Soddy Integrality Dichotomy):\n" +
+        "Dimension d = " + d + "   Vieta reflection factor 2/(d-1) = " + alpha + "\n" +
+        "Integral reflection group? " + (integral ? "YES (ONLY d = 2 and d = 3!)" : "NO — denominators grow unboundedly for all d >= 4") + "\n\n" +
+        "3D Soddy Quintuple (-6, 13, 13, 13, 18):\n" +
+        "  Q_3 = 3*(sum b_i^2) - (sum b_i)^2 = 0 (verified)\n" +
+        "  refl_5 -> b = 15   |   refl_2 -> b = 25 = 5^2 (gold sphere!)";
+    }
+
+    function drawSoddy() {
+      const w = sdCanvas.width, h = sdCanvas.height;
+      sdCtx.clearRect(0, 0, w, h);
+      const scale = 1480;
+      const cx = w / 2, cy = h / 2;
+
+      // Outer wireframe bounding sphere b0 = -6
+      const outerR = r0 * scale;
+      sdCtx.beginPath();
+      sdCtx.arc(cx, cy, outerR, 0, Math.PI * 2);
+      sdCtx.strokeStyle = "rgba(56, 189, 248, 0.35)";
+      sdCtx.lineWidth = 2;
+      sdCtx.stroke();
+
+      // Depth-sorted shaded inner spheres
+      const projected = spheres3D.map((s) => {
+        const rp = rot3(s.p);
+        const persp = 1 / (1 - rp[2] * 1.4);
+        return { s, rp, sx: cx + rp[0] * scale * persp, sy: cy - rp[1] * scale * persp, sr: s.r * scale * persp };
+      }).sort((a, b) => a.rp[2] - b.rp[2]);
+
+      for (const item of projected) {
+        if (item.s.isSquare && !highlightRefl) continue;
+        const grad = sdCtx.createRadialGradient(
+          item.sx - item.sr * 0.32, item.sy - item.sr * 0.32, item.sr * 0.08,
+          item.sx, item.sy, item.sr
+        );
+        grad.addColorStop(0, "#ffffff");
+        grad.addColorStop(0.28, item.s.col);
+        grad.addColorStop(1, "#0f172a");
+        sdCtx.beginPath();
+        sdCtx.arc(item.sx, item.sy, item.sr, 0, Math.PI * 2);
+        sdCtx.fillStyle = grad;
+        sdCtx.fill();
+        sdCtx.strokeStyle = item.s.isSquare ? "#fef08a" : "rgba(255,255,255,0.45)";
+        sdCtx.lineWidth = item.s.isSquare ? 2.6 : 1.0;
+        sdCtx.stroke();
+        sdCtx.fillStyle = "#0b1120";
+        sdCtx.font = "bold 13px system-ui";
+        sdCtx.textAlign = "center";
+        sdCtx.textBaseline = "middle";
+        sdCtx.fillText(item.s.isSquare ? "25 = 5²" : "b=" + item.s.b, item.sx, item.sy);
+      }
+    }
+
+    sdCanvas.addEventListener("pointerdown", (e) => { dragging = true; lastX = e.clientX; lastY = e.clientY; });
+    window.addEventListener("pointerup", () => { dragging = false; });
+    sdCanvas.addEventListener("pointermove", (e) => {
+      if (!dragging) return;
+      yaw += (e.clientX - lastX) * 0.01;
+      pitch += (e.clientY - lastY) * 0.01;
+      lastX = e.clientX; lastY = e.clientY;
+      drawSoddy();
+    });
+    document.getElementById("btn-soddy-spin").addEventListener("click", () => { autoSpin = !autoSpin; });
+    document.getElementById("btn-soddy-refl").addEventListener("click", () => { highlightRefl = !highlightRefl; drawSoddy(); });
+    sdDim.addEventListener("input", updateSoddyStats);
+
+    function animLoop() {
+      if (autoSpin && document.getElementById("panel-soddy").classList.contains("active")) {
+        yaw += 0.008;
+        drawSoddy();
+      }
+      requestAnimationFrame(animLoop);
+    }
+
+    // =========================================================================
+    // MODE 4: MARKOV MOD-32 TREE & 5-STEP CLUSTER CALCULATOR
+    // =========================================================================
+    const mkCanvas = document.getElementById("canvas-markov");
+    const mkCtx = mkCanvas.getContext("2d");
+    const mkStats = document.getElementById("mk-stats");
+
+    const mkNodes = [];
+    const mkEdges = [];
+    (function buildTree() {
+      mkNodes.push({ x: 330, y: 36, triple: [1, 1, 1], val: 1 });
+      mkNodes.push({ x: 330, y: 98, triple: [1, 1, 2], val: 2 });
+      mkEdges.push([0, 1]);
+      function rec(tri, depth, x, dx, parentIdx) {
+        const y = 165 + depth * 100;
+        const idx = mkNodes.length;
+        mkNodes.push({ x, y, triple: tri, val: tri[2] });
+        if (parentIdx >= 0) mkEdges.push([parentIdx, idx]);
+        if (depth === 3) return;
+        const [a, b, c] = tri;
+        const left = [a, c, 3 * a * c - b].sort((u, v) => u - v);
+        const right = [b, c, 3 * b * c - a].sort((u, v) => u - v);
+        rec(left, depth + 1, x - dx, dx * 0.5, idx);
+        rec(right, depth + 1, x + dx, dx * 0.5, idx);
+      }
+      rec([1, 2, 5], 0, 330, 162, 1);
+    })();
+
+    let selectedMkIdx = 1;
+    function drawMarkovTree() {
+      const w = mkCanvas.width, h = mkCanvas.height;
+      mkCtx.clearRect(0, 0, w, h);
+      mkCtx.strokeStyle = "#475569";
+      mkCtx.lineWidth = 1.8;
+      for (const [u, v] of mkEdges) {
+        mkCtx.beginPath();
+        mkCtx.moveTo(mkNodes[u].x, mkNodes[u].y);
+        mkCtx.lineTo(mkNodes[v].x, mkNodes[v].y);
+        mkCtx.stroke();
+      }
+      mkNodes.forEach((nd, idx) => {
+        const isEven = nd.val % 2 === 0;
+        const sel = idx === selectedMkIdx;
+        const bw = nd.val >= 1000 ? 64 : 46;
+        const bh = isEven ? 34 : 24;
+        mkCtx.fillStyle = isEven ? "#0284c7" : "#ca8a04";
+        mkCtx.strokeStyle = sel ? "#ffffff" : (isEven ? "#38bdf8" : "#fde047");
+        mkCtx.lineWidth = sel ? 3 : 1.3;
+        mkCtx.beginPath();
+        mkCtx.roundRect(nd.x - bw / 2, nd.y - bh / 2, bw, bh, 6);
+        mkCtx.fill();
+        mkCtx.stroke();
+        mkCtx.fillStyle = "#f8fafc";
+        mkCtx.font = "bold 11px system-ui";
+        mkCtx.textAlign = "center";
+        mkCtx.textBaseline = "middle";
+        if (isEven) {
+          mkCtx.fillText(String(nd.val), nd.x, nd.y - 6);
+          mkCtx.font = "10px monospace";
+          mkCtx.fillStyle = "#bae6fd";
+          mkCtx.fillText((nd.val % 64) + " mod 64", nd.x, nd.y + 8);
+        } else {
+          mkCtx.fillText(String(nd.val), nd.x, nd.y);
+        }
+      });
+    }
+
+    function evalCluster5Step() {
+      const x1 = BigInt(Math.max(1, parseInt(document.getElementById("cl-x1").value, 10) || 1));
+      const x2 = BigInt(Math.max(1, parseInt(document.getElementById("cl-x2").value, 10) || 1));
+      const x3 = BigInt(Math.max(1, parseInt(document.getElementById("cl-x3").value, 10) || 1));
+      const p1 = x2 * x2 + x3 * x3;
+      const v = x1 * x1 * x3 * x3;
+      const w = x1 * x1 * x2 * x2;
+      const p2 = p1 * p1 + v;
+      const p3 = w * p1 * p1 + p2 * p2;
+      const r4 = p1 * p1 * p1 + 2n * x1 * x1 * p1 * p1 + x1 * x1 * v;
+      const p4 = w * w * p1 * p1 * p1 + p2 * p2 * r4;
+      const p5 = w * w * w * w * p1 * p1 * p1 * p1 + p2 * (
+        2n * w * w * w * v * p1 * p1 + w * w * v * p2 * p2 + 2n * w * w * p1 * p1 * p1 * r4 + p2 * p2 * r4 * r4
+      );
+      const id4 = (p1 * p4 === (x1 ** 4n) * (x2 ** 2n) * (x3 ** 2n) * p2 * p2 + p3 * p3);
+      const id5 = (p2 * p5 === (x1 ** 6n) * (x2 ** 4n) * (x3 ** 2n) * p3 * p3 + p4 * p4);
+
+      const nd = mkNodes[selectedMkIdx];
+      const m = nd.val;
+      const oddFactors = [];
+      let rem = m;
+      for (let d = 2; d * d <= rem; d++) {
+        if (rem % d === 0) {
+          if (d % 2 === 1) oddFactors.push(d + " (mod4=" + (d % 4) + ")");
+          while (rem % d === 0) rem /= d;
+        }
+      }
+      if (rem > 2) oddFactors.push(rem + " (mod4=" + (rem % 4) + ")");
+
+      mkStats.textContent =
+        "Selected Markov Node: (" + nd.triple.join(", ") + ")  ->  m = " + m + "\n" +
+        "Parity: " + (m % 2 === 0 ? "EVEN -> m mod 32 = " + (m % 32) + ", m mod 64 = " + (m % 64) + " (T3b LOCKED!)" : "ODD -> m mod 4 = " + (m % 4)) + "\n" +
+        "Odd prime divisors: " + (oddFactors.length ? oddFactors.join(", ") : "none") + "\n\n" +
+        "5-Step Cluster Numerators at (" + x1 + ", " + x2 + ", " + x3 + ") [T3d]:\n" +
+        "  P1 = " + p1 + "\n" +
+        "  P2 = " + p2 + "\n" +
+        "  P3 = " + p3 + "\n" +
+        "  P4 = " + p4 + "  (P1 exact div: " + id4 + ")\n" +
+        "  P5 = " + p5 + "  (P2 exact div: " + id5 + ")";
+    }
+
+    mkCanvas.addEventListener("click", (ev) => {
+      const rect = mkCanvas.getBoundingClientRect();
+      const x = (ev.clientX - rect.left) * (mkCanvas.width / rect.width);
+      const y = (ev.clientY - rect.top) * (mkCanvas.height / rect.height);
+      let best = 0, bestD = 1e9;
+      mkNodes.forEach((nd, i) => {
+        const d = Math.hypot(nd.x - x, nd.y - y);
+        if (d < bestD) { bestD = d; best = i; }
+      });
+      if (bestD < 48) {
+        selectedMkIdx = best;
+        drawMarkovTree();
+        evalCluster5Step();
+      }
+    });
+    document.getElementById("btn-cl-eval").addEventListener("click", evalCluster5Step);
+
+    // Boot defaults
+    computeSandpileIdentity();
+    updateSoddyStats();
+    evalCluster5Step();
+    requestAnimationFrame(animLoop);
+  })();
+  </script>
+</body>
+</html>

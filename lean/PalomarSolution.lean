@@ -1,0 +1,82 @@
+-- SPDX-License-Identifier: Apache-2.0
+module
+
+public import Challenge
+
+/-!
+# Palomar Comparator Verified Solution (`apollonian-sandpile-markov` v1.0.0)
+
+Zero `sorry`, zero `admit`, zero `native_decide`, zero custom axioms.
+-/
+
+namespace ApollonianSandpileMarkov.Palomar
+
+open ApollonianSandpileMarkov.Challenge
+open ApollonianSandpileMarkov.JacobiReciprocity
+open ApollonianSandpileMarkov.ApollonianReciprocity
+open ApollonianSandpileMarkov.SandpileTropical
+open ApollonianSandpileMarkov.MarkovHurwitzCluster
+
+public theorem t1a_descartes_lorentzian_and_gaussian_norm : T1a_DescartesLorentzianAndGaussianNorm :=
+  ApollonianReciprocity.t1a_descartes_lorentzian_and_gaussian_norm
+
+public theorem t1b_jacobi_reciprocity_master : T1b_JacobiReciprocityMaster :=
+  JacobiReciprocity.t1b_jacobi_reciprocity_master
+
+public theorem t1c_hkrs_apollonian_reciprocity_obstruction : T1c_HKRSApollonianReciprocityObstruction :=
+  ApollonianReciprocity.t1c_hkrs_apollonian_reciprocity_obstruction
+
+public theorem t1d_octahedral_lorentzian_and_sqrt_neg2_obstruction : T1d_OctahedralLorentzianAndSqrtNeg2Obstruction :=
+  ApollonianReciprocity.t1d_octahedral_lorentzian_and_sqrt_neg2_obstruction
+
+public theorem t1e_soddy_dimension_dichotomy_and_3d_contrast : T1e_SoddyDimensionDichotomyAnd3DContrast :=
+  ApollonianReciprocity.t1e_soddy_dimension_dichotomy_and_3d_contrast
+
+public theorem t2a_abelian_sandpile_confluence_and_least_action : T2a_AbelianSandpileConfluenceAndLeastAction :=
+  SandpileTropical.t2a_abelian_sandpile_confluence_and_least_action
+
+public theorem t2b_dhar_critical_identity_and_grid_orders : T2b_DharCriticalIdentityAndGridOrders :=
+  SandpileTropical.t2b_dhar_critical_identity_and_grid_orders
+
+public theorem t2c_lps_z2_superharmonic_and_isotropic_obstruction : T2c_LPSZ2SuperharmonicAndIsotropicObstruction :=
+  SandpileTropical.t2c_lps_z2_superharmonic_and_isotropic_obstruction
+
+public theorem t2d_triangular_a2_even_laplacian_rigidity_and_obstruction : T2d_TriangularA2EvenLaplacianRigidityAndObstruction :=
+  SandpileTropical.t2d_triangular_a2_even_laplacian_rigidity_and_obstruction
+
+public theorem t2e_kalinin_shkolnikov_tropical_balancing_and_solitons : T2e_KalininShkolnikovTropicalBalancingAndSolitons :=
+  SandpileTropical.t2e_kalinin_shkolnikov_tropical_balancing_and_solitons
+
+public theorem t3a_sl2z_fricke_cohn_markov_correspondence : T3a_SL2ZFrickeCohnMarkovCorrespondence :=
+  MarkovHurwitzCluster.t3a_sl2z_fricke_cohn_markov_correspondence
+
+public theorem t3b_markov_coprimality_odd_primes_and_mod32 : T3b_MarkovCoprimalityOddPrimesAndMod32 :=
+  MarkovHurwitzCluster.t3b_markov_coprimality_odd_primes_and_mod32
+
+public theorem t3c_hensel_sqrt_neg1_prime_power_uniqueness : T3c_HenselSqrtNeg1PrimePowerUniqueness :=
+  MarkovHurwitzCluster.t3c_hensel_sqrt_neg1_prime_power_uniqueness
+
+public theorem t3d_cluster_algebra_markov_laurent_positivity : T3d_ClusterAlgebraMarkovLaurentPositivity :=
+  MarkovHurwitzCluster.t3d_cluster_algebra_markov_laurent_positivity
+
+public theorem t3e_markov_hurwitz_n4_complete_classification : T3e_MarkovHurwitzN4CompleteClassification :=
+  MarkovHurwitzCluster.t3e_markov_hurwitz_n4_complete_classification
+
+public theorem prove_all_apollonian_sandpile_markov_theorems : AllApollonianSandpileMarkovTheorems :=
+  ⟨t1a_descartes_lorentzian_and_gaussian_norm,
+   t1b_jacobi_reciprocity_master,
+   t1c_hkrs_apollonian_reciprocity_obstruction,
+   t1d_octahedral_lorentzian_and_sqrt_neg2_obstruction,
+   t1e_soddy_dimension_dichotomy_and_3d_contrast,
+   t2a_abelian_sandpile_confluence_and_least_action,
+   t2b_dhar_critical_identity_and_grid_orders,
+   t2c_lps_z2_superharmonic_and_isotropic_obstruction,
+   t2d_triangular_a2_even_laplacian_rigidity_and_obstruction,
+   t2e_kalinin_shkolnikov_tropical_balancing_and_solitons,
+   t3a_sl2z_fricke_cohn_markov_correspondence,
+   t3b_markov_coprimality_odd_primes_and_mod32,
+   t3c_hensel_sqrt_neg1_prime_power_uniqueness,
+   t3d_cluster_algebra_markov_laurent_positivity,
+   t3e_markov_hurwitz_n4_complete_classification⟩
+
+end ApollonianSandpileMarkov.Palomar

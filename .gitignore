@@ -1,0 +1,19 @@
+# SPDX-License-Identifier: Apache-2.0
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.hypothesis/
+.mypy_cache/
+.ruff_cache/
+rust/target/
+lean/.lake/
+paper/build/
+native/asm_verify
+native/asm_verify.exe
+native/fuzz_asm
+native/fuzz_asm.exe
+_site/
+*.tmp
+.DS_Store
+Thumbs.db

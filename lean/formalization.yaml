@@ -1,0 +1,34 @@
+# SPDX-License-Identifier: CC-BY-4.0
+schema_version: "1.0"
+release_version: "1.0.0"
+archive_id: "0TH-2026-017"
+repository: "https://github.com/0thernes/apollonian-sandpile-markov"
+author:
+  name: "Alexander Stephen Donahue"
+  orcid: "0009-0006-8168-9648"
+  affiliation: "Independent Researcher, Spokane, WA, USA"
+toolchain:
+  prover: "lean4"
+  version: "leanprover/lean4:v4.35.0"
+  mathlib_dependency: false
+  external_dependencies: 0
+verification:
+  allowed_axioms:
+    - propext
+    - Classical.choice
+    - Quot.sound
+  sorry_count: 0
+  admit_count: 0
+  native_decide_count: 0
+  custom_axiom_count: 0
+  audited_declarations: 18
+  independent_kernels:
+    - lean-4.35.0
+    - leanchecker
+    - leanchecker-paranoid (lean4lean)
+    - nanoda_bin
+    - con-leche
+    - con-ron
+  contract_comparator: "lake comparator --config comparator.json --paranoid"
+ai_assistance_disclosure:
+  statement: "AI systems assisted with code drafting, Lean tactic engineering, LaTeX formatting, and test automation under full human direction; every mathematical theorem is independently verified by six non-AI formal type-checking kernels and three independent computational oracles (Rust, ISO C11, Python)."

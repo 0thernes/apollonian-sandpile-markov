@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lean 4 Proof Blueprint — Apollonian–Sandpile–Markov (0TH-2026-017)</title>
+  <style>
+    :root {
+      --bg: #0b1120;
+      --panel: #111827;
+      --panel-alt: #1e293b;
+      --border: #334155;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --p1: #f87171;
+      --p2: #fbbf24;
+      --p3: #34d399;
+      --aud: #a78bfa;
+      --accent: #38bdf8;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); line-height: 1.55; }
+    header {
+      background: linear-gradient(135deg, #0f172a, #1e1b4b);
+      border-bottom: 1px solid var(--border);
+      padding: 18px 24px;
+      display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    header h1 { margin: 0; font-size: 1.3rem; }
+    header p { margin: 2px 0 0; font-size: 0.86rem; color: var(--muted); }
+    .nav-links { display: flex; gap: 10px; flex-wrap: wrap; }
+    .nav-links a {
+      color: var(--text); text-decoration: none; font-size: 0.85rem; font-weight: 600;
+      padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--panel);
+    }
+    .nav-links a:hover { border-color: var(--accent); color: var(--accent); }
+    main { max-width: 1320px; margin: 0 auto; padding: 20px 24px 48px; }
+    .controls { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+    .filter-btn {
+      background: var(--panel); color: var(--text); border: 1px solid var(--border);
+      padding: 7px 14px; border-radius: 999px; cursor: pointer; font-size: 0.84rem; font-weight: 600;
+    }
+    .filter-btn.active { background: var(--accent); color: #0b1120; border-color: var(--accent); }
+    .summary-strip {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 20px;
+    }
+    .metric {
+      background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px;
+    }
+    .metric .num { font-size: 1.35rem; font-weight: 800; color: var(--accent); }
+    .metric .lbl { font-size: 0.78rem; color: var(--muted); }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 14px; }
+    .thm-card {
+      background: var(--panel); border: 1px solid var(--border); border-left: 4px solid var(--accent);
+      border-radius: 10px; padding: 14px 16px; transition: transform 0.12s, border-color 0.12s;
+    }
+    .thm-card:hover { transform: translateY(-2px); border-color: var(--accent); }
+    .thm-card.p1 { border-left-color: var(--p1); }
+    .thm-card.p2 { border-left-color: var(--p2); }
+    .thm-card.p3 { border-left-color: var(--p3); }
+    .thm-card.aud { border-left-color: var(--aud); }
+    .thm-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+    .thm-id { font-weight: 800; font-size: 0.95rem; }
+    .pill {
+      font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: 999px;
+      background: rgba(52, 211, 153, 0.15); color: var(--p3); border: 1px solid var(--p3);
+    }
+    .thm-decl {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.78rem;
+      color: var(--accent); margin: 6px 0; word-break: break-all;
+    }
+    .thm-desc { font-size: 0.85rem; color: #cbd5e1; margin: 6px 0 8px; }
+    .thm-meta { font-size: 0.76rem; color: var(--muted); display: flex; flex-wrap: wrap; gap: 10px; }
+    .thm-meta a { color: var(--accent); text-decoration: none; }
+    .thm-meta a:hover { text-decoration: underline; }
+    .axiom-box {
+      margin-top: 26px; background: #060a14; border: 1px solid var(--border); border-radius: 12px; padding: 16px;
+    }
+    .axiom-box h2 { margin: 0 0 8px; font-size: 1rem; color: var(--p3); }
+    pre { margin: 0; font-size: 0.78rem; color: #94a3b8; overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1>Lean 4.35.0 Formal Proof Blueprint (0TH-2026-017)</h1>
+      <p>Zero Mathlib · Zero sorry · Zero native_decide · 18 Kernel-Audited Declarations · 6 Independent Kernels</p>
+    </div>
+    <nav class="nav-links" aria-label="Blueprint navigation">
+      <a href="../index.html">Portal Home</a>
+      <a href="../studio/index.html">Interactive Studio</a>
+      <a href="https://github.com/0thernes/apollonian-sandpile-markov/tree/main/lean" target="_blank" rel="noopener">Lean Source</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="summary-strip" aria-label="Verification metrics">
+      <div class="metric"><div class="num">15 + 3</div><div class="lbl">Headline Theorems + Master/NonVacuity/Adversarial</div></div>
+      <div class="metric"><div class="num">0</div><div class="lbl">sorry / admit / native_decide / Mathlib deps</div></div>
+      <div class="metric"><div class="num">6</div><div class="lbl">Independent Type-Checking Kernels in CI</div></div>
+      <div class="metric"><div class="num">3 Axioms</div><div class="lbl">Strictly [propext, Classical.choice, Quot.sound]</div></div>
+    </section>
+
+    <div class="controls" role="group" aria-label="Filter theorems by pillar">
+      <button class="filter-btn active" data-filter="all">All 18 Declarations</button>
+      <button class="filter-btn" data-filter="p1">Pillar I: Apollonian &amp; Octahedral (T1a–T1e)</button>
+      <button class="filter-btn" data-filter="p2">Pillar II: Sandpiles &amp; Tropical (T2a–T2e)</button>
+      <button class="filter-btn" data-filter="p3">Pillar III: Markov–Hurwitz &amp; Cluster (T3a–T3e)</button>
+      <button class="filter-btn" data-filter="aud">Contract, NonVacuity &amp; Adversarial</button>
+    </div>
+
+    <div class="grid" id="thm-grid"></div>
+
+    <section class="axiom-box">
+      <h2>Machine-Checked Six-Kernel Verification Pipeline</h2>
+      <pre>Kernels executed on every push in GitHub Actions (lean4-six-kernels):
+  1. Lean 4.35.0 kernel (lake build + VerifyAxioms.lean)
+  2. leanchecker (Solution &amp; PalomarSolution)
+  3. leanchecker-paranoid (lean4lean independent Lean-in-Lean kernel)
+  4. nanoda_bin (independent Rust kernel with unpermitted_axiom_hard_error=true)
+  5. con-leche (independent verified export checker)
+  6. con-ron (independent verified export checker)
+  +  lake comparator --config comparator.json --paranoid (challenge/solution contract audit)</pre>
+    </section>
+  </main>
+
+  <script>
+  (function () {
+    "use strict";
+    const REPO = "https://github.com/0thernes/apollonian-sandpile-markov/blob/main/lean/";
+    const ITEMS = [
+      { id: "T1a", pillar: "p1", decl: "t1a_descartes_lorentzian_and_gaussian_norm", file: "ApollonianSandpileMarkov/ApollonianReciprocity.lean", deps: [], desc: "All four Apollonian Vieta reflections are involutions preserving the Descartes Lorentzian form; universal Gaussian norm (a+b)(a+c)=a^2+k^2 and Brahmagupta-Descartes BQF identity." },
+      { id: "T1b", pillar: "p1", decl: "t1b_jacobi_reciprocity_master", file: "ApollonianSandpileMarkov/JacobiReciprocity.lean", deps: [], desc: "Self-contained zero-Mathlib Legendre-Jacobi symbol, Eisenstein (1844) lattice-point proof of Gauss Quadratic Reciprocity, both Supplementary Laws (-1/n) and (2/n), multiplicativity, and squares=1." },
+      { id: "T1c", pillar: "p1", decl: "t1c_hkrs_apollonian_reciprocity_obstruction", file: "ApollonianSandpileMarkov/ApollonianReciprocity.lean", deps: ["T1a", "T1b"], desc: "Zero-GCD-exception parabolic Dehn-twist CRT proof of the HKRS (Annals of Math. 2024) global square obstruction on (-3,5,8,8), (-7,17,12,20), (-11,21,24,28), contrasted with (-4,8,9,9)." },
+      { id: "T1d", pillar: "p1", decl: "t1d_octahedral_lorentzian_and_sqrt_neg2_obstruction", file: "ApollonianSandpileMarkov/ApollonianReciprocity.lean", deps: ["T1b"], desc: "Generalized Octahedral Q(sqrt(-2)) Lorentzian sextuples, 8 face reflections, exact mod-8 locking & Jacobi obstruction on (-6,10,17,40,24,17) vs unobstructed strip (0,0,1,2,2,1)." },
+      { id: "T1e", pillar: "p1", decl: "t1e_soddy_dimension_dichotomy_and_3d_contrast", file: "ApollonianSandpileMarkov/ApollonianReciprocity.lean", deps: [], desc: "Exact dimension integrality dichotomy (d-1) | 2 <=> d=2 or d=3 for generalized d-dimensional Soddy packings, plus 3D integral cluster (-6,13,13,13,18) reflecting to 25=5^2." },
+      { id: "T2a", pillar: "p2", decl: "t2a_abelian_sandpile_confluence_and_least_action", file: "ApollonianSandpileMarkov/SandpileTropical.lean", deps: [], desc: "Universal Abelian Sandpile toppling commutativity, Laplacian odometer identity, Discrete Least Action Principle, and Church-Rosser confluence on arbitrary finite sinked graphs." },
+      { id: "T2b", pillar: "p2", decl: "t2b_dhar_critical_identity_and_grid_orders", file: "ApollonianSandpileMarkov/SandpileTropical.lean", deps: ["T2a"], desc: "Exact Matrix-Tree critical group orders det(L_{2x2})=192 and det(L_{3x3})=100,352 via integer Kronecker block-diagonalization, plus explicit legal Dhar identity traces on 2x2 and 3x3 grids." },
+      { id: "T2c", pillar: "p2", decl: "t2c_lps_z2_superharmonic_and_isotropic_obstruction", file: "ApollonianSandpileMarkov/SandpileTropical.lean", deps: [], desc: "Levine-Pegden-Smart Z^2 discrete Green's First Identity on the torus, periodic superharmonic rigidity, isotropic max-sea obstruction 4u = 3(x^2+y^2)+psi, and constant-Laplacian 2 & 3 witnesses." },
+      { id: "T2d", pillar: "p2", decl: "t2d_triangular_a2_even_laplacian_rigidity_and_obstruction", file: "ApollonianSandpileMarkov/SandpileTropical.lean", deps: [], desc: "ORIGINAL THEOREM: Triangular lattice A_2 (deg=6) Discrete Green's First Identity & Even-Laplacian Rigidity — every periodic integer superharmonic envelope satisfies K % 2 = 0, universally obstructing K=5 while certifying K=4 and K=2." },
+      { id: "T2e", pillar: "p2", decl: "t2e_kalinin_shkolnikov_tropical_balancing_and_solitons", file: "ApollonianSandpileMarkov/SandpileTropical.lean", deps: [], desc: "Kalinin-Shkolnikov universal cyclic lattice polygon balancing sum R_90(v_{i+1}-v_i)=(0,0), trivalent determinant conservation, and explicit 2- and 3-soliton tropical scattering conservation." },
+      { id: "T3a", pillar: "p3", decl: "t3a_sl2z_fricke_cohn_markov_correspondence", file: "ApollonianSandpileMarkov/MarkovHurwitzCluster.lean", deps: [], desc: "Universal SL_2(Z) Fricke trace identity, Farey/Nielsen commutator-trace -2 invariance, and exact tr/3 correspondence on the infinite Cohn matrix tree." },
+      { id: "T3b", pillar: "p3", decl: "t3b_markov_coprimality_odd_primes_and_mod32", file: "ApollonianSandpileMarkov/MarkovHurwitzCluster.lean", deps: ["T1b"], desc: "Universal Markov pairwise coprimality, odd prime obstruction p = 1 (mod 4), odd Markov m = 1 (mod 4), and EXACT MOD-32 THEOREM: every even Markov number satisfies m % 32 = 2 (sharp mod 64 at 2 & 34)." },
+      { id: "T3c", pillar: "p3", decl: "t3c_hensel_sqrt_neg1_prime_power_uniqueness", file: "ApollonianSandpileMarkov/MarkovHurwitzCluster.lean", deps: ["T1b"], desc: "Universal Hensel lifting uniqueness of sqrt(-1) modulo every odd prime power p^k (k >= 1): r1^2 = r2^2 = -1 (mod p^k) implies p^k | (r1 - r2) or p^k | (r1 + r2)." },
+      { id: "T3d", pillar: "p3", decl: "t3d_cluster_algebra_markov_laurent_positivity", file: "ApollonianSandpileMarkov/MarkovHurwitzCluster.lean", deps: [], desc: "Symbolic 3-variable Fomin-Zelevinsky cluster-algebra Laurent integrality & positivity through 5 mutations including BOTH 4th-step division by P1 and 5th-step division by P2, specializing at (1,1,1) to (2,5,29,433,37666)." },
+      { id: "T3e", pillar: "p3", decl: "t3e_markov_hurwitz_n4_complete_classification", file: "ApollonianSandpileMarkov/MarkovHurwitzCluster.lean", deps: [], desc: "Complete Markov-Hurwitz n=4 classification via well-founded Vieta descent: ZERO solutions for a in {2,3} and all a >= 5; a=1 forces all entries = 2 (mod 4); a=4 forces all entries odd." },
+      { id: "MASTER", pillar: "aud", decl: "prove_all_apollonian_sandpile_markov_theorems", file: "PalomarSolution.lean", deps: ["T1a..T3e"], desc: "Master conjunction proving the entire 15-theorem formal contract AllApollonianSandpileMarkovTheorems for lake comparator --paranoid." },
+      { id: "NONVAC", pillar: "aud", decl: "nonvac_all_hypotheses", file: "ApollonianSandpileMarkov/NonVacuity.lean", deps: ["T1a..T3e"], desc: "Constructive witnesses proving every quantified premise across all 15 theorems is non-vacuously inhabited." },
+      { id: "ADV", pillar: "aud", decl: "all_adversarial_refutations", file: "ApollonianSandpileMarkov/Adversarial.lean", deps: ["T1a..T3e"], desc: "Sharp counterexamples proving every structural hypothesis (coprimality, mod-64 sharpness, K=5 vs K=4, Hurwitz a=2/3/5, Soddy d=4) is tight." }
+    ];
+
+    const grid = document.getElementById("thm-grid");
+    function render(filter) {
+      grid.innerHTML = "";
+      ITEMS.filter((it) => filter === "all" || it.pillar === filter).forEach((it) => {
+        const card = document.createElement("article");
+        card.className = "thm-card " + it.pillar;
+        card.innerHTML =
+          '<div class="thm-head"><span class="thm-id">' + it.id + '</span><span class="pill">KERNEL VERIFIED</span></div>' +
+          '<div class="thm-decl">' + it.decl + '</div>' +
+          '<p class="thm-desc">' + it.desc + '</p>' +
+          '<div class="thm-meta">' +
+          '<span>Deps: ' + (it.deps.length ? it.deps.join(", ") : "Lean 4 Core only") + '</span>' +
+          '<a href="' + REPO + it.file + '" target="_blank" rel="noopener">' + it.file + '</a>' +
+          '</div>';
+        grid.appendChild(card);
+      });
+    }
+
+    document.querySelectorAll(".filter-btn").forEach((b) => {
+      b.addEventListener("click", () => {
+        document.querySelectorAll(".filter-btn").forEach((x) => x.classList.remove("active"));
+        b.classList.add("active");
+        render(b.dataset.filter);
+      });
+    });
+    render("all");
+  })();
+  </script>
+</body>
+</html>
