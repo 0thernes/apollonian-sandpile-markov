@@ -14,8 +14,8 @@ def main() -> None:
     print("=== Pillar I: Apollonian & Generalized Octahedral Reciprocity ===")
     a2 = av.audit_apollonian_packing((-7, 17, 12, 20), 300)
     au = av.audit_apollonian_packing((-4, 8, 9, 9), 300)
-    print(f"  Obstructed (-7,17,12,20): quads={a2['quads_visited']}, squares={a2['squares']}, mod24={a2['mod24']}")
-    print(f"  Unobstructed (-4,8,9,9):  quads={au['quads_visited']}, squares={au['squares'][:5]}..., mod24={au['mod24']}")
+    print(f"  Obstructed (-7,17,12,20):     quads={a2['quads_visited']}, squares={a2['squares']}, mod24={a2['mod24']}")
+    print(f"  Square-contrast (-4,8,9,9):   quads={au['quads_visited']}, squares={au['squares'][:5]}..., mod24={au['mod24']}")
     oct_o = av.audit_octahedral_packing((-6, 10, 17, 40, 24, 17), 500)
     print(f"  Octahedral (-6,10,17,40,24,17): sextuples={oct_o['sextuples_visited']}, 2^k*m^2 hits={oct_o['pow2_squares']}")
 
