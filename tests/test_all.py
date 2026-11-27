@@ -11,13 +11,13 @@ import sys
 from pathlib import Path
 
 import pytest
-from hypothesis import given, settings, strategies as st
+from hypothesis import given, settings
+from hypothesis import strategies as st
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "python"))
 
-import asm_verify as av  # noqa: E402
-
+import asm_verify as av
 
 # --- 1. Property-based tests (Hypothesis) ---
 
@@ -105,6 +105,8 @@ def test_pillar1_apollonian_and_octahedral_obstructions() -> None:
 def test_pillar2_z2_vs_a2_sandpile_identities() -> None:
     e_z2_3 = av.dhar_identity("Z2", 3)
     assert e_z2_3 == [2, 1, 2, 1, 0, 1, 2, 1, 2]
+    e_a2_2 = av.dhar_identity("A2", 2)
+    assert e_a2_2 == [4, 3, 3, 4]
     e_a2_3 = av.dhar_identity("A2", 3)
     assert e_a2_3 == [4, 2, 3, 2, 0, 2, 3, 2, 4]
     # Check idempotence and symmetry
@@ -166,6 +168,36 @@ def test_differential_rust_python_consistency() -> None:
     assert rs["pillar2"]["a2_15x15"]["sum_chips"] == py["pillar2"]["a2_15x15_sum"]
     assert rs["pillar3"]["cluster_5step_at_111"] == py["pillar3"]["cluster_5step_at_111"]
     assert rs["pillar3"]["even_mod64_residues"] == py["pillar3"]["markov_1e6"]["even_mod64_residues"]
+
+
+def test_studio_3d_soddy_exact_tangency() -> None:
+    """Verify exact analytical 3D Soddy coordinates used in studio/index.html (< 1e-14 error)."""
+    r0, r13, r18, r15, r25 = 1 / 6, 1 / 13, 1 / 18, 1 / 15, 1 / 25
+    rho13 = (2 * r13) / math.sqrt(3)
+    z13 = 1 / 78
+    z18 = 1 / 9
+    z15 = -1 / 10
+    p1 = (rho13, 0.0, z13)
+    p2 = (-0.5 * rho13, 0.5 * math.sqrt(3) * rho13, z13)
+    p3 = (-0.5 * rho13, -0.5 * math.sqrt(3) * rho13, z13)
+    p4 = (0.0, 0.0, z18)
+    p15 = (0.0, 0.0, z15)
+    p25 = ((-26 * rho13) / 25, 0.0, (13 * z13 + 18 * z18) / 25)
+
+    def dist(a: tuple[float, float, float], b: tuple[float, float, float]) -> float:
+        return math.sqrt(sum((u - v) ** 2 for u, v in zip(a, b, strict=True)))
+
+    origin = (0.0, 0.0, 0.0)
+    assert abs(dist(p1, origin) - (r0 - r13)) < 1e-14
+    assert abs(dist(p4, origin) - (r0 - r18)) < 1e-14
+    assert abs(dist(p15, origin) - (r0 - r15)) < 1e-14
+    assert abs(dist(p25, origin) - (r0 - r25)) < 1e-14
+    assert abs(dist(p1, p2) - (2 * r13)) < 1e-14
+    assert abs(dist(p1, p4) - (r13 + r18)) < 1e-14
+    assert abs(dist(p1, p15) - (r13 + r15)) < 1e-14
+    assert abs(dist(p25, p2) - (r13 + r25)) < 1e-14
+    assert abs(dist(p25, p3) - (r13 + r25)) < 1e-14
+    assert abs(dist(p25, p4) - (r18 + r25)) < 1e-14
 
 
 def test_c11_independent_binary_if_built() -> None:

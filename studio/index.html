@@ -4,7 +4,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Apollonian–Sandpile–Markov Interactive Observatory (0TH-2026-018)</title>
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; img-src 'self' data:; base-uri 'none'; form-action 'none';" />
+  <title>Apollonian–Sandpile–Markov Interactive Observatory (0TH-2026-018, v2.0.0)</title>
   <style>
     :root {
       --bg: #0b1120;
@@ -115,7 +116,7 @@
   <header>
     <div>
       <h1>Apollonian–Sandpile–Markov Interactive Observatory</h1>
-      <p>0TH-2026-018 · Zero-Mathlib Lean 4.35.0 (15 Theorems, 6 Kernels) · Live Exact Browser Lab</p>
+      <p>0TH-2026-018 (v2.0.0) · Zero-Mathlib Lean 4.35.0 (16 Theorems, 19 Declarations, 6 Kernels) · Live Exact Browser Lab</p>
     </div>
     <nav class="nav-links" aria-label="Project navigation">
       <a href="../index.html">Portal Home</a>
@@ -126,7 +127,7 @@
 
   <nav class="tabs" role="tablist" aria-label="Observatory modes">
     <button class="tab-btn" role="tab" id="tab-sandpile" aria-selected="true" aria-controls="panel-sandpile" data-mode="sandpile">
-      1. Sandpile &amp; A₂ Tropical Lab (T2a–T2e)
+      1. Sandpile &amp; A₂ Tropical Lab (T2a–T2f)
     </button>
     <button class="tab-btn" role="tab" id="tab-apollonian" aria-selected="false" aria-controls="panel-apollonian" data-mode="apollonian">
       2. Apollonian &amp; Octahedral Reciprocity (T1a–T1d)
@@ -144,12 +145,12 @@
     <section id="panel-sandpile" class="mode-panel active" role="tabpanel" aria-labelledby="tab-sandpile">
       <div class="card">
         <h2>Abelian Sandpile &amp; Tropical Solitons</h2>
-        <span class="badge ok">T2a Confluence</span>
-        <span class="badge info">T2d A₂ Rigidity</span>
+        <span class="badge ok">T2a Toppling Laws</span>
+        <span class="badge info">T2b/T2f Direct det9</span>
         <label for="sp-lattice">Lattice Geometry</label>
         <select id="sp-lattice">
           <option value="Z2">Square Lattice Z² (deg = 4, max stable = 3)</option>
-          <option value="A2" selected>Triangular Lattice A₂ (deg = 6, max stable = 5; T2d K=5 obstructed)</option>
+          <option value="A2" selected>Triangular Lattice A₂ (deg = 6, max stable = 5)</option>
         </select>
         <label for="sp-size">Grid Size N × N</label>
         <select id="sp-size">
@@ -165,7 +166,7 @@
         </div>
         <h3>Interactive Tip</h3>
         <p style="font-size:0.82rem;color:var(--muted);margin:4px 0;">
-          Click anywhere on the grid to drop +1 sand grain and run exact Abelian relaxation. In <b>Tropical Soliton Sea</b> mode, every click creates balanced Kalinin–Shkolnikov tropical curve rays (T2e)!
+          Click anywhere on the grid to drop +1 sand grain and run exact Abelian relaxation (finite browser computation; cf. Kalinin–Shkolnikov 2016).
         </p>
         <div class="stat-box" id="sp-stats" aria-live="polite">Initializing...</div>
       </div>
@@ -184,7 +185,7 @@
         <label for="ap-preset">Root Quadruple (b₀, b₁, b₂, b₃)</label>
         <select id="ap-preset">
           <option value="-7,17,12,20" selected>HKRS Obstructed (-7, 17, 12, 20) — 0 squares!</option>
-          <option value="-4,8,9,9">Unobstructed (-4, 8, 9, 9) — IDENTICAL mod 24, gold squares!</option>
+          <option value="-4,8,9,9">Square-hitting contrast (-4, 8, 9, 9) — same mod 24, hits squares (still has HKRS 3n²/n⁴ obstructions)</option>
           <option value="-3,5,8,8">HKRS Obstructed (-3, 5, 8, 8) — 0 squares!</option>
           <option value="-11,21,24,28">HKRS Obstructed (-11, 21, 24, 28) — 0 squares!</option>
           <option value="-1,2,2,3">Classic Packing (-1, 2, 2, 3)</option>
@@ -228,9 +229,9 @@
     <!-- MODE 4: MARKOV MOD-32 & 5-STEP CLUSTER -->
     <section id="panel-markov" class="mode-panel" role="tabpanel" aria-labelledby="tab-markov">
       <div class="card">
-        <h2>Markov Mod-32 &amp; 5-Step Cluster Engine</h2>
-        <span class="badge ok">T3b m ≡ 2 (mod 32)</span>
-        <span class="badge info">T3d 5-Step Laurent</span>
+        <h2>Markov Mod-32 (Zhang 2007) &amp; 5-Step Quiver Engine</h2>
+        <span class="badge ok">T3b Zhang (2007) m ≡ 2 (mod 32)</span>
+        <span class="badge info">T3d 5-Step Identities</span>
         <h3>Live BigInt 5-Step Cluster Mutation (T3d)</h3>
         <div class="triple-inputs">
           <div><label for="cl-x1">x₁</label><input type="number" id="cl-x1" min="1" max="20" value="1" /></div>
@@ -425,8 +426,8 @@
         "Total chips: " + totalChips + "   Last topplings: " + spLastTopplings + "\n" +
         "Chip histogram: " + hist + "\n" +
         (spLattice === "A2"
-          ? "T2d Theorem: Any periodic A2 superharmonic envelope has EVEN Laplacian K (K=5 obstructed; macro plateaus lock at K=4!)."
-          : "T2c Theorem: Isotropic Z2 quadratic envelope K=3 is obstructed; non-isotropic K=3 & K=2 exist.");
+          ? "Finite A2 Dhar identity computation (independent of T2d, which is an elementary discrete-PDE parity lemma)."
+          : "Finite Z2 Dhar identity computation (T2c formalizes one isotropic Z2 quadratic obstruction).");
     }
 
     spCanvas.addEventListener("click", (ev) => {
@@ -584,13 +585,13 @@
       const j4 = jacobiBig(5n, 57n);
       const j5 = jacobiBig(3n, 41n);
       apStats.textContent =
-        "Generalized Octahedral Q(sqrt(-2)) Audit (Theorem T1d):\n" +
+        "Octahedral Q(sqrt(-2)) Audit (Theorem T1d; cf. Shi et al., arXiv:2510.21702):\n" +
         "Root: (-6, 10, 17, 40, 24, 17)   vs   Strip: (0, 0, 1, 2, 2, 1)\n" +
-        "Shared mod-24 set: {0, 1, 2, 8, 9, 10, 16, 17, 18}\n" +
-        "Mod-8 locking: b1=2, b2=2, b3=1, b4=0, b5=0, b6=1 (invariant under all 8 face reflections!)\n" +
-        "Live BigInt Jacobi checks:\n" +
+        "Shared mod-24 set (BFS): {0, 1, 2, 8, 9, 10, 16, 17, 18}\n" +
+        "Mod-8 locking (Lean): b1=2, b2=2, b3=1, b4=0, b5=0, b6=1 (excludes squares at b1,b2 and twice-squares at b3,b6)\n" +
+        "Standalone BigInt Jacobi checks:\n" +
         "  (-3/11)=" + j1 + ", (5/27)=" + j2 + ", (17/11)=" + j3 + ", (5/57)=" + j4 + ", (3/41)=" + j5 + "\n" +
-        "Result: 0 hits of 2^e * m^2 in obstructed orbit vs 31 hits in strip!";
+        "Finite BFS: 0 hits of 2^e * m^2 in obstructed orbit (b<=1500) vs 31 hits in strip (b<=400).";
     });
 
     // =========================================================================
@@ -604,27 +605,33 @@
 
     let yaw = 0.55, pitch = 0.35, autoSpin = true, highlightRefl = true, dragging = false, lastX = 0, lastY = 0;
 
-    // Exact 3D tangent sphere geometry for (-6, 13, 13, 13, 18) + reflected b=25=5^2
-    // Three equal spheres r=1/13 form an equilateral triangle of side 2/13 in plane z=z_eq.
-    // Circumradius of triangle: R_tri = (2/13) / sqrt(3).
-    // Outer sphere R0=1/6 centered at (0,0,0): distance from origin to centers of r=1/13 is R0 - r = 1/6 - 1/13 = 7/78.
-    const r0 = 1 / 6, r13 = 1 / 13, r18 = 1 / 18, r25 = 1 / 25;
-    const d13 = r0 - r13;
+    // Exact analytical 3D tangent sphere coordinates for (-6, 13, 13, 13, 18) + reflected b=15 and b=25=5^2.
+    // All pairwise tangency errors are < 1e-15:
+    //   d13 = r0 - r13 = 7/78, rho13 = 2/(13*sqrt(3)), z13 = +sqrt((7/78)^2 - 4/507) = +1/78,
+    //   z18 = z13 + 23/234 = +1/9 = r0 - r18, z15 = z13 - 22/195 = -1/10 = -(r0 - r15),
+    //   p25 = (13*(p2 + p3 - p1) + 18*p4) / 25 = (-4/(25*sqrt(3)), 0, 13/150), ||p25|| = 19/150 = r0 - r25.
+    const r0 = 1 / 6, r13 = 1 / 13, r18 = 1 / 18, r15 = 1 / 15, r25 = 1 / 25;
     const rho13 = (2 * r13) / Math.sqrt(3);
-    const z13 = -Math.sqrt(Math.max(0, d13 * d13 - rho13 * rho13));
-    // Sphere b=18 (r=1/18) lies on z-axis: tangent internally to outer (z = R0 - r18) or opposite side
-    // Check distance to the three r13 spheres: sqrt(rho13^2 + (z18 - z13)^2) = r13 + r18
-    const z18 = z13 + Math.sqrt(Math.max(0, (r13 + r18) ** 2 - rho13 * rho13));
-    // Reflected sphere b=25 (replacing one of the b=13? Wait: refl2(-6,13,13,13,18) = (-6,25,13,13,18) -> tangent to -6, 13, 13, 18!)
-    // Reflected b5 -> 15 lies on z-axis below; let's include BOTH b=15 (on z-axis) and b=25 (symmetric off-axis)!
-    const z15 = z13 - Math.sqrt(Math.max(0, (r13 + 1/15) ** 2 - rho13 * rho13));
+    const z13 = 1 / 78;
+    const z18 = 1 / 9;
+    const z15 = -1 / 10;
+    const p13_1 = [rho13, 0, z13];
+    const p13_2 = [-rho13 * 0.5, rho13 * Math.sqrt(3) * 0.5, z13];
+    const p13_3 = [-rho13 * 0.5, -rho13 * Math.sqrt(3) * 0.5, z13];
+    const p18 = [0, 0, z18];
+    const p15 = [0, 0, z15];
+    const p25 = [
+      (13 * (p13_2[0] + p13_3[0] - p13_1[0]) + 18 * p18[0]) / 25,
+      (13 * (p13_2[1] + p13_3[1] - p13_1[1]) + 18 * p18[1]) / 25,
+      (13 * (p13_2[2] + p13_3[2] - p13_1[2]) + 18 * p18[2]) / 25
+    ];
     const spheres3D = [
-      { b: 13, r: r13, p: [rho13, 0, z13], col: "#38bdf8" },
-      { b: 13, r: r13, p: [-rho13 * 0.5, rho13 * Math.sqrt(3) * 0.5, z13], col: "#38bdf8" },
-      { b: 13, r: r13, p: [-rho13 * 0.5, -rho13 * Math.sqrt(3) * 0.5, z13], col: "#38bdf8" },
-      { b: 18, r: r18, p: [0, 0, z18], col: "#34d399" },
-      { b: 15, r: 1 / 15, p: [0, 0, z15], col: "#a78bfa" },
-      { b: 25, r: r25, p: [-(r0 - r25) * 0.72, 0, (r0 - r25) * 0.42], col: "#fbbf24", isSquare: true }
+      { b: 13, r: r13, p: p13_1, col: "#38bdf8" },
+      { b: 13, r: r13, p: p13_2, col: "#38bdf8" },
+      { b: 13, r: r13, p: p13_3, col: "#38bdf8" },
+      { b: 18, r: r18, p: p18, col: "#34d399" },
+      { b: 15, r: r15, p: p15, col: "#a78bfa" },
+      { b: 25, r: r25, p: p25, col: "#fbbf24", isSquare: true }
     ];
 
     function rot3(p) {
@@ -815,7 +822,7 @@
 
       mkStats.textContent =
         "Selected Markov Node: (" + nd.triple.join(", ") + ")  ->  m = " + m + "\n" +
-        "Parity: " + (m % 2 === 0 ? "EVEN -> m mod 32 = " + (m % 32) + ", m mod 64 = " + (m % 64) + " (T3b LOCKED!)" : "ODD -> m mod 4 = " + (m % 4)) + "\n" +
+        "Parity: " + (m % 2 === 0 ? "EVEN -> m mod 32 = " + (m % 32) + ", m mod 64 = " + (m % 64) + " (Zhang 2007, T3b)" : "ODD -> m mod 4 = " + (m % 4)) + "\n" +
         "Odd prime divisors: " + (oddFactors.length ? oddFactors.join(", ") : "none") + "\n\n" +
         "5-Step Cluster Numerators at (" + x1 + ", " + x2 + ", " + x3 + ") [T3d]:\n" +
         "  P1 = " + p1 + "\n" +

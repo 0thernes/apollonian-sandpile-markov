@@ -8,14 +8,14 @@ import json
 import math
 from collections import Counter, deque
 from pathlib import Path
-from typing import Dict, List, Set, Tuple
+from typing import Any
 
 import matplotlib
+
 matplotlib.use("Agg")
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib.collections import PatchCollection
 from matplotlib.colors import ListedColormap
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -48,7 +48,7 @@ plt.rcParams.update({
 
 def generate_apollonian_circles(
     b0: int, b1: int, b2: int, b3: int, max_bend: int = 380
-) -> List[Tuple[int, complex]]:
+) -> list[tuple[int, complex]]:
     """Compute exact (bend, center) pairs for an Apollonian gasket via complex Descartes."""
     # Place bounding circle b0 < 0 centered at 0 with radius R0 = -1/b0
     r0 = -1.0 / b0
@@ -71,28 +71,32 @@ def generate_apollonian_circles(
     disc = cmath.sqrt(zb0 * zb1 + zb1 * zb2 + zb2 * zb0)
     cand_a = (zb0 + zb1 + zb2 + 2.0 * disc) / b3
     cand_b = (zb0 + zb1 + zb2 - 2.0 * disc) / b3
+
     # Pick candidate tangent to c0, c1, c2
     def err(zc: complex) -> float:
         r3 = 1.0 / b3
         return abs(abs(zc - z0) - (r0 - r3)) + abs(abs(zc - z1) - (r1 + r3)) + abs(abs(zc - z2) - (r2 + r3))
+
     z3 = cand_a if err(cand_a) <= err(cand_b) else cand_b
     zb3 = b3 * z3
 
     root_q = ((b0, zb0), (b1, zb1), (b2, zb2), (b3, zb3))
-    seen_circles: Dict[Tuple[int, int, int], Tuple[int, complex]] = {}
+    seen_circles: dict[tuple[int, int, int], tuple[int, complex]] = {}
     for b, zb in root_q:
         z = zb / b
         key = (b, round(z.real * 1e5), round(z.imag * 1e5))
         seen_circles[key] = (b, z)
 
-    visited_quads: Set[Tuple[int, ...]] = set()
+    visited_quads: set[tuple[tuple[int, int, int], ...]] = set()
     queue = deque([root_q])
 
-    def q_key(q: Tuple[Tuple[int, complex], ...]) -> Tuple[int, ...]:
-        return tuple(sorted(
-            (b, round((zb / b).real * 1e4), round((zb / b).imag * 1e4))
-            for b, zb in q
-        ))
+    def q_key(q: tuple[tuple[int, complex], ...]) -> tuple[tuple[int, int, int], ...]:
+        return tuple(
+            sorted(
+                (b, round((zb / b).real * 1e4), round((zb / b).imag * 1e4))
+                for b, zb in q
+            )
+        )
 
     visited_quads.add(q_key(root_q))
     while queue:
@@ -119,10 +123,10 @@ def generate_apollonian_circles(
     return list(seen_circles.values())
 
 
-def audit_apollonian_bends(root: Tuple[int, int, int, int], max_bend: int) -> List[int]:
+def audit_apollonian_bends(root: tuple[int, int, int, int], max_bend: int) -> list[int]:
     visited = {tuple(sorted(root))}
     queue = deque([root])
-    bends: Set[int] = set()
+    bends: set[int] = set()
     while queue:
         q = queue.popleft()
         for b in q:
@@ -167,26 +171,27 @@ def dhar_identity_grid(lattice: str, n: int) -> np.ndarray:
     return stabilize_grid(lattice, n, 2 * mu - s1)
 
 
-def generate_markov_tree(max_val: int) -> Tuple[List[Tuple[int, int, int]], List[int]]:
-    visited = {(1, 1, 1)}
-    queue = deque([(1, 1, 1)])
-    nums: Set[int] = set()
+def generate_markov_tree(max_val: int) -> tuple[list[tuple[int, int, int]], list[int]]:
+    visited: set[tuple[int, int, int]] = {(1, 1, 1)}
+    queue: deque[tuple[int, int, int]] = deque([(1, 1, 1)])
+    nums: set[int] = set()
     while queue:
         x, y, z = queue.popleft()
         nums.update((x, y, z))
-        for nxt in (
-            tuple(sorted((3 * y * z - x, y, z))),
-            tuple(sorted((x, 3 * x * z - y, z))),
-            tuple(sorted((x, y, 3 * x * y - z))),
+        for raw in (
+            sorted((3 * y * z - x, y, z)),
+            sorted((x, 3 * x * z - y, z)),
+            sorted((x, y, 3 * x * y - z)),
         ):
+            nxt = (raw[0], raw[1], raw[2])
             if nxt[2] <= max_val and nxt not in visited:
                 visited.add(nxt)
                 queue.append(nxt)
     return sorted(visited, key=lambda t: t[2]), sorted(nums)
 
 
-def factor_odd_primes(n: int) -> List[int]:
-    primes: List[int] = []
+def factor_odd_primes(n: int) -> list[int]:
+    primes: list[int] = []
     d = 2
     while d * d <= n:
         if n % d == 0:
@@ -239,22 +244,22 @@ def make_fig1(rust_summary: dict) -> None:
     ax.text(
         0.97, 0.96, "$\\chi(q) = -1$ globally\n0 squares (all $b$)",
         transform=ax.transAxes, ha="right", va="top", fontsize=7.8,
-        bbox=dict(boxstyle="round,pad=0.35", facecolor="#fff5f5", edgecolor="#c53030", lw=0.9),
+        bbox={"boxstyle": "round,pad=0.35", "facecolor": "#fff5f5", "edgecolor": "#c53030", "lw": 0.9},
     )
 
-    # Panel (b): Obstructed (-7,17,12,20) vs Unobstructed (-4,8,9,9)
+    # Panel (b): Obstructed (-7,17,12,20) vs Square-Hitting Contrast (-4,8,9,9)
     ax = axes[0, 1]
     b_obs = audit_apollonian_bends((-7, 17, 12, 20), 1000)
     b_un = audit_apollonian_bends((-4, 8, 9, 9), 1000)
     xs = np.linspace(0, 1000, 200)
     sq_obs = [sum(1 for b in b_obs if 0 <= b <= x and math.isqrt(b) ** 2 == b) for x in xs]
     sq_un = [sum(1 for b in b_un if 0 <= b <= x and math.isqrt(b) ** 2 == b) for x in xs]
-    ax.plot(xs, sq_un, color="#2b6cb0", lw=2.3, label="Unobstructed $(-4, 8, 9, 9)$: 8 squares ($9, 36, \\dots, 900$)")
+    ax.plot(xs, sq_un, color="#2b6cb0", lw=2.3, label="Contrast $(-4, 8, 9, 9)$: 8 squares ($9, 36, \\dots, 900$)")
     ax.plot(xs, sq_obs, color="#c53030", lw=2.3, ls="--", label="HKRS Obstructed $(-7, 17, 12, 20)$: 0 squares (T1c)")
     ax.fill_between(xs, sq_obs, sq_un, color="#2b6cb0", alpha=0.10)
     ax.set_xlabel("Curvature cutoff $B$")
     ax.set_ylabel("Cumulative perfect-square curvatures $\\leq B$")
-    ax.set_title("(b) Identical Mod-24 Local Set $\\{0,8,9,12,17,20\\}$, Opposite Global Fate", fontweight="bold", pad=6)
+    ax.set_title("(b) Identical Mod-24 Set $\\{0,8,9,12,17,20\\}$, Opposite Square Fate", fontweight="bold", pad=6)
     ax.set_ylim(-0.6, 9.8)
     ax.grid(True, alpha=0.25, ls=":")
     ax.legend(loc="upper left", frameon=True, facecolor="white")
@@ -290,16 +295,16 @@ def make_fig1(rust_summary: dict) -> None:
     ax.set_xticklabels(categories, fontsize=8.2)
     ax.set_ylabel("Count in exact BFS orbit")
     ax.set_ylim(0, 265)
-    ax.set_title("(c) Generalized Octahedral $\\mathbb{Q}(\\sqrt{-2})$ Obstruction (Identical Mod-24)", fontweight="bold", pad=6)
+    ax.set_title("(c) Octahedral $\\mathbb{Q}(\\sqrt{-2})$ Mod-8 Locking (T1d; cf. Shi et al. 2025)", fontweight="bold", pad=6)
     ax.grid(True, axis="y", alpha=0.25, ls=":")
     ax.legend(loc="upper right", frameon=True, facecolor="white", fontsize=7.6)
     ax.text(
         0.50, 0.56,
-        "Shared mod-24 set: $\\{0,1,2,8,9,10,16,17,18\\}$\n"
-        "Mod-8 locking: $b_1\\!\\equiv\\!2, b_2\\!\\equiv\\!2, b_3\\!\\equiv\\!1, b_4\\!\\equiv\\!0, b_5\\!\\equiv\\!0, b_6\\!\\equiv\\!1$\n"
-        "Jacobi obstruction: $\\left(\\frac{-3}{11}\\right)=\\left(\\frac{5}{27}\\right)=\\left(\\frac{17}{11}\\right)=-1$",
-        transform=ax.transAxes, ha="center", va="center", fontsize=7.6,
-        bbox=dict(boxstyle="round,pad=0.4", facecolor="#faf5ff", edgecolor="#805ad5", lw=0.9),
+        "Shared mod-24 set (BFS): $\\{0,1,2,8,9,10,16,17,18\\}$\n"
+        "Mod-8 locking (Lean): $b_1\\!\\equiv\\!2, b_2\\!\\equiv\\!2, b_3\\!\\equiv\\!1, b_4\\!\\equiv\\!0, b_5\\!\\equiv\\!0, b_6\\!\\equiv\\!1$\n"
+        "Closed Jacobi checks: $\\left(\\frac{-3}{11}\\right)=\\left(\\frac{5}{27}\\right)=\\left(\\frac{17}{11}\\right)=-1$",
+        transform=ax.transAxes, ha="center", va="center", fontsize=7.5,
+        bbox={"boxstyle": "round,pad=0.4", "facecolor": "#faf5ff", "edgecolor": "#805ad5", "lw": 0.9},
     )
 
     # Panel (d): Exact Soddy Dimension Dichotomy (d-1) | 2 <=> d in {2, 3} (T1e)
@@ -310,7 +315,7 @@ def make_fig1(rust_summary: dict) -> None:
     bars = ax.bar(ds, coeffs, color=bar_cols, edgecolor="#2d3748", linewidth=0.9, width=0.58)
     ax.axhline(1.0, color="#2b6cb0", ls=":", lw=1.0, alpha=0.6)
     ax.axhline(2.0, color="#2b6cb0", ls=":", lw=1.0, alpha=0.6)
-    for d, val, rect in zip(ds, coeffs, bars):
+    for d, val, _rect in zip(ds, coeffs, bars):
         lbl = f"{int(val)} (INT)" if (2 % (d - 1) == 0) else f"2/{d - 1}"
         ax.text(d, val + 0.06, lbl, ha="center", va="bottom", fontsize=8.3,
                 fontweight="bold" if (2 % (d - 1) == 0) else "normal",
@@ -319,7 +324,7 @@ def make_fig1(rust_summary: dict) -> None:
     ax.set_xticklabels([f"$d={d}$" for d in ds])
     ax.set_ylabel("Vieta reflection multiplier $\\alpha_d = 2/(d-1)$")
     ax.set_ylim(0, 2.45)
-    ax.set_title("(d) Soddy Integrality Dichotomy $(d-1)\\mid 2 \\Leftrightarrow d\\in\\{2,3\\}$ (T1e)", fontweight="bold", pad=6)
+    ax.set_title("(d) Soddy Divisibility $(d-1)\\mid 2 \\Leftrightarrow d\\in\\{2,3\\}$ (LMW 2002; T1e)", fontweight="bold", pad=6)
     ax.grid(True, axis="y", alpha=0.25, ls=":")
     s3 = rust_summary["pillar1"]["soddy3d_contrast"]
     ax.text(
@@ -328,7 +333,7 @@ def make_fig1(rust_summary: dict) -> None:
         f"Reflects to $25=5^2$, {s3['squares']} squares in {s3['quintuples']} quintuples\n"
         f"(Non-integral reflection for all $d \\geq 4$)",
         transform=ax.transAxes, ha="right", va="top", fontsize=7.8,
-        bbox=dict(boxstyle="round,pad=0.38", facecolor="#ebf8ff", edgecolor="#2b6cb0", lw=0.9),
+        bbox={"boxstyle": "round,pad=0.38", "facecolor": "#ebf8ff", "edgecolor": "#2b6cb0", "lw": 0.9},
     )
 
     fig.savefig(FIG_DIR / "fig1_apollonian_octahedral_reciprocity.pdf")
@@ -337,7 +342,7 @@ def make_fig1(rust_summary: dict) -> None:
 
 # --- Figure 2: Z^2 Sandpile Identity, A_2 Even-Laplacian Rigidity, Tropical Solitons ---
 
-def make_fig2() -> Dict[str, object]:
+def make_fig2() -> dict[str, Any]:
     n = 65
     e_z2 = dhar_identity_grid("Z2", n)
     e_a2 = dhar_identity_grid("A2", n)
@@ -352,8 +357,8 @@ def make_fig2() -> Dict[str, object]:
     fig, axes = plt.subplots(1, 3, figsize=(14.4, 5.2), dpi=300)
     fig.subplots_adjust(left=0.035, right=0.985, top=0.84, bottom=0.11, wspace=0.18)
     fig.suptitle(
-        "Pillar II: Abelian Sandpile Critical Identities, $\\mathbb{A}_2$ Even-Laplacian Rigidity (T2d), and Tropical Solitons (T2e)",
-        fontsize=12.2, fontweight="bold", y=0.965,
+        "Pillar II: Finite $65\\times 65$ Sandpile Computations ($\\mathbb{Z}^2$ and $\\mathbb{A}_2$ Dhar Identities, and $3$-Drop Relaxation)",
+        fontsize=12.0, fontweight="bold", y=0.965,
     )
 
     # Panel (a): Z^2 65x65 Identity
@@ -374,14 +379,14 @@ def make_fig2() -> Dict[str, object]:
     im1 = ax.imshow(e_a2, cmap=cmap_a2, vmin=-0.5, vmax=5.5, interpolation="nearest")
     ax.set_xticks([])
     ax.set_yticks([])
-    ax.set_title("(b) $\\mathbb{A}_2$ $65\\times 65$ Identity ($\\deg=6$, Even-Laplacian T2d)", fontweight="bold", pad=6)
+    ax.set_title("(b) $\\mathbb{A}_2$ $65\\times 65$ Dhar Identity ($\\deg=6$, max stable $5$)", fontweight="bold", pad=6)
     cbar1 = fig.colorbar(im1, ax=ax, fraction=0.046, pad=0.03, ticks=[0, 1, 2, 3, 4, 5])
     cbar1.set_label("Chips $s(v)$", fontsize=8.5)
     a2_counts = Counter(int(v) for v in e_a2.ravel())
     center_val = int(e_a2[n // 2, n // 2])
-    ax.set_xlabel(f"Solid 4-chip plateaus (4:{a2_counts[4]}, 5:{a2_counts[5]}); T2d: $K\\equiv 0$ (2) obstructs $K=5$", fontsize=7.8)
+    ax.set_xlabel(f"Exact chip counts: 4:{a2_counts[4]}, 5:{a2_counts[5]} (computation; independent of T2d)", fontsize=7.8)
 
-    # Panel (c): Kalinin-Shkolnikov Tropical Soliton Curve
+    # Panel (c): 3-Drop Relaxation on Z^2 Sea
     ax = axes[2]
     cmap_tr = ListedColormap(["#1a202c", "#2b6cb0", "#4fd1c5", "#edf2f7"])
     im2 = ax.imshow(trop, cmap=cmap_tr, vmin=-0.5, vmax=3.5, interpolation="nearest")
@@ -389,14 +394,14 @@ def make_fig2() -> Dict[str, object]:
         ax.scatter([c], [r], s=55, c="#e53e3e", edgecolors="white", linewidths=1.0, zorder=5)
     ax.set_xticks([])
     ax.set_yticks([])
-    ax.set_title("(c) Kalinin–Shkolnikov Tropical Curve ($3$ Drops, T2e)", fontweight="bold", pad=6)
+    ax.set_title("(c) $3$-Drop Relaxation on Height-3 $\\mathbb{Z}^2$ Sea (cf. KS 2016)", fontweight="bold", pad=6)
     cbar2 = fig.colorbar(im2, ax=ax, fraction=0.046, pad=0.03, ticks=[0, 1, 2, 3])
     cbar2.set_label("Chips $s(v)$", fontsize=8.5)
-    ax.set_xlabel("Red dots: 3 unit drops on height-3 sea; balanced edges", fontsize=8.0)
+    ax.set_xlabel("Red dots: 3 unit drops on height-3 sea (finite computation)", fontsize=8.0)
     ax.text(
         0.04, 0.96, "Trivalent balancing:\n$(1,0)+(0,1)+(-1,-1)=(0,0)$",
         transform=ax.transAxes, ha="left", va="top", fontsize=7.5,
-        bbox=dict(boxstyle="round,pad=0.3", facecolor="white", edgecolor="#2b6cb0", lw=0.8, alpha=0.92),
+        bbox={"boxstyle": "round,pad=0.3", "facecolor": "white", "edgecolor": "#2b6cb0", "lw": 0.8, "alpha": 0.92},
     )
 
     fig.savefig(FIG_DIR / "fig2_sandpile_apollonian_a2_tropical.pdf")
@@ -412,31 +417,33 @@ def make_fig2() -> Dict[str, object]:
 
 # --- Figure 3: Markov Tree, Mod-32 Locking, 5-Step Cluster Laurent, Hurwitz n=4 ---
 
-def make_fig3(rust_summary: dict) -> None:
-    triples, nums = generate_markov_tree(10_000_000)
+def make_fig3(rust_summary: dict[str, Any]) -> None:
+    _triples, nums = generate_markov_tree(10_000_000)
 
     fig, axes = plt.subplots(2, 2, figsize=(13.2, 8.8), dpi=300)
     fig.subplots_adjust(left=0.065, right=0.97, top=0.92, bottom=0.075, wspace=0.25, hspace=0.31)
     fig.suptitle(
-        "Pillar III: Markov–Cohn Geodesic Tree, Exact Mod-32 Locking (T3b), 5-Step Cluster Positivity (T3d), and Hurwitz $n=4$ (T3e)",
-        fontsize=12.0, fontweight="bold", y=0.975,
+        "Pillar III: Markov–Cohn Tree, Zhang (2007) Mod-32 Congruence (T3b), 5-Step Quiver Identities (T3d), and Hurwitz (1907) $n=4$ (T3e)",
+        fontsize=11.4, fontweight="bold", y=0.975,
     )
 
     # Panel (a): Binary Cohn/Markov Tree from (1,2,5) down to depth 4
     ax = axes[0, 0]
     # Build explicit binary tree starting at (1, 2, 5)
-    nodes: List[Tuple[float, float, Tuple[int, int, int], int]] = []
-    edges: List[Tuple[Tuple[float, float], Tuple[float, float]]] = []
+    nodes: list[tuple[float, float, tuple[int, int, int], int]] = []
+    edges: list[tuple[tuple[float, float], tuple[float, float]]] = []
 
-    def add_tree(triple: Tuple[int, int, int], depth: int, x: float, dx: float) -> None:
+    def add_tree(triple: tuple[int, int, int], depth: int, x: float, dx: float) -> None:
         y = 4.0 - depth
         nodes.append((x, y, triple, depth))
         if depth == 3:
             return
         a, b, c = triple  # a <= b <= c
         # Left branch replaces b -> 3ac - b; Right branch replaces a -> 3bc - a
-        left = tuple(sorted((a, c, 3 * a * c - b)))
-        right = tuple(sorted((b, c, 3 * b * c - a)))
+        l_raw = sorted((a, c, 3 * a * c - b))
+        r_raw = sorted((b, c, 3 * b * c - a))
+        left = (l_raw[0], l_raw[1], l_raw[2])
+        right = (r_raw[0], r_raw[1], r_raw[2])
         lx, rx = x - dx, x + dx
         ly, ry = y - 1.0, y - 1.0
         edges.append(((x, y), (lx, ly)))
@@ -455,7 +462,7 @@ def make_fig3(rust_summary: dict) -> None:
     for x, y, lbl, is_even in [(0.0, 5.15, "1", False), (0.0, 4.55, "2  (2 mod 64)", True)]:
         col = "#00b5d8" if is_even else "#ecc94b"
         ax.text(x, y, lbl, ha="center", va="center", fontsize=8.0, fontweight="bold",
-                bbox=dict(boxstyle="round,pad=0.25", facecolor=col, edgecolor="#1a202c", lw=0.9), zorder=3)
+                bbox={"boxstyle": "round,pad=0.25", "facecolor": col, "edgecolor": "#1a202c", "lw": 0.9}, zorder=3)
 
     for x, y, tri, depth in nodes:
         z = tri[2]
@@ -465,16 +472,16 @@ def make_fig3(rust_summary: dict) -> None:
         txt = f"{z}" + (f"\n({z % 64} mod 64)" if is_even else "")
         ax.text(x, y, txt, ha="center", va="center", fontsize=7.5 if depth < 3 else 6.1,
                 fontweight="bold",
-                bbox=dict(boxstyle="round,pad=0.20", facecolor=col, edgecolor=ec, lw=0.9), zorder=3)
+                bbox={"boxstyle": "round,pad=0.20", "facecolor": col, "edgecolor": ec, "lw": 0.9}, zorder=3)
 
     ax.set_xlim(-4.85, 4.85)
     ax.set_ylim(0.55, 5.65)
     ax.axis("off")
-    ax.set_title("(a) Cohn–Markov Tree: Gold = Odd ($\\equiv 1\\ (4)$), Blue = Even ($\\equiv 2\\ (32)$)", fontweight="bold", pad=4)
+    ax.set_title("(a) Cohn–Markov Tree: Gold = Odd ($\\equiv 1\\ (4)$), Blue = Even ($\\equiv 2\\ (32)$, Zhang 2007)", fontweight="bold", pad=4)
 
     # Panel (b): Exact Residue Audit up to 10^7
     ax = axes[0, 1]
-    odd_primes_set: Set[int] = set()
+    odd_primes_set: set[int] = set()
     for m in nums:
         for p in factor_odd_primes(m):
             odd_primes_set.add(p)
@@ -509,7 +516,7 @@ def make_fig3(rust_summary: dict) -> None:
     ax.set_xticklabels(labels, fontsize=7.2)
     ax.set_ylabel("Exact count ($m \\leq 10^7$, 56 numbers)")
     ax.set_ylim(0, max(counts) * 1.18)
-    ax.set_title("(b) Zero Modular Violations Across All 56 Markov Numbers $\\leq 10^7$ (T3b)", fontweight="bold", pad=6)
+    ax.set_title("(b) Zero Violations Across 56 Markov Numbers $\\leq 10^7$ (Zhang 2007, T3b)", fontweight="bold", pad=6)
     ax.grid(True, axis="y", alpha=0.25, ls=":")
 
     # Panel (c): 5-Step Fomin-Zelevinsky Cluster Mutation Laurent Numerators (T3d)
@@ -517,7 +524,7 @@ def make_fig3(rust_summary: dict) -> None:
     steps = np.arange(1, 6)
     vals_111 = [2, 5, 29, 433, 37666]
     total_degs = [2, 4, 8, 14, 24]  # exact homogeneous total degree of P_k(x1,x2,x3)
-    ax.semilogy(steps, vals_111, "o-", color="#2b6cb0", lw=2.3, ms=7.5, label="$P_k(1,1,1)$ (exact Fibonacci-odd Markov subsequence)")
+    ax.semilogy(steps, vals_111, "o-", color="#2b6cb0", lw=2.3, ms=7.5, label="$P_k(1,1,1)$ along $(2,5,29) \\to (5,29,433) \\to (29,433,37666)$")
     label_pos = {
         1: (1.08, 3.1, "left", "bottom"),
         2: (2.0, 8.2, "center", "bottom"),
@@ -532,13 +539,13 @@ def make_fig3(rust_summary: dict) -> None:
     ax.axvspan(3.6, 5.4, color="#ebf8ff", alpha=0.75, zorder=0)
     ax.text(4.5, 4.2, "Non-monomial exact\npolynomial divisions:\nStep 4 by $P_1 = x_2^2+x_3^2$\nStep 5 by $P_2 = P_1^2+x_1^2x_3^2$",
             ha="center", va="center", fontsize=7.5,
-            bbox=dict(boxstyle="round,pad=0.35", facecolor="white", edgecolor="#2b6cb0", lw=0.9))
+            bbox={"boxstyle": "round,pad=0.35", "facecolor": "white", "edgecolor": "#2b6cb0", "lw": 0.9})
     ax.set_xticks(steps)
     ax.set_xticklabels([f"Step {k}\n($P_{k}$)" for k in steps])
     ax.set_ylabel("Cluster numerator value at $(1,1,1)$ (log scale)")
     ax.set_xlim(0.60, 5.42)
     ax.set_ylim(1.2, 2.2e5)
-    ax.set_title("(c) 5-Step Markov Quiver Cluster Algebra Laurent Positivity (T3d)", fontweight="bold", pad=6)
+    ax.set_title("(c) 5-Step Markov Quiver Exchange Identities & Non-Monomial Div. (T3d)", fontweight="bold", pad=6)
     ax.grid(True, which="both", alpha=0.25, ls=":")
     ax.legend(loc="upper left", frameon=True, facecolor="white", fontsize=7.8)
 
@@ -560,7 +567,7 @@ def make_fig3(rust_summary: dict) -> None:
     ax.set_xticklabels([f"$a={a}$" for a in a_vals])
     ax.set_ylabel("Solutions with $\\max x_i \\leq 120$")
     ax.set_ylim(0, 5.7)
-    ax.set_title("(d) Complete Markov–Hurwitz $n=4$ Dichotomy $\\sum x_i^2 = a\\prod x_i$ (T3e)", fontweight="bold", pad=6)
+    ax.set_title("(d) Hurwitz (1907) $n=4$ Admissible Coefficients $\\sum x_i^2 = a\\prod x_i$ (T3e)", fontweight="bold", pad=6)
     ax.grid(True, axis="y", alpha=0.25, ls=":")
 
     fig.savefig(FIG_DIR / "fig3_markov_cohn_mod32_hurwitz.pdf")
@@ -587,11 +594,11 @@ def make_fig4() -> None:
     def arrow(x1: float, y1: float, x2: float, y2: float, col: str = "#4a5568") -> None:
         ax.annotate(
             "", xy=(x2, y2), xytext=(x1, y1),
-            arrowprops=dict(arrowstyle="-|>,head_width=0.35,head_length=0.55", color=col, lw=1.3),
+            arrowprops={"arrowstyle": "-|>,head_width=0.35,head_length=0.55", "color": col, "lw": 1.3},
             zorder=1,
         )
 
-    ax.text(50, 54.4, "Unified Vieta-Reflection Architecture & Six-Kernel Verification Pipeline (0TH-2026-018)",
+    ax.text(50, 54.4, "Unified Vieta-Reflection Architecture & Six-Kernel Verification Pipeline (0TH-2026-018, v2.0.0)",
             ha="center", va="center", fontsize=12.4, fontweight="bold", color="#1a202c")
 
     # Tier 0: Root Generator
@@ -606,32 +613,30 @@ def make_fig4() -> None:
         "Pillar I: Thin Reflection Groups",
         "T1a: Descartes Lorentzian & Gaussian norm\n"
         "T1b: Zero-Mathlib Jacobi & Eisenstein QR\n"
-        "T1c: HKRS Annals 2024 obstruction\n"
-        "     (zero-GCD Dehn-twist CRT proof)\n"
-        "T1d: Octahedral Q(sqrt(-2)) obstruction\n"
-        "T1e: Exact Soddy d in {2,3} dichotomy",
+        "T1c: HKRS (2024) obstruction on 3 roots\n"
+        "     (contrast (-4,8,9,9) hits 9)\n"
+        "T1d: Octahedral mod-8 lock + 5 Jacobi vals\n"
+        "T1e: (d-1)|2 <-> d in {2,3}; 5 3D Soddy refls",
         "#fff5f5", "#c53030")
 
     box(35.0, 23.5, 30.0, 16.5,
-        "Pillar II: Sandpiles & Tropical (STAT-058)",
-        "T2a: Abelian confluence & Least Action\n"
-        "T2b: Dhar 2x2 & 3x3 identities + Matrix-Tree\n"
-        "     exact dets 192 & 100,352 (Kronecker)\n"
-        "T2c: LPS Z^2 Green's id & K=3 obstruction\n"
-        "T2d: ORIGINAL A_2 Even-Laplacian Rigidity\n"
-        "     (K % 2 = 0 -> K=5 universally obstructed)\n"
-        "T2e: Kalinin-Shkolnikov tropical balancing",
+        "Pillar II: Sandpiles & Lattice Identities",
+        "T2a: Toppling comm., least action, unique trace\n"
+        "T2b: Direct Z^2 det4=192, det9=100,352 + traces\n"
+        "T2c: One isotropic Z^2 K=3 obstruction\n"
+        "T2d: Elem. A_2 parity lemma (MK=4A-2B+4C -> 2|K)\n"
+        "T2e: Lattice-polygon edge-normal closure id\n"
+        "T2f: Direct A_2 det4=1,092, det9=5,393,920",
         "#fffaf0", "#dd6b20")
 
     box(67.5, 23.5, 30.0, 16.5,
-        "Pillar III: Markov-Hurwitz (NT-083)",
-        "T3a: SL2(Z) Fricke trace & Cohn tree\n"
-        "T3b: Coprimality, odd p = 1 (mod 4),\n"
-        "     & EXACT MOD-32 THEOREM (m = 2 mod 32)\n"
-        "T3c: Universal Hensel sqrt(-1) mod p^k\n"
-        "T3d: 5-step Cluster Laurent positivity\n"
-        "     (2 non-monomial divisions P1, P2)\n"
-        "T3e: Complete Hurwitz n=4 classification",
+        "Pillar III: Markov-Hurwitz & Quiver",
+        "T3a: SL2(Z) Fricke trace & Cohn tree (3 | tr)\n"
+        "T3b: Coprime, p=1(4), Zhang (2007) m=2(32)\n"
+        "     (tree triples; witnesses 2 and 34)\n"
+        "T3c: Hensel sqrt(-1) mod p^k uniqueness\n"
+        "T3d: 5-step quiver exchange ids (P1, P2 div.)\n"
+        "T3e: Hurwitz (1907) n=4 admissible a in {1,4}",
         "#f0fff4", "#2f855a")
 
     arrow(36, 44.5, 17.5, 40.6, "#c53030")
@@ -641,7 +646,7 @@ def make_fig4() -> None:
     # Tier 2: Contract & NonVacuity / Adversarial
     box(15, 12.2, 70, 6.8,
         "Machine-Checked Contract: Challenge.lean + Solution.lean + PalomarSolution.lean",
-        "18 Audited Declarations (T1a..T3e + Master Conjunction + NonVacuity + Adversarial Refutations)\n"
+        "19 Audited Declarations (16 Theorems T1a..T3e + T2f + Master + NonVacuity + Adversarial)\n"
         "Strictly [propext, Classical.choice, Quot.sound]  |  0 sorry  |  0 admit  |  0 native_decide  |  0 Mathlib",
         "#faf5ff", "#6b46c1", title_fs=9.3, body_fs=7.9)
 
@@ -652,14 +657,14 @@ def make_fig4() -> None:
     # Tier 3: Independent Verification Oracles
     box(2.5, 1.5, 46.0, 7.0,
         "Six Independent Formal Type-Checking Kernels",
-        "lean 4.35.0  |  leanchecker  |  leanchecker-paranoid (lean4lean)\n"
+        "lean 4.35.0  |  leanchecker --fresh  |  leanchecker-paranoid (lean4lean)\n"
         "nanoda_bin  |  con-leche  |  con-ron  +  lake comparator --paranoid",
         "#edf2f7", "#2d3748", title_fs=9.0, body_fs=7.7)
 
     box(51.5, 1.5, 46.0, 7.0,
         "Three Independent Computational & Differential Oracles",
-        "Rust (0 deps, i128 Bareiss, 10^7 Markov)  |  ISO C11 (ASan/UBSan + 100k fuzz)\n"
-        "Python Oracle + Hypothesis (600+ props) + 8/8 (100%) Mutation Kill Rate",
+        "Rust (#![forbid(unsafe_code)], 10^7 Markov)  |  ISO C11 (ASan/UBSan + libFuzzer)\n"
+        "Python Oracle + Hypothesis (600+ props) + 10/10 (100%) Mutation Kill Rate",
         "#e6fffa", "#2c7a7b", title_fs=9.0, body_fs=7.7)
 
     arrow(36, 12.2, 25.5, 9.1, "#2d3748")
@@ -675,7 +680,7 @@ def make_social_preview() -> None:
     fig = plt.figure(figsize=(12.8, 6.4), dpi=100, facecolor="#0b1120")
 
     # Left panel: Apollonian Gasket in neon cyan/gold on dark canvas
-    ax1 = fig.add_axes([0.03, 0.14, 0.28, 0.56], facecolor="#0b1120")
+    ax1 = fig.add_axes((0.03, 0.14, 0.28, 0.56), facecolor="#0b1120")
     circles = generate_apollonian_circles(-7, 17, 12, 20, max_bend=280)
     r0 = 1.0 / 7.0
     ax1.add_patch(mpatches.Circle((0, 0), r0, facecolor="#111827", edgecolor="#38bdf8", lw=2.0))
@@ -692,15 +697,15 @@ def make_social_preview() -> None:
     ax1.set_title("HKRS Apollonian & Octahedral", color="#e2e8f0", fontsize=11, fontweight="bold", pad=6)
 
     # Middle panel: A_2 51x51 Sandpile Identity
-    ax2 = fig.add_axes([0.36, 0.14, 0.28, 0.56], facecolor="#0b1120")
+    ax2 = fig.add_axes((0.36, 0.14, 0.28, 0.56), facecolor="#0b1120")
     e_a2 = dhar_identity_grid("A2", 51)
     cmap_dark = ListedColormap(["#0f172a", "#1d4ed8", "#0284c7", "#14b8a6", "#f59e0b", "#ef4444"])
     ax2.imshow(e_a2, cmap=cmap_dark, vmin=-0.5, vmax=5.5, interpolation="nearest")
     ax2.axis("off")
-    ax2.set_title("A2 Sandpile Even-Laplacian Rigidity", color="#e2e8f0", fontsize=11, fontweight="bold", pad=6)
+    ax2.set_title("A2 51x51 Dhar Identity (Computation)", color="#e2e8f0", fontsize=11, fontweight="bold", pad=6)
 
     # Right panel: Markov Mod-32 Tree
-    ax3 = fig.add_axes([0.69, 0.14, 0.28, 0.56], facecolor="#0b1120")
+    ax3 = fig.add_axes((0.69, 0.14, 0.28, 0.56), facecolor="#0b1120")
     pts = [(0, 4, "1", False), (0, 3, "2", True), (0, 2, "5", False),
            (-1.2, 1, "13", False), (1.2, 1, "29", False),
            (-1.9, 0, "34", True), (-0.5, 0, "194", True), (0.5, 0, "433", False), (1.9, 0, "169", False)]
@@ -710,20 +715,20 @@ def make_social_preview() -> None:
         ax3.plot([p[0], q[0]], [p[1], q[1]], color="#475569", lw=1.8, zorder=1)
     for x, y, lbl, ev in pts:
         ax3.text(x, y, lbl, ha="center", va="center", color="#0b1120", fontsize=10, fontweight="bold",
-                 bbox=dict(boxstyle="round,pad=0.32", facecolor="#38bdf8" if ev else "#fbbf24", edgecolor="white", lw=1.1), zorder=3)
+                 bbox={"boxstyle": "round,pad=0.32", "facecolor": "#38bdf8" if ev else "#fbbf24", "edgecolor": "white", "lw": 1.1}, zorder=3)
     ax3.set_xlim(-2.5, 2.5)
     ax3.set_ylim(-0.6, 4.6)
     ax3.axis("off")
-    ax3.set_title("Markov Mod-32 & 5-Step Cluster", color="#e2e8f0", fontsize=11, fontweight="bold", pad=6)
+    ax3.set_title("Markov Tree (Zhang 2007 Mod-32)", color="#e2e8f0", fontsize=11, fontweight="bold", pad=6)
 
     # Banner Title & Footer Badges
     fig.text(0.5, 0.90, "apollonian-sandpile-markov", ha="center", va="center",
              color="#f8fafc", fontsize=26, fontweight="bold", family="sans-serif")
-    fig.text(0.5, 0.80, "Thin Vieta Reflection Groups  •  A2 Sandpile Rigidity  •  Markov-Hurwitz Cluster Spectra",
+    fig.text(0.5, 0.80, "Thin Vieta Reflection Groups  •  Lattice Sandpile Identities  •  Markov-Hurwitz Spectra",
              ha="center", va="center", color="#94a3b8", fontsize=13.5, family="sans-serif")
     fig.text(0.5, 0.055,
-             "15 Machine-Checked Lean 4.35.0 Theorems  |  Zero Mathlib  |  Zero Sorry  |  6 Independent Kernels  |  Rust + C11 + Python",
-             ha="center", va="center", color="#38bdf8", fontsize=11.2, fontweight="bold", family="sans-serif")
+             "16 Machine-Checked Lean 4.35.0 Statements (19 Decls)  |  Zero Mathlib  |  6 Independent Kernels  |  Rust + C11 + Python",
+             ha="center", va="center", color="#38bdf8", fontsize=10.8, fontweight="bold", family="sans-serif")
 
     fig.savefig(MEDIA_DIR / "social-preview.png", dpi=100, facecolor="#0b1120")
     plt.close(fig)

@@ -1,0 +1,11 @@
+# Build Standard v1.2.0 finding-class labels (name	color	description)
+bug	d73a4a	Wrong behavior, broken code, or false mathematical output
+error	b60205	Compiler, kernel, typechecker, or runtime error
+issue	fbca04	General actionable repository or workflow defect
+problem	d93f0b	Structural mathematical, design, or verification failure
+concern	0075ca	Epistemic, methodological, security, or scope concern
+dilemma	5319e7	Trade-off requiring a documented architectural decision
+conflict	e99695	Contradiction between code, paper, figures, or documentation
+gap	0e8a16	Missing proof step, test case, artifact, or specification
+hole	1d76db	Soundness hole, vacuous premise, or unguarded boundary case
+blindspot	c2e0c6	Uninspected edge case, hidden assumption, or uncovered failure mode

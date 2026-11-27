@@ -5,11 +5,11 @@ import Solution
 import PalomarSolution
 
 /-!
-# Strict Axiom Allowlist Audit (`ApollonianSandpileMarkov` v1.0.0)
+# Strict Axiom Allowlist Audit (`ApollonianSandpileMarkov` v2.0.0)
 
-Every exported headline theorem (`T1a`–`T3e`), the master conjunction, the non-vacuity certificate,
-and all 6 adversarial false-variant refutations (18 audited declarations) must depend strictly on
-a subset of `[propext, Classical.choice, Quot.sound]`.
+Every exported headline theorem (`T1a`–`T3e`, including `T2f`), the master conjunction, the
+non-vacuity certificate, and all 6 adversarial false-variant refutations (19 audited declarations)
+must depend strictly on a subset of `[propext, Classical.choice, Quot.sound]`.
 -/
 
 #print axioms ApollonianSandpileMarkov.Palomar.t1a_descartes_lorentzian_and_gaussian_norm
@@ -22,6 +22,7 @@ a subset of `[propext, Classical.choice, Quot.sound]`.
 #print axioms ApollonianSandpileMarkov.Palomar.t2c_lps_z2_superharmonic_and_isotropic_obstruction
 #print axioms ApollonianSandpileMarkov.Palomar.t2d_triangular_a2_even_laplacian_rigidity_and_obstruction
 #print axioms ApollonianSandpileMarkov.Palomar.t2e_kalinin_shkolnikov_tropical_balancing_and_solitons
+#print axioms ApollonianSandpileMarkov.Palomar.t2f_a2_grid_orders_and_dhar_identity
 #print axioms ApollonianSandpileMarkov.Palomar.t3a_sl2z_fricke_cohn_markov_correspondence
 #print axioms ApollonianSandpileMarkov.Palomar.t3b_markov_coprimality_odd_primes_and_mod32
 #print axioms ApollonianSandpileMarkov.Palomar.t3c_hensel_sqrt_neg1_prime_power_uniqueness

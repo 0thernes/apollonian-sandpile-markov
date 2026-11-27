@@ -4,26 +4,26 @@ module
 public import ApollonianSandpileMarkov.JacobiReciprocity
 
 /-!
-# Pillar III: `SL₂(ℤ)` Fricke–Cohn Correspondence, Exact Mod-32 Even-Markov Theorem,
-# Hensel `√(-1)` Prime-Power Uniqueness, Symbolic Cluster-Algebra Laurent Positivity,
-# and Complete `n = 4` Markov–Hurwitz Classification
+# Pillar III: `SL₂(ℤ)` Fricke–Cohn Correspondence, Ying Zhang's Mod-32 Even-Markov Theorem,
+# Hensel `√(-1)` Prime-Power Uniqueness, Five-Step Cluster Exchange Identities,
+# and Hurwitz's (1907) `n = 4` Admissible-Coefficient Classification
 
 Formalizes:
-- `T3a`: Universal `SL₂(ℤ)` Fricke trace identity, punctured-torus commutator `-2` invariance
-  under Farey/Nielsen moves, and Cohn's seed generating the exact integer Markov tree via `tr / 3`.
-- `T3b`: Universal Markov tree pairwise coprimality, odd-prime `p ≡ 1 (mod 4)` obstruction
-  (zero primes `p ≡ 3 (mod 4)` ever divide any Markov number), and the **Exact Mod-32 Theorem**:
-  EVERY even Markov number satisfies `m % 32 = 2` (sharp at `(1, 13, 34)` with `34 % 64 = 34`).
-- `T3c`: Exact algebraic prime-power Hensel `√(-1)` uniqueness criterion mod `p^k` for all odd
-  primes `p` and all exponents `k ≥ 1`.
-- `T3d`: Exact symbolic 3-variable Fomin–Zelevinsky cluster-algebra Laurent integrality &
-  positivity on the Markov quiver through **5 mutations** (including the 4th-step non-monomial
-  cancellation by `x1' = (x2^2+x3^2)/x1` and 5th-step non-monomial cancellation by `x2'`),
-  specializing at `(1, 1, 1)` to `(1, 1, 1) → 2 → 5 → 29 → 433 → 37666`.
-- `T3e`: Complete Generalized Markov–Hurwitz `n = 4` classification (`x1^2+x2^2+x3^2+x4^2 = a x1 x2 x3 x4`
-  over `ℤ_{>0}^4`) via well-founded Vieta descent: ZERO solutions for `a ∈ {2, 3}` and all `a ≥ 5`;
-  unique minimal seed `(2, 2, 2, 2)` (all entries `≡ 2 mod 4`) for `a = 1`; unique minimal seed
-  `(1, 1, 1, 1)` (all entries odd) for `a = 4`.
+- `T3a`: Classical `SL₂(ℤ)` Fricke trace identity, punctured-torus commutator `-2` invariance
+  under Farey/Nielsen moves, explicit `3 ∣ tr` divisibility, and Cohn's (1955) seed generating
+  Markov triples via `tr / 3`.
+- `T3b`: Markov tree pairwise coprimality, odd-prime `p ≡ 1 (mod 4)` constraint, and a zero-Mathlib
+  formalization of Ying Zhang's theorem (*Acta Arith.* 128 (2007) 295–301, arXiv:math/0612620):
+  every even entry of a tree triple satisfies `m % 32 = 2` (with witnesses `(2, 1, 1)` and
+  `(34, 13, 1)` distinguishing residues mod 64).
+- `T3c`: Classical prime-power Hensel `√(-1)` uniqueness modulo `p^k` for odd primes `p`, `k ≥ 1`.
+- `T3d`: Exchange identities with subtraction-free numerators along one five-step Markov-quiver
+  mutation sequence (including non-monomial cancellations by `P1` and `P2`), positivity of values at
+  positive integer inputs (coefficient positivity holds by inspection), and `(1, 1, 1)` values
+  `(2, 5, 29, 433, 37666)` (finite instance of Fomin–Zelevinsky 2002 / Lee–Schiffler 2015).
+- `T3e`: Classical Hurwitz (1907) classification of admissible coefficients `a` with parity
+  constraints for `x1^2 + x2^2 + x3^2 + x4^2 = a x1 x2 x3 x4` over `ℤ_{>0}^4`: no solutions for
+  `a ∈ {2, 3}` or `a ≥ 5`; `a = 1` forces all `x_i ≡ 2 mod 4`; `a = 4` forces all `x_i` odd.
 -/
 
 namespace ApollonianSandpileMarkov.MarkovHurwitzCluster
@@ -127,20 +127,24 @@ theorem cohn_tree_markov {A B : Mat2} (h : InCohnTree A B) :
             9 * (3 * (A.tr / 3) * (B.tr / 3) * ((Mat2.mul A B).tr / 3)) := by grind
   omega
 
-/-- **T3a Master Export.** -/
+/-- **T3a Master Export (including explicit `3 ∣ tr` divisibility conjuncts).** -/
 theorem t3a_sl2z_fricke_cohn_markov_correspondence :
     (∀ A B : Mat2, A.det = 1 → B.det = 1 →
       (A.tr) ^ 2 + (B.tr) ^ 2 + (Mat2.mul A B).tr ^ 2 =
       A.tr * B.tr * (Mat2.mul A B).tr + (Mat2.comm A B).tr + 2) ∧
     (∀ A B : Mat2, InCohnTree A B →
       A.det = 1 ∧ B.det = 1 ∧ (Mat2.comm A B).tr = -2 ∧
+      (3 : Int) ∣ A.tr ∧ (3 : Int) ∣ B.tr ∧ (3 : Int) ∣ (Mat2.mul A B).tr ∧
       (A.tr / 3) ^ 2 + (B.tr / 3) ^ 2 + ((Mat2.mul A B).tr / 3) ^ 2 =
       3 * (A.tr / 3) * (B.tr / 3) * ((Mat2.mul A B).tr / 3)) ∧
     (cohnA0.tr / 3 = 1 ∧ cohnB0.tr / 3 = 2 ∧ (Mat2.mul cohnA0 cohnB0).tr / 3 = 5) := by
   refine ⟨fricke_trace_identity, ?_, by decide, by decide, by decide⟩
   intro A B h
   have hc := cohn_tree_markov h
-  refine ⟨hc.1, hc.2.1, hc.2.2.1, ?_⟩
+  refine ⟨hc.1, hc.2.1, hc.2.2.1,
+          ⟨A.tr / 3, by have := hc.2.2.2.1; omega⟩,
+          ⟨B.tr / 3, by have := hc.2.2.2.2.1; omega⟩,
+          ⟨(Mat2.mul A B).tr / 3, by have := hc.2.2.2.2.2.1; omega⟩, ?_⟩
   have hmk := hc.2.2.2.2.2.2
   grind
 

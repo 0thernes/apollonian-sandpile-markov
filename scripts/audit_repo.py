@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
-"""Automated Build Standard v1.2.0 manifest & repository hygiene auditor."""
+"""Automated Build Standard v1.2.0 & Playbook v1.3 repository hygiene auditor (v2.0.0)."""
 
 from __future__ import annotations
 
+import hashlib
 import json
 import re
 from pathlib import Path
@@ -19,12 +20,15 @@ REQUIRED_FILES = [
     "CLAUDE.md",
     "GEMINI.md",
     ".cursor/rules/build-standard.mdc",
+    ".env.example",
+    ".github/labels.tsv",
     "llms.txt",
     "llms-full.txt",
     "LICENSE",
     "LICENSE-CODE",
     "VERSION",
     "CHANGELOG.md",
+    "UPGRADING.md",
     "CLAIMS.md",
     "LIMITATIONS.md",
     "REPLICATION.md",
@@ -50,6 +54,17 @@ REQUIRED_FILES = [
     "requirements.txt",
     "repo.yaml",
     "MANIFEST.sha256",
+    "SHA256SUMS",
+    "data/MANIFEST.sha256",
+    "data/MANIFEST.sha256.tsr",
+    "data/MANIFEST.sha256.ots",
+    "docs/architecture.md",
+    "docs/configuration.md",
+    "docs/operations.md",
+    "docs/faq.md",
+    "docs/glossary.md",
+    "docs/run-log.md",
+    "docs/reviews/2026-11-26-10-pass-red-team-review.md",
     "lean/lean-toolchain",
     "lean/lakefile.toml",
     "lean/comparator.json",
@@ -58,6 +73,7 @@ REQUIRED_FILES = [
     "rust/Cargo.toml",
     "native/asm_verify.c",
     "native/fuzz_asm.c",
+    "native/fuzz_libfuzzer.c",
     "studio/index.html",
     "blueprint/index.html",
     "docs/index.html",
@@ -87,6 +103,14 @@ def main() -> int:
     for rel in BANNED_FILES:
         if (ROOT / rel).exists():
             errors.append(f"Banned file present (Build Standard R1/R4): {rel}")
+
+    # Agent pointer contract (Build Standard A32)
+    claude_md = ROOT / "CLAUDE.md"
+    if claude_md.exists() and "@AGENTS.md" not in claude_md.read_text(encoding="utf-8"):
+        errors.append("CLAUDE.md missing @AGENTS.md import")
+    gemini_md = ROOT / "GEMINI.md"
+    if gemini_md.exists() and "@./AGENTS.md" not in gemini_md.read_text(encoding="utf-8"):
+        errors.append("GEMINI.md missing @./AGENTS.md pointer")
 
     repo_yaml_path = ROOT / "repo.yaml"
     if repo_yaml_path.exists():
@@ -131,6 +155,21 @@ def main() -> int:
             if re.search(r"0thernes\s+LLC", txt, re.IGNORECASE):
                 errors.append(f"Playbook v1.3 policy violation ('0thernes LLC' found) in {rel}")
 
+    # Dual cryptographic timestamp integrity check (RFC 3161 .tsr + OpenTimestamps .ots)
+    data_manifest = ROOT / "data" / "MANIFEST.sha256"
+    if data_manifest.exists():
+        digest = hashlib.sha256(data_manifest.read_bytes()).digest()
+        tsr = ROOT / "data" / "MANIFEST.sha256.tsr"
+        if tsr.exists():
+            tsr_bytes = tsr.read_bytes()
+            if len(tsr_bytes) < 500 or tsr_bytes[0] != 0x30 or digest not in tsr_bytes:
+                errors.append("data/MANIFEST.sha256.tsr is invalid or does not embed current data/MANIFEST.sha256 digest")
+        ots = ROOT / "data" / "MANIFEST.sha256.ots"
+        if ots.exists():
+            ots_bytes = ots.read_bytes()
+            if not ots_bytes.startswith(b"\x00OpenTimestamps\x00\x00Proof\x00\xbf\x89\xe2\xe8\x84\xe8\x92\x94") or digest not in ots_bytes:
+                errors.append("data/MANIFEST.sha256.ots is invalid or does not embed current data/MANIFEST.sha256 digest")
+
     # Zero sorry / admit / native_decide in verified Lean proof files (PalomarChallenge.lean is the contract file)
     lean_dir = ROOT / "lean"
     for lf in lean_dir.rglob("*.lean"):
@@ -140,18 +179,18 @@ def main() -> int:
         body = "\n".join(code_lines)
         for bad in ("sorry", "admit", "native_decide"):
             if re.search(rf"\b{bad}\b", body):
-                # Allow inside doc comments /- ... -/ by stripping block comments first
                 stripped = re.sub(r"/-.*?-/", "", body, flags=re.DOTALL)
                 if re.search(rf"\b{bad}\b", stripped):
                     errors.append(f"Forbidden token {bad!r} in Lean source {lf.relative_to(ROOT)}")
 
-    # Version consistency across VERSION, pyproject.toml, rust/Cargo.toml, CITATION.cff, lean/formalization.yaml
+    # Version consistency across VERSION, pyproject.toml, rust/Cargo.toml, CITATION.cff, lean/lakefile.toml, lean/formalization.yaml
     if (ROOT / "VERSION").exists():
         ver = (ROOT / "VERSION").read_text(encoding="utf-8").strip()
         for rel, pat in [
             ("pyproject.toml", rf'version\s*=\s*"{re.escape(ver)}"'),
             ("rust/Cargo.toml", rf'version\s*=\s*"{re.escape(ver)}"'),
             ("CITATION.cff", rf'version:\s*"{re.escape(ver)}"'),
+            ("lean/lakefile.toml", rf'version\s*=\s*"{re.escape(ver)}"'),
             ("lean/formalization.yaml", rf'release_version:\s*"{re.escape(ver)}"'),
         ]:
             p = ROOT / rel
@@ -164,7 +203,7 @@ def main() -> int:
             print(f"  - {e}")
         return 1
 
-    print("AUDIT PASSED: all required files, 90 repo.yaml items, zero banned/sorry tokens, no-LLC policy, and version sync verified.")
+    print("AUDIT PASSED: all required files, 90 repo.yaml items, dual timestamps, zero banned/sorry tokens, no-LLC policy, and version sync verified.")
     return 0
 
 

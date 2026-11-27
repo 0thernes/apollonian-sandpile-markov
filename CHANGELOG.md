@@ -3,14 +3,17 @@
 
 All notable changes to `apollonian-sandpile-markov` (`0TH-2026-018`) are documented in this file following [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and [Semantic Versioning](https://semver.org/).
 
-## [Unreleased] - 2026-11-26
+## [2.0.0] - 2026-11-26
 
-### Changed (documentation only; no Lean, paper, data or PDF changes)
-- Corrected claim wording in `README.md`, `CLAIMS.md`, `LIMITATIONS.md`, `CITATION.cff`, `lean/formalization.yaml` and `docs/*.md` to match the 2026-11-26 statement audit ([audit log](https://github.com/0thernes/0thernes-research-archive/blob/main/docs/reviews/2026-11-26-statement-audit.md)).
-- `T3b` is now credited as a formalization of Ying Zhang's theorem (Acta Arith. 128 (2007), arXiv:math/0612620); `T1c` as a formalization of Haag–Kertzer–Rickards–Stange (2024) for three packings; `T3e` as the classical Hurwitz (1907) classification; arXiv:2510.21702 is cited for octahedral obstructions (`T1d`).
-- `(-4,8,9,9)` is no longer called unobstructed; `T2d` is described as an elementary parity lemma with its full hypothesis; `T2a`, `T2b`, `T2e`, `T3d` and `T3e` descriptions narrowed to what Lean states. The "Original Results" line of the 1.0.0 entry below is superseded by these descriptions.
-- Kernel-replay coverage and the 16 comparator `by sorry` stubs in `lean/PalomarChallenge.lean` are now stated explicitly.
-- `ERRATA.md`: added the "2026-11-26 statement audit" section listing errors in the frozen paper and known issues in the formal code.
+### Added & Resolved — Full Statement-Audit Remediation (13 Paper + 9 Code Items), Direct 9×9 Lean Determinants (`T2b`/`T2f`), Coverage-Guided `libFuzzer`, Dual Timestamps & 10/10 Mutation
+- **Resolved ALL 9 Formal-Code Audit Items (`lean/`):**
+  - Added a self-contained zero-Mathlib general `n × n` Laplace determinant `detMat` with verified elementary row-operation soundness in `SandpileTropical.lean`, proving `detMat 9 (gridLap 3) = 100,352` directly inside `T2b` AND `detMat 9 (a2GridLap 3) = 5,393,920` directly inside new theorem **`T2f`** (`t2f_a2_grid_orders_and_dhar_identity`, alongside Klein-4 block similarity and legal `A_2` Dhar traces).
+  - Expanded `T1e` to export `soddy3Q` preservation for all five 3D Soddy reflections `soddy3Refl1`–`soddy3Refl5`; expanded `T3a` to export explicit `3 ∣ A.tr ∧ 3 ∣ B.tr ∧ 3 ∣ (A*B).tr`; renamed `rootUnobstructed` → `rootSquareContrast` and `adv1_unobstructed_hits_square` → `adv1_square_contrast_hits_square`; added explicit constructive witnesses for the `T2d` hypothesis bundle and `IsStabilizingOdometer` in `NonVacuity.lean`; fixed `lean/lake-manifest.json` package name (`"ApollonianSandpileMarkov"`); and updated `lean/formalization.yaml` (`19` audited declarations, `17` intentional comparator stubs in `PalomarChallenge.lean`).
+- **Resolved ALL 13 Paper, Figure, Web & Bibliography Audit Items:**
+  - Rewrote `paper/main.tex`, regenerated all 4 vector PDF figures (`fig1`–`fig4`) and `docs/media/social-preview.png` (visually inspected), and updated `studio/index.html`, `blueprint/index.html`, `docs/index.html`, `README.md`, `CLAIMS.md`, `LIMITATIONS.md`, `ERRATA.md`, `VERIFICATION.md`, `CITATION.cff`, `docs/statement-fidelity.md`, and `docs/literature-log.md`.
+  - Credited `T3b` to Ying Zhang (`zhang2007`, *Acta Arith.* 128 (2007) 295–301, `arXiv:math/0612620`), cited Shi et al. (`shi2025`, `arXiv:2510.21702`) for octahedral reciprocity obstructions, credited `T3e` to Hurwitz (`hurwitz1907`), added 2017 reprint note on `baragar1993` (`23/23` live verified via Crossref/arXiv), fixed Cohn root matrix typo (`B_0 = [[1,2],[2,5]]`), removed `"Fibonacci-odd branch"`, removed unsupported causal claim linking `T2d` to height-5 sandpile plateaus, and narrowed `T1c`/`T1d`/`T1e`/`T2a`/`T2b`/`T2d`/`T2e`/`T2f`/`T3d`/`T3e` wording to match exact Lean propositions.
+- **Hardened Engineering & Provenance:**
+  - Added coverage-guided `libFuzzer` target (`native/fuzz_libfuzzer.c`), expanded C11 fuzzer to 7 laws (`100,000` iterations), expanded `scripts/mutate.py` to `10/10` (`100%`) semantic mutation kill rate, added live negative Lean kernel rejection gate in CI, added dual DigiCert RFC 3161 (`.tsr`) + 3-calendar Bitcoin OpenTimestamps (`.ots`), strict CSP + WCAG 2.2 AA across `studio/`, `blueprint/`, and `docs/`, and Build Standard v1.2.0 documentation (`docs/architecture.md`, `docs/configuration.md`, `docs/operations.md`, `docs/faq.md`, `docs/glossary.md`, `UPGRADING.md`, `docs/reviews/2026-11-26-10-pass-red-team-review.md`).
 
 ## [1.0.0] - 2026-11-26
 

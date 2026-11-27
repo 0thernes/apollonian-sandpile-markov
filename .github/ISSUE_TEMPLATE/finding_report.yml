@@ -22,8 +22,8 @@ body:
   - type: input
     id: affected_claim
     attributes:
-      label: Affected Claim / Theorem ID (e.g. T1f, T2c, E1, N1)
-      placeholder: "T1f"
+      label: Affected Claim / Theorem ID (e.g. T1c, T2d, T2f, T3b, C1)
+      placeholder: "T2f"
   - type: textarea
     id: details
     attributes:

@@ -1,9 +1,9 @@
 {
-  "title": "Thin Vieta Reflection Groups, Apollonian–Octahedral Reciprocity Obstructions, Integer-Superharmonic Sandpile Envelopes, and Markov–Hurwitz Geodesic Spectra: A Zero-Mathlib Six-Kernel Formalization",
+  "title": "Thin Vieta Reflection Groups, Apollonian–Octahedral Obstructions, Lattice Sandpile Identities, and Markov–Hurwitz Spectra: A Zero-Mathlib Six-Kernel Formalization",
   "upload_type": "publication",
   "publication_type": "preprint",
-  "version": "1.0.0",
-  "description": "Zero-Mathlib Lean 4.35.0 formalization of 15 headline theorems (T1a-T3e) unifying Apollonian/Octahedral reciprocity obstructions, Abelian sandpile and Triangular Lattice A2 Even-Laplacian Rigidity, and Markov-Hurwitz Mod-32 & 5-step Cluster Laurent positivity, replayed across 6 independent formal kernels and 3 independent computational oracles (Rust, ISO C11 ASan/UBSan, Python/Hypothesis/100% mutation).",
+  "version": "2.0.0",
+  "description": "Zero-Mathlib Lean 4.35.0 formalization of 16 statements (T1a-T3e + T2f, 19 audited declarations) covering HKRS (2024) Apollonian square obstructions on three roots, octahedral mod-8 locking, direct 9x9 Z^2 and A_2 Laplacian determinants & Dhar traces, an elementary A_2 even-Laplacian parity lemma, Zhang's (2007) Markov mod-32 theorem, 5-step Markov quiver identities, and Hurwitz's (1907) n=4 admissible coefficients — verified across 6 formal kernels and 3 independent computational oracles (zero-unsafe Rust, ISO C11 ASan/UBSan + libFuzzer, Python/Hypothesis/100% mutation). No open problem is solved.",
   "creators": [
     {
       "name": "Donahue, Alexander Stephen",

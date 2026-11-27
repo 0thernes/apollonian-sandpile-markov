@@ -1,15 +1,20 @@
-# apollonian-sandpile-markov (0TH-2026-018)
+# apollonian-sandpile-markov (0TH-2026-018, v2.0.0)
 
-> Zero-Mathlib Lean 4.35.0 six-kernel formalization of 15 headline theorems unifying Apollonian/Octahedral reciprocity obstructions, Triangular Lattice A2 Even-Laplacian Sandpile Rigidity, and Markov-Hurwitz Mod-32 & 5-step Cluster Laurent positivity.
+> Zero-Mathlib Lean 4.35.0 six-kernel formalization of 16 statements (19 audited declarations) covering HKRS (2024) square obstructions on three Apollonian packings, octahedral mod-8 locking, direct 9x9 Z^2 and A_2 Laplacian determinants & Dhar traces, an elementary A_2 even-Laplacian parity lemma, Zhang's (2007) Markov mod-32 theorem, 5-step Markov quiver identities, and Hurwitz's (1907) n=4 admissible coefficients. No open problem is solved.
 
 ## Canonical Files
-- [README.md](README.md): Overview, verbatim 5-second Lean axiom audit, quickstart
+- [README.md](README.md): Overview, verbatim 5-second Lean axiom audit, quickstart, usage examples
 - [CLAIMS.md](CLAIMS.md): Complete theorem-to-declaration claims matrix and open boundaries
 - [LIMITATIONS.md](LIMITATIONS.md): Scope limits and 6 concrete falsification criteria
-- [VERIFICATION.md](VERIFICATION.md): Six-kernel Lean + Rust + C11 ASan/UBSan + Python/Hypothesis/mutation architecture
-- [REPLICATION.md](REPLICATION.md): Clean-clone step-by-step reproduction guide
-- [HARDENING_LOG.md](HARDENING_LOG.md): 3-cycle audit log across all 10 finding classes
-- [paper/main.tex](paper/main.tex): 13-page zero-warning AMS-LaTeX white paper
+- [VERIFICATION.md](VERIFICATION.md): Six-kernel Lean + negative kernel gate + Rust + C11 ASan/UBSan/libFuzzer + Python/Hypothesis/mutation architecture
+- [REPLICATION.md](REPLICATION.md): Clean-clone step-by-step reproduction guide and replication log
+- [HARDENING_LOG.md](HARDENING_LOG.md): Multi-cycle hostile audit log across all 10 finding classes
+- [UPGRADING.md](UPGRADING.md): SemVer upgrade guide (`v1.0.0 -> v2.0.0`) and deprecation policy
+- [docs/architecture.md](docs/architecture.md): System, formal module, and six-kernel trust architecture
+- [docs/configuration.md](docs/configuration.md): Toolchain pins, build options, and CLI reference
+- [docs/operations.md](docs/operations.md): Offsite archival mirroring, git bundle recovery, dual timestamps, and rollback
+- [docs/reviews/2026-11-26-10-pass-red-team-review.md](docs/reviews/2026-11-26-10-pass-red-team-review.md): Playbook v1.3 10-pass red-team review
+- [paper/main.tex](paper/main.tex): Zero-warning AMS-LaTeX white paper (`v2.0.0`)
 - [dist/Donahue_2026_apollonian_sandpile_markov.pdf](dist/Donahue_2026_apollonian_sandpile_markov.pdf): Frozen preprint PDF
 - [studio/index.html](studio/index.html): Live 4-mode interactive browser Observatory
 - [blueprint/index.html](blueprint/index.html): Interactive Lean 4 Proof Blueprint

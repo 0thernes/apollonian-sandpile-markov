@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: Apache-2.0
-//! Zero-dependency exact integer verification library for:
+#![forbid(unsafe_code)]
+//! Zero-dependency exact integer verification library (v2.0.0) for:
 //! - Pillar I: Apollonian (4-even HKRS), Generalized Octahedral (Q(sqrt(-2))), and 3D Soddy packings
 //! - Pillar II: Abelian sandpile confluence, Dhar critical identity on Z^2 and A_2, Matrix-Tree orders,
-//!              and Kalinin-Shkolnikov tropical balancing / soliton scattering
+//!   and Kalinin-Shkolnikov tropical balancing / soliton scattering
 //! - Pillar III: SL2(Z) Cohn-Fricke tree, exact Markov tree uniqueness + mod-32 locking + p ≡ 1 (mod 4),
-//!               symbolic 5-step Markov cluster Laurent polynomials, and generalized Markov-Hurwitz n=4.
+//!   symbolic 5-step Markov cluster Laurent polynomials, and generalized Markov-Hurwitz n=4.
 
 use std::collections::{BTreeMap, BTreeSet, VecDeque};
 
@@ -135,12 +136,11 @@ pub fn audit_apollonian_packing(root: [i128; 4], max_bend: i128) -> ApollonianAu
             mod24.insert(b.rem_euclid(24));
         }
         // Compute HKRS character on each slot using a coprime odd BQF witness
-        for i in 0..4 {
-            let u = q[i];
+        for (i, &u) in q.iter().enumerate() {
             let mut others = Vec::with_capacity(3);
-            for j in 0..4 {
+            for (j, &val) in q.iter().enumerate() {
                 if j != i {
-                    others.push(q[j]);
+                    others.push(val);
                 }
             }
             // Pick v with u + v odd (exists in 4-even quadruple)
@@ -276,20 +276,17 @@ pub fn audit_octahedral_packing(root: [i128; 6], max_bend: i128) -> OctahedralAu
         {
             all_mod8 = false;
         }
-        for i in 0..6 {
-            let b = x[i];
+        for (i, &b) in x.iter().enumerate() {
             bends.insert(b);
             mod24.insert(b.rem_euclid(24));
             // Check Q(sqrt(-2)) Jacobi character on adjacent sums (a + c)
             let odd_a = signed_odd_part(b);
             let opp = (i + 3) % 6;
-            for j in 0..6 {
+            for (j, &xj) in x.iter().enumerate() {
                 if j != i && j != opp {
-                    let t = b + x[j];
-                    if t > 0 && t % 2 == 1 && gcd_i128(odd_a, t) == 1 {
-                        if jacobi(odd_a, t) != -1 {
-                            all_j_m1 = false;
-                        }
+                    let t = b + xj;
+                    if t > 0 && t % 2 == 1 && gcd_i128(odd_a, t) == 1 && jacobi(odd_a, t) != -1 {
+                        all_j_m1 = false;
                     }
                 }
             }
@@ -493,8 +490,8 @@ pub fn exact_det_bareiss(mat: &[Vec<i128>]) -> i128 {
     for k in 0..n {
         if a[k][k] == 0 {
             let mut swap_row = None;
-            for r in (k + 1)..n {
-                if a[r][k] != 0 {
+            for (r, row) in a.iter().enumerate().skip(k + 1) {
+                if row[k] != 0 {
                     swap_row = Some(r);
                     break;
                 }
@@ -553,12 +550,12 @@ pub struct MarkovAudit {
 }
 
 fn smallest_prime_factor(n: u128) -> u128 {
-    if n % 2 == 0 {
+    if n.is_multiple_of(2) {
         return 2;
     }
     let mut d = 3u128;
     while d * d <= n {
-        if n % d == 0 {
+        if n.is_multiple_of(d) {
             return d;
         }
         d += 2;
@@ -568,13 +565,13 @@ fn smallest_prime_factor(n: u128) -> u128 {
 
 fn odd_prime_factors(mut n: u128) -> Vec<u128> {
     let mut out = Vec::new();
-    while n % 2 == 0 && n > 0 {
+    while n > 0 && n.is_multiple_of(2) {
         n /= 2;
     }
     while n > 1 {
         let p = smallest_prime_factor(n);
         out.push(p);
-        while n % p == 0 {
+        while n.is_multiple_of(p) {
             n /= p;
         }
     }
@@ -682,7 +679,7 @@ pub fn audit_hurwitz_n4(max_a: u64, max_x: u64) -> BTreeMap<u64, Vec<[u64; 4]>> 
                 for x4 in x3..=max_x {
                     let lhs = sum123 + (x4 as u128).pow(2);
                     let denom = prod123 * (x4 as u128);
-                    if denom > 0 && lhs % denom == 0 {
+                    if denom > 0 && lhs.is_multiple_of(denom) {
                         let a = (lhs / denom) as u64;
                         if a >= 1 && a <= max_a {
                             out.get_mut(&a).unwrap().push([x1, x2, x3, x4]);
@@ -742,6 +739,12 @@ mod tests {
                 assert!(conf, "Confluence failed for {:?} n={}", kind, n);
                 assert!(idem, "Idempotence failed for {:?} n={}", kind, n);
                 assert_eq!(e.len(), n * n);
+                if kind == LatticeKind::SquareZ2 && n == 3 {
+                    assert_eq!(e, vec![2, 1, 2, 1, 0, 1, 2, 1, 2]);
+                }
+                if kind == LatticeKind::TriangularA2 && n == 3 {
+                    assert_eq!(e, vec![4, 2, 3, 2, 0, 2, 3, 2, 4]);
+                }
             }
         }
     }

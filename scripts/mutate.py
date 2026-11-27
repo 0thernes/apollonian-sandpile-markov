@@ -21,6 +21,8 @@ MUTANTS = [
     ("M06_sandpile_deg_a2", 'deg = 4 if lattice == "Z2" else 6', 'deg = 4 if lattice == "Z2" else 7'),
     ("M07_markov_mod32", "if m % 32 != 2:", "if m % 32 != 0:"),
     ("M08_cluster_p2", "p2 = p1 * p1 + v", "p2 = p1 * p1 + 2 * v"),
+    ("M09_a2_diag_neighbors", "deltas += [(-1, 1), (1, -1)]", "deltas += [(-1, 1)]"),
+    ("M10_cluster_r4", "r4 = p1**3 + 2 * x1 * x1 * p1 * p1 + x1 * x1 * v", "r4 = p1**3 + 3 * x1 * x1 * p1 * p1 + x1 * x1 * v"),
 ]
 
 
@@ -48,6 +50,7 @@ def main() -> int:
                     capture_output=True,
                     text=True,
                     timeout=20,
+                    check=False,
                 )
                 is_killed = proc.returncode != 0
             except subprocess.TimeoutExpired:

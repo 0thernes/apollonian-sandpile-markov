@@ -7,10 +7,10 @@ public import ApollonianSandpileMarkov.SandpileTropical
 public import ApollonianSandpileMarkov.MarkovHurwitzCluster
 
 /-!
-# Formal Statement Contract (`Challenge.lean`, v1.0.0)
+# Formal Statement Contract (`Challenge.lean`, v2.0.0)
 
-Collects the exact formal statements of all 15 headline theorems (`T1a`–`T3e`) and their master
-conjunction `AllApollonianSandpileMarkovTheorems`. Zero `sorry`, zero axioms.
+Collects the exact formal statements of all 16 headline theorems (`T1a`–`T3e`, including `T2f`) and
+their master conjunction `AllApollonianSandpileMarkovTheorems`. Zero `sorry`, zero axioms.
 -/
 
 namespace ApollonianSandpileMarkov.Challenge
@@ -45,7 +45,7 @@ abbrev T1c_HKRSApollonianReciprocityObstruction : Prop :=
   (∀ q, InApollonianOrbit rootHKRS1 q → ∀ m : Int, q.a ≠ m * m ∧ q.b ≠ m * m ∧ q.c ≠ m * m ∧ q.d ≠ m * m) ∧
   (∀ q, InApollonianOrbit rootHKRS2 q → ∀ m : Int, q.a ≠ m * m ∧ q.b ≠ m * m ∧ q.c ≠ m * m ∧ q.d ≠ m * m) ∧
   (∀ q, InApollonianOrbit rootHKRS3 q → ∀ m : Int, q.a ≠ m * m ∧ q.b ≠ m * m ∧ q.c ≠ m * m ∧ q.d ≠ m * m) ∧
-  (rootUnobstructed.descartes = 0 ∧ rootUnobstructed.a = 3 * 3)
+  (rootSquareContrast.descartes = 0 ∧ rootSquareContrast.a = 3 * 3)
 
 abbrev T1d_OctahedralLorentzianAndSqrtNeg2Obstruction : Prop :=
   (∀ s1 s2 s3 x, octRefl s1 s2 s3 (octRefl s1 s2 s3 x) = x ∧
@@ -69,6 +69,14 @@ abbrev T1e_SoddyDimensionDichotomyAnd3DContrast : Prop :=
     soddy3Refl3 (soddy3Refl3 s) = s ∧ soddy3Refl4 (soddy3Refl4 s) = s ∧
     soddy3Refl5 (soddy3Refl5 s) = s ∧
     soddy3Q (soddy3Refl1 s).b1 (soddy3Refl1 s).b2 (soddy3Refl1 s).b3 (soddy3Refl1 s).b4 (soddy3Refl1 s).b5 =
+      soddy3Q s.b1 s.b2 s.b3 s.b4 s.b5 ∧
+    soddy3Q (soddy3Refl2 s).b1 (soddy3Refl2 s).b2 (soddy3Refl2 s).b3 (soddy3Refl2 s).b4 (soddy3Refl2 s).b5 =
+      soddy3Q s.b1 s.b2 s.b3 s.b4 s.b5 ∧
+    soddy3Q (soddy3Refl3 s).b1 (soddy3Refl3 s).b2 (soddy3Refl3 s).b3 (soddy3Refl3 s).b4 (soddy3Refl3 s).b5 =
+      soddy3Q s.b1 s.b2 s.b3 s.b4 s.b5 ∧
+    soddy3Q (soddy3Refl4 s).b1 (soddy3Refl4 s).b2 (soddy3Refl4 s).b3 (soddy3Refl4 s).b4 (soddy3Refl4 s).b5 =
+      soddy3Q s.b1 s.b2 s.b3 s.b4 s.b5 ∧
+    soddy3Q (soddy3Refl5 s).b1 (soddy3Refl5 s).b2 (soddy3Refl5 s).b3 (soddy3Refl5 s).b4 (soddy3Refl5 s).b5 =
       soddy3Q s.b1 s.b2 s.b3 s.b4 s.b5) ∧
   (soddy3Q (-5) 9 12 13 16 = 0 ∧ soddy3Q (-6) 13 13 13 18 = 0 ∧
    (soddy3Refl5 ⟨-6, 13, 13, 13, 18⟩).b5 = 15 ∧
@@ -87,6 +95,7 @@ abbrev T2a_AbelianSandpileConfluenceAndLeastAction : Prop :=
 
 abbrev T2b_DharCriticalIdentityAndGridOrders : Prop :=
   det4 (gridLap 2) = 192 ∧
+  detMat 9 (gridLap 3) = 100352 ∧
   (∀ i j : Fin 9, matMul9 q9Mat q9Inv4 i j = if i = j then 4 else 0) ∧
   (∀ i j : Fin 9, matMul9 (gridLap 3) q9Mat i j = matMul9 q9Mat blockDiag9 i j) ∧
   (4 * det2 (b2Block 0 0) (b2Block 0 1) (b2Block 1 0) (b2Block 1 1) *
@@ -143,12 +152,38 @@ abbrev T2e_KalininShkolnikovTropicalBalancingAndSolitons : Prop :=
    vadd (vadd (-1, 1) (0, -2)) (1, 1) = (0, 0) ∧
    det2v (-1, 1) (0, -2) = 2)
 
+abbrev T2f_A2GridOrdersAndDharIdentity : Prop :=
+  det4 (a2GridLap 2) = 1092 ∧
+  detMat 9 (a2GridLap 3) = 5393920 ∧
+  (∀ i j : Fin 9, matMul9 qA2Mat qA2Inv4 i j = if i = j then 4 else 0) ∧
+  (∀ i j : Fin 9, matMul9 (a2GridLap 3) qA2Mat i j = matMul9 qA2Mat blockDiagA2 i j) ∧
+  (7 * det2 (b2aA2 0 0) (b2aA2 0 1) (b2aA2 1 0) (b2aA2 1 1) *
+       det2 (b2bA2 0 0) (b2bA2 0 1) (b2bA2 1 0) (b2bA2 1 1) *
+       det4 b4A2 = 5393920) ∧
+  (LegalTrace (a2GridGraph 2) traceIdA2_2x2 (fun i => idA2_2x2 i + idA2_2x2 i) ∧
+   toppleList (a2GridGraph 2) traceIdA2_2x2 (fun i => idA2_2x2 i + idA2_2x2 i) = idA2_2x2 ∧
+   IsStable (a2GridGraph 2) idA2_2x2 ∧
+   LegalTrace (a2GridGraph 2) trace2MaxA2_2x2 (fun _ => 10) ∧
+   toppleList (a2GridGraph 2) trace2MaxA2_2x2 (fun _ => 10) = s2MaxA2_2x2 ∧
+   IsStable (a2GridGraph 2) s2MaxA2_2x2 ∧
+   LegalTrace (a2GridGraph 2) traceDharA2_2x2 (fun i => 10 - s2MaxA2_2x2 i) ∧
+   toppleList (a2GridGraph 2) traceDharA2_2x2 (fun i => 10 - s2MaxA2_2x2 i) = idA2_2x2) ∧
+  (LegalTrace (a2GridGraph 3) traceIdA2_3x3 (fun i => idA2_3x3 i + idA2_3x3 i) ∧
+   toppleList (a2GridGraph 3) traceIdA2_3x3 (fun i => idA2_3x3 i + idA2_3x3 i) = idA2_3x3 ∧
+   IsStable (a2GridGraph 3) idA2_3x3 ∧
+   LegalTrace (a2GridGraph 3) trace2MaxA2_3x3 (fun _ => 10) ∧
+   toppleList (a2GridGraph 3) trace2MaxA2_3x3 (fun _ => 10) = s2MaxA2_3x3 ∧
+   IsStable (a2GridGraph 3) s2MaxA2_3x3 ∧
+   LegalTrace (a2GridGraph 3) traceDharA2_3x3 (fun i => 10 - s2MaxA2_3x3 i) ∧
+   toppleList (a2GridGraph 3) traceDharA2_3x3 (fun i => 10 - s2MaxA2_3x3 i) = idA2_3x3)
+
 abbrev T3a_SL2ZFrickeCohnMarkovCorrespondence : Prop :=
   (∀ A B : Mat2, A.det = 1 → B.det = 1 →
     (A.tr) ^ 2 + (B.tr) ^ 2 + (Mat2.mul A B).tr ^ 2 =
     A.tr * B.tr * (Mat2.mul A B).tr + (Mat2.comm A B).tr + 2) ∧
   (∀ A B : Mat2, InCohnTree A B →
     A.det = 1 ∧ B.det = 1 ∧ (Mat2.comm A B).tr = -2 ∧
+    (3 : Int) ∣ A.tr ∧ (3 : Int) ∣ B.tr ∧ (3 : Int) ∣ (Mat2.mul A B).tr ∧
     (A.tr / 3) ^ 2 + (B.tr / 3) ^ 2 + ((Mat2.mul A B).tr / 3) ^ 2 =
     3 * (A.tr / 3) * (B.tr / 3) * ((Mat2.mul A B).tr / 3)) ∧
   (cohnA0.tr / 3 = 1 ∧ cohnB0.tr / 3 = 2 ∧ (Mat2.mul cohnA0 cohnB0).tr / 3 = 5)
@@ -201,6 +236,7 @@ abbrev AllApollonianSandpileMarkovTheorems : Prop :=
   T2c_LPSZ2SuperharmonicAndIsotropicObstruction ∧
   T2d_TriangularA2EvenLaplacianRigidityAndObstruction ∧
   T2e_KalininShkolnikovTropicalBalancingAndSolitons ∧
+  T2f_A2GridOrdersAndDharIdentity ∧
   T3a_SL2ZFrickeCohnMarkovCorrespondence ∧
   T3b_MarkovCoprimalityOddPrimesAndMod32 ∧
   T3c_HenselSqrtNeg1PrimePowerUniqueness ∧

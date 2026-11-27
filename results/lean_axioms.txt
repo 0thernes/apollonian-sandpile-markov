@@ -16,7 +16,9 @@
 'ApollonianSandpileMarkov.Palomar.t2a_abelian_sandpile_confluence_and_least_action' depends on axioms: [propext,
  Classical.choice,
  Quot.sound]
-'ApollonianSandpileMarkov.Palomar.t2b_dhar_critical_identity_and_grid_orders' depends on axioms: [propext, Quot.sound]
+'ApollonianSandpileMarkov.Palomar.t2b_dhar_critical_identity_and_grid_orders' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
 'ApollonianSandpileMarkov.Palomar.t2c_lps_z2_superharmonic_and_isotropic_obstruction' depends on axioms: [propext,
  Classical.choice,
  Quot.sound]
@@ -24,6 +26,9 @@
  Classical.choice,
  Quot.sound]
 'ApollonianSandpileMarkov.Palomar.t2e_kalinin_shkolnikov_tropical_balancing_and_solitons' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'ApollonianSandpileMarkov.Palomar.t2f_a2_grid_orders_and_dhar_identity' depends on axioms: [propext,
  Classical.choice,
  Quot.sound]
 'ApollonianSandpileMarkov.Palomar.t3a_sl2z_fricke_cohn_markov_correspondence' depends on axioms: [propext,

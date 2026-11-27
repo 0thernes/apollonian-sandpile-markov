@@ -4,7 +4,7 @@ module
 public import Challenge
 
 /-!
-# Palomar Comparator Challenge Contract (`apollonian-sandpile-markov` v1.0.0)
+# Palomar Comparator Challenge Contract (`apollonian-sandpile-markov` v2.0.0)
 
 Statement contract for `lake comparator --config comparator.json --paranoid`.
 Excluded from `defaultTargets` in `lakefile.toml`; every theorem is proved with
@@ -25,6 +25,7 @@ public theorem t2b_dhar_critical_identity_and_grid_orders : T2b_DharCriticalIden
 public theorem t2c_lps_z2_superharmonic_and_isotropic_obstruction : T2c_LPSZ2SuperharmonicAndIsotropicObstruction := by sorry
 public theorem t2d_triangular_a2_even_laplacian_rigidity_and_obstruction : T2d_TriangularA2EvenLaplacianRigidityAndObstruction := by sorry
 public theorem t2e_kalinin_shkolnikov_tropical_balancing_and_solitons : T2e_KalininShkolnikovTropicalBalancingAndSolitons := by sorry
+public theorem t2f_a2_grid_orders_and_dhar_identity : T2f_A2GridOrdersAndDharIdentity := by sorry
 public theorem t3a_sl2z_fricke_cohn_markov_correspondence : T3a_SL2ZFrickeCohnMarkovCorrespondence := by sorry
 public theorem t3b_markov_coprimality_odd_primes_and_mod32 : T3b_MarkovCoprimalityOddPrimesAndMod32 := by sorry
 public theorem t3c_hensel_sqrt_neg1_prime_power_uniqueness : T3c_HenselSqrtNeg1PrimePowerUniqueness := by sorry

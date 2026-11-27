@@ -44,7 +44,7 @@ def verify_entry(entry: dict[str, str], offline: bool = False) -> tuple[bool, st
     if offline:
         return True, f"[{key}] structural identifier present (offline mode)"
 
-    headers = {"User-Agent": "apollonian-sandpile-markov/1.0.0 (mailto:0_0@0thernes.art)"}
+    headers = {"User-Agent": "apollonian-sandpile-markov/2.0.0 (mailto:0_0@0thernes.art)"}
 
     if doi:
         cr_url = f"https://api.crossref.org/works/{quote(doi, safe='')}"

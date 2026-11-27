@@ -1,12 +1,12 @@
 <!-- SPDX-License-Identifier: CC-BY-4.0 -->
-# Clean-Clone Replication Protocol (`REPLICATION.md`, v1.0.0)
+# Clean-Clone Replication Protocol (`REPLICATION.md`, v2.0.0)
 
 ## Prerequisites
 
 - **Lean 4.35.0** via [elan](https://github.com/leanprover/elan) (automatically selects `leanprover/lean4:v4.35.0` from `lean/lean-toolchain`).
-- **Rust stable** (`cargo`, zero external crates required).
+- **Rust stable** (`cargo`, `clippy`, zero external crates required).
 - **Python 3.11+** with packages from `requirements.txt`.
-- **GCC or Clang** (Linux/macOS, for ISO C11 ASan/UBSan + fuzz suite).
+- **GCC and Clang** (Linux/macOS, for ISO C11 ASan/UBSan + 100k 7-law fuzz + `libFuzzer`).
 - **Tectonic** (for rebuilding the AMS-LaTeX white paper and verifying the clean-room arXiv tarball).
 
 ## Step-by-Step Clean-Clone Verification
@@ -15,21 +15,22 @@
 git clone https://github.com/0thernes/apollonian-sandpile-markov.git
 cd apollonian-sandpile-markov
 
-# 1. Verify Lean 4.35.0 proofs & axiom footprint (zero Mathlib)
-(cd lean && lake build && lake env lean VerifyAxioms.lean > /tmp/local_axioms.txt && diff -u --strip-trailing-cr ../results/lean_axioms.txt /tmp/local_axioms.txt && lake env leanchecker Solution && lake env leanchecker PalomarSolution)
+# 1. Verify Lean 4.35.0 proofs, axiom footprint (19 decls), and --fresh kernel replay (zero Mathlib)
+(cd lean && lake build && lake env lean VerifyAxioms.lean > /tmp/local_axioms.txt && diff -u --strip-trailing-cr ../results/lean_axioms.txt /tmp/local_axioms.txt && lake env leanchecker --fresh Solution && lake env leanchecker --fresh PalomarSolution)
 
-# 2. Verify Rust exact core and regenerate results/rust_summary.json
-(cd rust && cargo test --release && cargo run --release -- --json ../results/rust_summary.json)
+# 2. Verify zero-unsafe Rust core (clippy -D warnings, release tests, JSON summary)
+(cd rust && cargo clippy --all-targets -- -D warnings && cargo test --release && cargo run --release -- --json ../results/rust_summary.json)
 
-# 3. Verify ISO C11 independent implementation + 100k fuzzer (Linux/macOS)
-gcc -std=c11 -O2 -Wall -Wextra -Werror -fsanitize=address,undefined native/asm_verify.c -o native/asm_verify
-./native/asm_verify
-gcc -std=c11 -O2 -Wall -Wextra -Werror -fsanitize=address,undefined native/fuzz_asm.c -o native/fuzz_asm
-./native/fuzz_asm
+# 3. Verify ISO C11 independent implementation, 100k 7-law fuzzer & libFuzzer (Linux/macOS)
+gcc -std=c11 -O2 -Wall -Wextra -Werror -fsanitize=address,undefined native/asm_verify.c -o native/asm_verify && ./native/asm_verify
+gcc -std=c11 -O2 -Wall -Wextra -Werror -fsanitize=address,undefined native/fuzz_asm.c -o native/fuzz_asm && ./native/fuzz_asm
+clang -std=c11 -O2 -Wall -Wextra -Werror -fsanitize=fuzzer,address,undefined native/fuzz_libfuzzer.c -o native/fuzz_libfuzzer && ./native/fuzz_libfuzzer -max_total_time=5
 
-# 4. Verify Python oracle, Hypothesis tests, Rust-Python differential tests, and 100% mutation kill rate
+# 4. Verify Python oracle, ruff, mypy, Hypothesis, differential tests & 10/10 (100%) mutation kill rate
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
+ruff check python tests scripts examples
+mypy python scripts tests examples
 PYTHONPATH=python python python/asm_verify/__init__.py
 PYTHONPATH=python pytest -v tests/test_all.py
 PYTHONPATH=python python scripts/mutate.py
@@ -41,12 +42,23 @@ python scripts/make_figures.py
 mkdir -p /tmp/arxiv_verify && tar -xzf dist/arxiv_submission.tar.gz -C /tmp/arxiv_verify
 (cd /tmp/arxiv_verify && tectonic -X compile main.tex)
 
-# 6. Verify verbatim README axioms, citations, cryptographic manifest, and 90/90 audit
+# 6. Verify verbatim README axioms, citations, cryptographic manifests, and 90/90 audit
 python scripts/check_readme_axioms.py
 python scripts/check_citations.py --offline
 sha256sum -c MANIFEST.sha256
+sha256sum -c SHA256SUMS
+sha256sum -c data/MANIFEST.sha256
 python scripts/audit_repo.py
 ```
+
+## Replication Log
+
+> **Honesty Note:** Entries below record clean-clone automated CI runs on GitHub-hosted Ubuntu & Windows runners plus local Windows developer reproduction. External third-party human reproduction is welcomed via GitHub Issues and is currently pending.
+
+| Date | Version | Commit / Tag | Environment | Scope Verified | Outcome |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| 2026-11-26 | `v1.0.0` | `0cf60c5` | GitHub Actions (`ubuntu-latest` + `windows-latest`, CI run `45849166650`) | 6 Lean kernels (`lean`, `leanchecker`, `lean4lean`, `nanoda_bin`, `con-leche`, `con-ron`, `comparator --paranoid`), Rust, C11 ASan/UBSan, Python/Hypothesis/8-mutant, Tectonic PDF + arXiv tarball, SLSA `#72728455` | PASS (internal CI clean-clone) |
+| 2026-11-26 | `v2.0.0` | `v2.0.0` (pending push SHA logged in `docs/run-log.md`) | Local Windows 11 (ReFS Dev Drive) + GitHub Actions (`ubuntu-latest` + `windows-latest`) | All 19 Lean decls (`T1a`–`T3e` + `T2f`) + `--fresh` + negative kernel rejection gate, Rust `#![forbid(unsafe_code)]` + `clippy -D warnings`, C11 + 7-law fuzz + `libFuzzer`, Python `ruff`/`mypy`/11 tests/10-mutant 100%, Tectonic + arXiv + dual RFC 3161 & OTS timestamps | PASS (internal clean-clone; external human reproduction pending) |
 
 ## Windows PowerShell Note
 

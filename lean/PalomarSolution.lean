@@ -4,7 +4,7 @@ module
 public import Challenge
 
 /-!
-# Palomar Comparator Verified Solution (`apollonian-sandpile-markov` v1.0.0)
+# Palomar Comparator Verified Solution (`apollonian-sandpile-markov` v2.0.0)
 
 Zero `sorry`, zero `admit`, zero `native_decide`, zero custom axioms.
 -/
@@ -47,6 +47,9 @@ public theorem t2d_triangular_a2_even_laplacian_rigidity_and_obstruction : T2d_T
 public theorem t2e_kalinin_shkolnikov_tropical_balancing_and_solitons : T2e_KalininShkolnikovTropicalBalancingAndSolitons :=
   SandpileTropical.t2e_kalinin_shkolnikov_tropical_balancing_and_solitons
 
+public theorem t2f_a2_grid_orders_and_dhar_identity : T2f_A2GridOrdersAndDharIdentity :=
+  SandpileTropical.t2f_a2_grid_orders_and_dhar_identity
+
 public theorem t3a_sl2z_fricke_cohn_markov_correspondence : T3a_SL2ZFrickeCohnMarkovCorrespondence :=
   MarkovHurwitzCluster.t3a_sl2z_fricke_cohn_markov_correspondence
 
@@ -73,6 +76,7 @@ public theorem prove_all_apollonian_sandpile_markov_theorems : AllApollonianSand
    t2c_lps_z2_superharmonic_and_isotropic_obstruction,
    t2d_triangular_a2_even_laplacian_rigidity_and_obstruction,
    t2e_kalinin_shkolnikov_tropical_balancing_and_solitons,
+   t2f_a2_grid_orders_and_dhar_identity,
    t3a_sl2z_fricke_cohn_markov_correspondence,
    t3b_markov_coprimality_odd_primes_and_mod32,
    t3c_hensel_sqrt_neg1_prime_power_uniqueness,

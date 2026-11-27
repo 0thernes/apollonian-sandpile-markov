@@ -2,28 +2,30 @@
 
 Author: Alexander Stephen Donahue (Independent Researcher, Spokane, WA, USA; ORCID 0009-0006-8168-9648)
 Repository: https://github.com/0thernes/apollonian-sandpile-markov
-Version: 1.0.0 | Licenses: Apache-2.0 (code), CC-BY-4.0 (prose/paper/data)
+Version: 2.0.0 | Licenses: Apache-2.0 (code), CC-BY-4.0 (prose/paper/data)
 
-## 15 Machine-Checked Lean 4.35.0 Headline Theorems (Zero Mathlib, Zero Sorry, Strictly [propext, Classical.choice, Quot.sound])
-- T1a (ApollonianReciprocity.lean): Descartes Lorentzian form, involutions, Gaussian norm (a+b)(a+c)=a^2+k^2, Brahmagupta-Descartes BQF identity.
-- T1b (JacobiReciprocity.lean): Self-contained zero-Mathlib Legendre-Jacobi symbol, Eisenstein (1844) Gauss Quadratic Reciprocity, both supplementary laws (-1/n) and (2/n), multiplicativity, squares=1.
-- T1c (ApollonianReciprocity.lean): Zero-GCD-exception parabolic Dehn-twist CRT proof of HKRS (Annals of Math. 2024) global square obstruction on (-3,5,8,8), (-7,17,12,20), (-11,21,24,28) vs unobstructed (-4,8,9,9) sharing mod-24 set {0,8,9,12,17,20}.
-- T1d (ApollonianReciprocity.lean): Generalized Octahedral Q(sqrt(-2)) Lorentzian sextuples, 8 face reflections, exact mod-8 locking (2,2,1,0,0,1) & Jacobi obstruction on (-6,10,17,40,24,17) vs strip (0,0,1,2,2,1) sharing mod-24 set {0,1,2,8,9,10,16,17,18}.
-- T1e (ApollonianReciprocity.lean): Exact Soddy dimension integrality dichotomy (d-1) | 2 <=> d=2 or d=3, plus 3D integral cluster (-6,13,13,13,18) reflecting to 25=5^2.
-- T2a (SandpileTropical.lean): Universal Abelian sandpile toppling commutativity, Discrete Least Action Principle, and Church-Rosser confluence on all finite sinked graphs.
-- T2b (SandpileTropical.lean): Exact Matrix-Tree determinants det(L_{Z2,2x2})=192 and det(L_{Z2,3x3})=100,352 via integer Kronecker block-diagonalization, plus explicit legal Dhar identity traces.
-- T2c (SandpileTropical.lean): Levine-Pegden-Smart Z^2 torus discrete Green's First Identity, periodic superharmonic rigidity, isotropic max-sea K=3 obstruction, constant Laplacian 2 and 3 witnesses.
-- T2d (SandpileTropical.lean, ORIGINAL): Triangular Lattice A_2 (deg=6) Even-Laplacian Rigidity — every periodic integer superharmonic envelope M*u = A*x^2+B*x*y+C*y^2+D*x+E*y+psi with Δ_{A2} u <= K and M*K = 4A-2B+4C satisfies K % 2 = 0, universally obstructing maximal stable height K=5 while certifying K=4 and K=2.
-- T2e (SandpileTropical.lean): Kalinin-Shkolnikov universal cyclic lattice polygon balancing sum R_90(v_{i+1}-v_i)=(0,0), trivalent determinant conservation, and 2-/3-soliton scattering conservation.
-- T3a (MarkovHurwitzCluster.lean): Universal SL_2(Z) Fricke trace identity and infinite Cohn matrix tree tr/3 correspondence.
-- T3b (MarkovHurwitzCluster.lean, ORIGINAL MOD-32): Pairwise coprimality, odd prime obstruction p=1 (mod 4), odd Markov m=1 (mod 4), and Exact Mod-32 Theorem: every even Markov number satisfies m % 32 = 2 (sharp mod 64 at 2 and 34).
-- T3c (MarkovHurwitzCluster.lean): Universal Hensel lifting uniqueness of sqrt(-1) mod p^k for every odd prime p and exponent k >= 1.
-- T3d (MarkovHurwitzCluster.lean): Symbolic 3-variable Fomin-Zelevinsky cluster-algebra Laurent integrality & positivity through 5 mutations including consecutive non-monomial polynomial divisions by P1 and P2, specializing at (1,1,1) to (2, 5, 29, 433, 37666).
-- T3e (MarkovHurwitzCluster.lean): Complete Markov-Hurwitz n=4 classification via well-founded Vieta descent (a=1 all entries = 2 mod 4; a=4 all odd; a in {2,3} and a >= 5 empty).
+## 16 Machine-Checked Lean 4.35.0 Statements (19 Audited Declarations; Zero Mathlib, Zero Sorry in built modules, Strictly [propext, Classical.choice, Quot.sound])
+- T1a (ApollonianReciprocity.lean): Classical Descartes Lorentzian form, 4 involutions, Gaussian norm (a+b)(a+c)=a^2+k^2, Brahmagupta-Descartes BQF identity (lemma for T1c).
+- T1b (JacobiReciprocity.lean): Self-contained zero-Mathlib Legendre-Jacobi symbol, Eisenstein (1844) Gauss Quadratic Reciprocity, supplementary laws (-1/n) and (2/n), multiplicativity, squares=1.
+- T1c (ApollonianReciprocity.lean): Zero-Mathlib parabolic Dehn-twist CRT formalization of the HKRS (Annals of Math. 2024) square obstruction for the three packings (-3,5,8,8), (-7,17,12,20), (-11,21,24,28); contrast rootSquareContrast=(-4,8,9,9) has Descartes form 0 and contains 9 (still has HKRS 3n^2, 6n^2, n^4, 4n^4 obstructions; mod-24 comparison is computational).
+- T1d (ApollonianReciprocity.lean): Octahedral 8 involutions, sqrt(-2) norm identity, mod-8 locking (2,2,1,0,0,1) on (-6,10,17,40,24,17) excluding squares at b1,b2 and twice-squares at b3,b6, plus 5 standalone closed Jacobi evaluations (no reciprocity proof formalized; cf. Shi et al., arXiv:2510.21702).
+- T1e (ApollonianReciprocity.lean): Divisibility fact (d-1) | 2 <=> d=2 or d=3 (used in LMW 2002; not linked in Lean to general d-dim reflections), all five 3D Soddy involutions preserving soddy3Q (v2.0.0), plus 3D cluster (-6,13,13,13,18) reflecting to 25=5^2.
+- T2a (SandpileTropical.lean): Toppling commutativity (Dhar 1990), discrete least-action bound, and uniqueness of legal stabilizing traces for SandpileGraph (symmetric zero-diagonal adjacency, arbitrary degrees, no sink condition, no termination theorem).
+- T2b (SandpileTropical.lean): Direct Lean determinants det4(gridLap 2)=192 and detMat 9(gridLap 3)=100,352 (v2.0.0), D_4 block similarity with product 100,352, and explicit legal Dhar toppling traces on 2x2 and 3x3 Z^2 grids (no Matrix-Tree or group-identity theorem formalized).
+- T2c (SandpileTropical.lean): Discrete torus Green's First Identity and one isotropic Z^2 superharmonic obstruction (4u = 3(x^2+y^2)+psi, lapZ2 u <= 3 -> False), plus constant Laplacian 2 and 3 witnesses (not full LPS classification).
+- T2d (SandpileTropical.lean, elementary parity lemma, no prior statement found): If M>=1, psi doubly periodic, M*u = A*x^2+B*x*y+C*y^2+D*x+E*y+psi, M*K = 4A-2B+4C, and Δ_{A2} u <= K everywhere, then K % 2 = 0 (excluding K=5 in this class; K=4,2 attained; says nothing about height-5 sandpile configurations).
+- T2e (SandpileTropical.lean): Elementary lattice-polygon edge-normal closure identity sum R_90(v_{i+1}-v_i)=(0,0), 2x2 determinant identity for v1+v2+v3=(0,0), and closed numeric checks (Kalinin-Shkolnikov theorem not formalized).
+- T2f (SandpileTropical.lean, v2.0.0): Direct Lean determinants det4(a2GridLap 2)=1,092 and detMat 9(a2GridLap 3)=5,393,920, Klein-4 block similarity (7*28*40*688), and explicit legal A_2 Dhar toppling traces on 2x2 ([4,3,3,4]) and 3x3 ([4,2,3,2,0,2,3,2,4]) (no Matrix-Tree or group-identity theorem formalized).
+- T3a (MarkovHurwitzCluster.lean): Classical SL_2(Z) Fricke trace identity and Cohn binary tree from A_0=((1,1),(1,2)), B_0=((1,2),(2,5)) exporting explicit 3|tr A, 3|tr B, 3|tr(AB) (v2.0.0) and Markov triples via tr/3 (Cohn 1955).
+- T3b (MarkovHurwitzCluster.lean): For Markov tree triples from (1,1,1): pairwise coprimality, odd prime p=1 (mod 4), odd m=1 (mod 4), and zero-Mathlib formalization of Ying Zhang's theorem (Acta Arith. 128 (2007) 295-301, arXiv:math/0612620) that even m=2 (mod 32), with witnesses (2,1,1) and (34,13,1).
+- T3c (MarkovHurwitzCluster.lean): Standard Hensel uniqueness of sqrt(-1) mod p^k for every odd prime p and k >= 1.
+- T3d (MarkovHurwitzCluster.lean): 5-step Markov quiver exchange identities with subtraction-free numerators (divisions by P1, P2) along the path through (2,5,29), (5,29,433), (29,433,37666); proves value positivity at positive integers (coefficient positivity by inspection; finite instance of FZ 2002 / LS 2015).
+- T3e (MarkovHurwitzCluster.lean): Classical Hurwitz (1907) n=4 admissible-coefficient classification (a=1 all entries = 2 mod 4; a=4 all odd; a in {2,3} and a >= 5 empty; Vieta-orbit description not in export).
 
 ## Independent Oracles & Six-Kernel Replay
-- Six Lean Kernels: lean 4.35.0, leanchecker, leanchecker-paranoid (lean4lean), nanoda_bin, con-leche, con-ron + lake comparator --paranoid.
-- Rust (0 deps, i128 Bareiss): det(L_{A2,2x2})=1092, det(L_{A2,3x3})=5393920, Markov <= 10^7 (56 triples, unique=true, 61 odd primes = 1 mod 4, 0 violations, even mod 64 = {2, 34}).
-- ISO C11 (ASan/UBSan + 100k fuzz): independent verifier & fuzzer.
-- Python Oracle: 9/9 pytest (600+ Hypothesis trials + Rust-Python differential) + 8/8 (100%) semantic mutation kill rate.
+- Six Lean Kernels: lean 4.35.0, leanchecker --fresh, leanchecker-paranoid (lean4lean), nanoda_bin, con-leche, con-ron + lake comparator --paranoid (17 targets against PalomarChallenge.lean, which holds 17 intentional by sorry stubs and is not a build target) + live negative kernel rejection gate.
+- Rust (0 deps, #![forbid(unsafe_code)], clippy -D warnings, i128 Bareiss): dets 192/100352/1092/5393920, Markov <= 10^7 (56 triples, unique=true, 61 odd primes = 1 mod 4, 0 violations, even mod 64 = {2, 34}).
+- ISO C11 (ASan/UBSan + 100k 7-law fuzz + coverage-guided libFuzzer): independent verifier & fuzz harnesses.
+- Python Oracle: 0 ruff / 0 mypy errors, 11/11 pytest (600+ Hypothesis trials + Rust-Python differential + exact <1e-14 3D Soddy tangency) + 10/10 (100%) semantic mutation kill rate.
+- Citations & Provenance: 23/23 live Crossref/arXiv verified citations (0 retractions), MANIFEST.sha256, SHA256SUMS, data/MANIFEST.sha256, DigiCert RFC 3161 (.tsr), Bitcoin OpenTimestamps (.ots), GitHub Actions SLSA attestations, Software Heritage SWHID.
 - Explicitly Open: Full Apollonian local-global classification, continuum sandpile scaling limit STAT-058, general-composite Markov Uniqueness NT-083, all-depth cluster formalization, Hurwitz n >= 5 asymptotics.

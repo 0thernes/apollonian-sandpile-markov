@@ -4,24 +4,25 @@ module
 public import ApollonianSandpileMarkov.JacobiReciprocity
 
 /-!
-# Pillar I: Thin Lorentzian Vieta Reflection Groups, Apollonian & Octahedral Reciprocity
-# Obstructions, and the Exact `d ∈ {2, 3}` Soddy Integrality Dichotomy
+# Pillar I: Thin Lorentzian Vieta Reflection Groups, Apollonian & Octahedral Congruence /
+# Reciprocity Obstructions, and the `d ∈ {2, 3}` Soddy Divisibility Fact
 
 Formalizes:
 - `T1a`: Descartes Lorentzian quadratic form `Q_D`, all 4 Vieta reflections `S1..S4`, exact
   Gaussian sum-of-squares identity `(a + b)(a + c) = a^2 + k^2`, and Brahmagupta–Descartes
   binary quadratic form product identity.
 - `T1c`: Zero-Mathlib constructive proof (zero GCD exceptions, via parabolic Dehn-twist CRT) of
-  the Haag–Kertzer–Rickards–Stange (*Annals of Math.*, 2024) quadratic reciprocity obstruction:
-  every primitive 4-even Apollonian packing with `χ = -1` — explicitly certifying
-  `(-3, 5, 8, 8)`, `(-7, 12, 17, 20)`, and `(-11, 21, 24, 28)` — omits EVERY perfect square `m^2`,
-  contrasting with `(-4, 8, 9, 9)` (identical mod-24 signature `[0,8,9,12,17,20]`, hits `9 = 3^2`).
-- `T1d`: Generalized Octahedral circle packing Lorentzian form `Q_oct`, all 8 face reflections,
-  exact `ℚ(√-2)` norm identity `(a + b)(a + c) = a^2 + 2 k^2`, Vieta sum-of-squares congruence,
-  and exact reciprocity obstruction for `(-6, 10, 17, 40, 24, 17)` forbidding EVERY `2^k * m^2`
-  across the entire infinite octahedral orbit (contrasting `(0, 0, 1, 2, 2, 1)`).
-- `T1e`: Exact Euclidean dimension dichotomy `(d - 1) ∣ 2 ↔ d = 2 ∨ d = 3` for universally integral
-  `d`-dimensional Soddy Vieta reflections, 3D Soddy invariance, and unobstructed square witnesses.
+  the Haag–Kertzer–Rickards–Stange (*Annals of Math.*, 2024, arXiv:2307.02749) square obstruction
+  for the three primitive 4-even Apollonian packings `(-3, 5, 8, 8)`, `(-7, 17, 12, 20)`, and
+  `(-11, 21, 24, 28)` — contrasted with the square-hitting packing `(-4, 8, 9, 9)` (which hits
+  `9 = 3^2`, though HKRS list `3n^2, 6n^2, n^4, 4n^4` obstructions for it).
+- `T1d`: Octahedral circle packing Lorentzian equations `IsOctahedral`, all 8 face reflections,
+  exact `ℚ(√-2)` norm identity `(a + b)(a + c) = a^2 + 2 k^2`, mod-8 residue locking
+  `(2, 2, 1, 0, 0, 1)` on the orbit of `(-6, 10, 17, 40, 24, 17)` excluding squares at `b1, b2`
+  and twice-squares at `b3, b6` by congruence, plus five closed Jacobi evaluations and the strip
+  contrast `(0, 0, 1, 2, 2, 1)` (cf. Shi, Shi, Whitehead, Williams-Tracy & Zhang, arXiv:2510.21702).
+- `T1e`: Arithmetic divisibility fact `(d - 1) ∣ 2 ↔ d = 2 ∨ d = 3` (used in Lagarias–Mallows–Wilks
+  2002), all five 3D Soddy involutions preserving `soddy3Q`, and the 3D reflection hitting `25 = 5^2`.
 -/
 
 namespace ApollonianSandpileMarkov.ApollonianReciprocity
@@ -1576,12 +1577,12 @@ theorem prim_of_coprime_pair {a b c d : Int} (hcop : Nat.Coprime a.natAbs b.natA
 
 /-- Concrete HKRS certificate 1: `(-3, 5, 8, 8)`. -/
 def rootHKRS1 : Quad := ⟨-3, 5, 8, 8⟩
-/-- Concrete HKRS certificate 2: `(-7, 17, 12, 20)` (same mod-24 set as unobstructed `(-4, 8, 9, 9)`!). -/
+/-- Concrete HKRS certificate 2: `(-7, 17, 12, 20)` (same mod-24 set as `(-4, 8, 9, 9)`). -/
 def rootHKRS2 : Quad := ⟨-7, 17, 12, 20⟩
 /-- Concrete HKRS certificate 3: `(-11, 21, 24, 28)`. -/
 def rootHKRS3 : Quad := ⟨-11, 21, 24, 28⟩
-/-- Unobstructed contrast root: `(9, 9, -4, 8)` (hits square `9 = 3^2`, same mod-24 set `[0,8,9,12,17,20]`). -/
-def rootUnobstructed : Quad := ⟨9, 9, -4, 8⟩
+/-- Square-hitting contrast root: `(9, 9, -4, 8)` (hits `9 = 3^2`; HKRS list `3n^2, 6n^2, n^4, 4n^4` obstructions for it). -/
+def rootSquareContrast : Quad := ⟨9, 9, -4, 8⟩
 
 theorem hkrs_root1_obstructed : HasHKRSObstruction rootHKRS1 := by
   apply mk_hkrs_root (xa := 1) (ya := 0) (xb := 1) (yb := 0) (xc := 1) (yc := 0) (xd := 1) (yd := 0)
@@ -1604,15 +1605,16 @@ theorem hkrs_root3_obstructed : HasHKRSObstruction rootHKRS3 := by
            prim_of_coprime_pair (by decide)⟩
   all_goals decide
 
-/-- **T1c Master Export (HKRS *Annals of Math.*, 2024):**
+/-- **T1c Master Export (HKRS *Annals of Math.*, 2024, for three packings):**
     Every quadruple in the infinite Apollonian orbits of `(-3, 5, 8, 8)`, `(-7, 17, 12, 20)`, and
-    `(-11, 21, 24, 28)` contains ZERO perfect squares `m^2`, whereas `(-4, 8, 9, 9)` (identical
-    mod-24 footprint) is valid on the Descartes cone and hits `9 = 3^2`. -/
+    `(-11, 21, 24, 28)` contains zero perfect squares `m^2`, whereas the square-hitting contrast
+    root `(9, 9, -4, 8)` lies on the Descartes cone and contains `9 = 3^2` (HKRS list `3n^2, 6n^2,
+    n^4, 4n^4` obstructions for it). -/
 theorem t1c_hkrs_apollonian_reciprocity_obstruction :
     (∀ q, InApollonianOrbit rootHKRS1 q → ∀ m : Int, q.a ≠ m * m ∧ q.b ≠ m * m ∧ q.c ≠ m * m ∧ q.d ≠ m * m) ∧
     (∀ q, InApollonianOrbit rootHKRS2 q → ∀ m : Int, q.a ≠ m * m ∧ q.b ≠ m * m ∧ q.c ≠ m * m ∧ q.d ≠ m * m) ∧
     (∀ q, InApollonianOrbit rootHKRS3 q → ∀ m : Int, q.a ≠ m * m ∧ q.b ≠ m * m ∧ q.c ≠ m * m ∧ q.d ≠ m * m) ∧
-    (rootUnobstructed.descartes = 0 ∧ rootUnobstructed.a = 3 * 3) :=
+    (rootSquareContrast.descartes = 0 ∧ rootSquareContrast.a = 3 * 3) :=
   ⟨fun _ h => hkrs_orbit_no_squares hkrs_root1_obstructed h,
    fun _ h => hkrs_orbit_no_squares hkrs_root2_obstructed h,
    fun _ h => hkrs_orbit_no_squares hkrs_root3_obstructed h,
@@ -1808,11 +1810,12 @@ def soddy3Refl4 (s : Soddy3) : Soddy3 := ⟨s.b1, s.b2, s.b3, s.b1 + s.b2 + s.b3
 def soddy3Refl5 (s : Soddy3) : Soddy3 := ⟨s.b1, s.b2, s.b3, s.b4, s.b1 + s.b2 + s.b3 + s.b4 - s.b5⟩
 
 /-- **T1e Master Export:**
-    1. Exact Euclidean dimension dichotomy: the `d`-dimensional Soddy Vieta reflection coefficient
-       `2 / (d - 1)` is an integer IF AND ONLY IF `d = 2` (Apollonian) or `d = 3` (3D Soddy).
-    2. All 5 3D Soddy reflections are exact involutions preserving `soddy3Q = 0`.
-    3. Unobstructed 3D Soddy contrast witnesses (`(-5, 9, 12, 13, 16)` containing `9 = 3^2` and
-       `16 = 4^2`, and `(-6, 13, 13, 13, 18)` reaching `25 = 5^2` in 1 reflection). -/
+    1. Arithmetic divisibility fact `(d - 1) ∣ 2 ↔ d = 2 ∨ d = 3` for `d ≥ 2` (used in the
+       Lagarias–Mallows–Wilks 2002 integrality argument; not linked in Lean to general `d`-dimensional
+       reflections).
+    2. All five 3D Soddy reflections `soddy3Refl1`–`soddy3Refl5` are involutions preserving `soddy3Q`.
+    3. 3D Soddy contrast witnesses (`(-5, 9, 12, 13, 16)` containing `9 = 3^2` and `16 = 4^2`, and
+       `(-6, 13, 13, 13, 18)` reaching `25 = 5^2` in one reflection). -/
 theorem t1e_soddy_dimension_dichotomy_and_3d_contrast :
     (∀ d : Nat, 2 ≤ d → ((d - 1) ∣ 2 ↔ d = 2 ∨ d = 3)) ∧
     (∀ s : Soddy3,
@@ -1820,6 +1823,14 @@ theorem t1e_soddy_dimension_dichotomy_and_3d_contrast :
       soddy3Refl3 (soddy3Refl3 s) = s ∧ soddy3Refl4 (soddy3Refl4 s) = s ∧
       soddy3Refl5 (soddy3Refl5 s) = s ∧
       soddy3Q (soddy3Refl1 s).b1 (soddy3Refl1 s).b2 (soddy3Refl1 s).b3 (soddy3Refl1 s).b4 (soddy3Refl1 s).b5 =
+        soddy3Q s.b1 s.b2 s.b3 s.b4 s.b5 ∧
+      soddy3Q (soddy3Refl2 s).b1 (soddy3Refl2 s).b2 (soddy3Refl2 s).b3 (soddy3Refl2 s).b4 (soddy3Refl2 s).b5 =
+        soddy3Q s.b1 s.b2 s.b3 s.b4 s.b5 ∧
+      soddy3Q (soddy3Refl3 s).b1 (soddy3Refl3 s).b2 (soddy3Refl3 s).b3 (soddy3Refl3 s).b4 (soddy3Refl3 s).b5 =
+        soddy3Q s.b1 s.b2 s.b3 s.b4 s.b5 ∧
+      soddy3Q (soddy3Refl4 s).b1 (soddy3Refl4 s).b2 (soddy3Refl4 s).b3 (soddy3Refl4 s).b4 (soddy3Refl4 s).b5 =
+        soddy3Q s.b1 s.b2 s.b3 s.b4 s.b5 ∧
+      soddy3Q (soddy3Refl5 s).b1 (soddy3Refl5 s).b2 (soddy3Refl5 s).b3 (soddy3Refl5 s).b4 (soddy3Refl5 s).b5 =
         soddy3Q s.b1 s.b2 s.b3 s.b4 s.b5) ∧
     (soddy3Q (-5) 9 12 13 16 = 0 ∧ soddy3Q (-6) 13 13 13 18 = 0 ∧
      (soddy3Refl5 ⟨-6, 13, 13, 13, 18⟩).b5 = 15 ∧
@@ -1837,7 +1848,7 @@ theorem t1e_soddy_dimension_dichotomy_and_3d_contrast :
   · intro s
     cases s with
     | mk b1 b2 b3 b4 b5 =>
-      refine ⟨?_, ?_, ?_, ?_, ?_, ?_⟩ <;>
+      refine ⟨?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_⟩ <;>
         (simp only [soddy3Refl1, soddy3Refl2, soddy3Refl3, soddy3Refl4, soddy3Refl5, soddy3Q]; grind)
   · exact ⟨by decide, by decide, by decide, by decide, by decide, by decide⟩
 

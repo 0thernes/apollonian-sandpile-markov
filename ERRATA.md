@@ -1,7 +1,36 @@
 <!-- SPDX-License-Identifier: CC-BY-4.0 -->
 # Errata & Corrections Policy (`ERRATA.md`)
 
-This file records post-release mathematical, formal, computational, bibliographic and typographic corrections discovered after `v1.0.0`. Frozen release files (`dist/Donahue_2026_apollonian_sandpile_markov.pdf`, `dist/arxiv_submission.tar.gz`, `paper/main.tex`) are not rewritten in place; corrections to them are listed here.
+This file records post-release mathematical, formal, computational, bibliographic and typographic corrections discovered after `v1.0.0`, together with their resolution in `v2.0.0`. Frozen release tags (`v1.0.0`) are never rewritten in place; all fixes ship cleanly in `v2.0.0`.
+
+## `v2.0.0` Resolution of the 2026-11-26 Statement Audit
+
+Every single one of the **13 paper/bibliography items** and **9 formal-code items** identified in the 2026-11-26 independent statement audit below has been resolved in release `v2.0.0`:
+
+- **Paper, Figures & Bibliography (13/13 resolved):** `paper/main.tex`, `paper/references.bib`, `scripts/make_figures.py` (`fig1`–`fig4` + `social-preview.png`), `studio/index.html`, `blueprint/index.html`, `docs/index.html`, and all Markdown docs were updated and rebuilt in `v2.0.0`:
+  1. `T3b` mod-32 theorem credited to Ying Zhang (`\cite{zhang2007}`, *Acta Arith.* 128 (2007) 295–301, `arXiv:math/0612620`).
+  2. `(-4,8,9,9)` no longer called unobstructed (explicitly notes HKRS `3n^2, 6n^2, n^4, 4n^4` obstructions; called square-hitting contrast packing).
+  3. `T1c` narrowed to the three specific HKRS packings `(-3,5,8,8)`, `(-7,17,12,20)`, `(-11,21,24,28)`.
+  4. `T1d` narrowed to mod-8 residue locking `(2,2,1,0,0,1)` + 5 standalone closed Jacobi evaluations; cites Shi et al. (`\cite{shi2025}`, `arXiv:2510.21702`).
+  5. `T1e` described as the divisibility criterion `(d-1) ∣ 2 ↔ d ∈ {2,3}` (LMW 2002) + all five 3D Soddy form-preserving involutions.
+  6. `T2a` hypotheses (`SandpileGraph` symmetric zero-diagonal adjacency, arbitrary degrees, no sink condition) and conclusion (uniqueness of legal stabilizing traces; no termination proof) aligned with Lean.
+  7. `T2b` and `T2f` now export direct 9×9 Laplace determinants `detMat 9` (`100,352` and `5,393,920`) alongside block similarities; paper explicitly notes no Matrix–Tree or group-identity theorem is formalized.
+  8. `T2d` described as an elementary $\mathbb{A}_2$ parity lemma with full mean-curvature hypothesis `M*K = 4A - 2B + 4C`; unsupported causal claim tying `T2d` to height-5 sandpile plateaus removed from Remark 3.5, Figure 2 caption, and Figure 2(b).
+  9. `T2e` described as a lattice-polygon edge-normal closure identity and `2×2` determinant identity (Kalinin–Shkolnikov theorem not formalized).
+  10. Cohn root matrix typo fixed from `[[2,1],[5,3]]` to **`B_0 = [[1,2],[2,5]]`** (trace 6, matching `cohnB0`).
+  11. `"Fibonacci-odd branch"` removed (`29`, `433` are not Fibonacci numbers); described as the mutation path through `(2,5,29)`, `(5,29,433)`, `(29,433,37666)`.
+  12. `T3d` narrowed to value positivity at positive integers (coefficient positivity by inspection) and `T3e` credited to Hurwitz (`\cite{hurwitz1907}`) for admissible coefficients `a ∈ {1,4}` with parity.
+  13. `paper/references.bib` expanded to 23 live-verified entries (`zhang2007`, `shi2025`, `hurwitz1907` added; `baragar1993` 2017 reprint note added).
+- **Formal Lean Code (9/9 resolved):**
+  1. `lean/lake-manifest.json` package name fixed to `"ApollonianSandpileMarkov"`.
+  2. `SandpileTropical.lean` & `Challenge.lean` (`T2b`, `T2f`): added zero-Mathlib general `n × n` Laplace determinant `detMat` + verified elementary row-operation soundness proving `detMat 9 (gridLap 3) = 100352` and `detMat 9 (a2GridLap 3) = 5393920` directly in-kernel.
+  3. `MarkovHurwitzCluster.lean` & `Challenge.lean` (`T3a`): added explicit `(3 : Int) ∣ A.tr ∧ (3 : Int) ∣ B.tr ∧ (3 : Int) ∣ (Mat2.mul A B).tr` conjuncts to the exported statement.
+  4. `ApollonianReciprocity.lean` & `Challenge.lean` (`T1e`): added `soddy3Q` preservation for all five 3D Soddy reflections `soddy3Refl1`–`soddy3Refl5`.
+  5. `NonVacuity.lean`: added explicit constructive joint witness for the `T2d` hypothesis bundle (`u(x,y)=x^2, M=1, A=1, K=4, ψ=0`) and `IsStabilizingOdometer` witnesses for `gridGraph 2` and `a2GridGraph 3`.
+  6. `ApollonianReciprocity.lean`, `Challenge.lean`, and `Adversarial.lean`: renamed `rootUnobstructed` → `rootSquareContrast` and `adv1_unobstructed_hits_square` → `adv1_square_contrast_hits_square`.
+  7. `Adversarial.lean` & docs: honestly described as six refutations of false variants (no claim that every hypothesis is tight).
+  8. `lean/formalization.yaml`: explicitly documents `17` intentional `by sorry` stubs in `PalomarChallenge.lean`, `19` audited declarations, and exact kernel-replay coverage.
+  9. Existing declaration names (`t1d_...`, `t2e_...`, `t3d_...`, `t3e_...`) retained for comparator continuity with exact narrowed scopes documented everywhere.
 
 ## Pre-release issues
 

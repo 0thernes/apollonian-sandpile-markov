@@ -1,13 +1,14 @@
 # SPDX-License-Identifier: Apache-2.0
-"""Independent arbitrary-precision Python oracle for Apollonian-Sandpile-Markov (v1.0.0)."""
+"""Independent arbitrary-precision Python oracle for Apollonian-Sandpile-Markov (v2.0.0)."""
 
 from __future__ import annotations
 
 import json
 import math
 from collections import deque
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Dict, List, Sequence, Tuple
+from typing import Any
 
 
 def jacobi(a: int, n: int) -> int:
@@ -48,17 +49,17 @@ def descartes_q(q: Sequence[int]) -> int:
     return s * s - 2 * sum(v * v for v in q)
 
 
-def apollonian_refl(q: Tuple[int, int, int, int], idx: int) -> Tuple[int, int, int, int]:
+def apollonian_refl(q: tuple[int, int, int, int], idx: int) -> tuple[int, int, int, int]:
     arr = list(q)
     arr[idx] = 2 * (sum(q) - q[idx]) - q[idx]
     return (arr[0], arr[1], arr[2], arr[3])
 
 
-def audit_apollonian_packing(root: Tuple[int, int, int, int], max_bend: int) -> Dict[str, object]:
+def audit_apollonian_packing(root: tuple[int, int, int, int], max_bend: int) -> dict[str, Any]:
     visited = {tuple(sorted(root))}
     queue = deque([root])
-    bends = set()
-    mod24 = set()
+    bends: set[int] = set()
+    mod24: set[int] = set()
     all_q0 = True
     while queue:
         q = queue.popleft()
@@ -95,7 +96,9 @@ def is_octahedral(x: Sequence[int]) -> bool:
     )
 
 
-def oct_refl(x: Tuple[int, int, int, int, int, int], mask: int) -> Tuple[int, int, int, int, int, int]:
+def oct_refl(
+    x: tuple[int, int, int, int, int, int], mask: int
+) -> tuple[int, int, int, int, int, int]:
     s1, s2, s3 = bool(mask & 1), bool(mask & 2), bool(mask & 4)
     s = x[0] + x[3]
     f1 = x[3] if s1 else x[0]
@@ -112,15 +115,17 @@ def oct_refl(x: Tuple[int, int, int, int, int, int], mask: int) -> Tuple[int, in
     )
 
 
-def audit_octahedral_packing(root: Tuple[int, int, int, int, int, int], max_bend: int) -> Dict[str, object]:
-    def canonical(x: Tuple[int, int, int, int, int, int]) -> Tuple[int, ...]:
+def audit_octahedral_packing(
+    root: tuple[int, int, int, int, int, int], max_bend: int
+) -> dict[str, Any]:
+    def canonical(x: tuple[int, int, int, int, int, int]) -> tuple[int, ...]:
         pairs = sorted(tuple(sorted((x[i], x[i + 3]))) for i in range(3))
         return (pairs[0][0], pairs[1][0], pairs[2][0], pairs[0][1], pairs[1][1], pairs[2][1])
 
     visited = {canonical(root)}
     queue = deque([root])
-    bends = set()
-    mod24 = set()
+    bends: set[int] = set()
+    mod24: set[int] = set()
     all_oct = True
     while queue:
         x = queue.popleft()
@@ -147,7 +152,7 @@ def audit_octahedral_packing(root: Tuple[int, int, int, int, int, int], max_bend
     }
 
 
-def stabilize_sandpile(lattice: str, n: int, init: Sequence[int]) -> Tuple[List[int], List[int]]:
+def stabilize_sandpile(lattice: str, n: int, init: Sequence[int]) -> tuple[list[int], list[int]]:
     deg = 4 if lattice == "Z2" else 6
     deltas = [(-1, 0), (1, 0), (0, -1), (0, 1)]
     if lattice == "A2":
@@ -176,7 +181,7 @@ def stabilize_sandpile(lattice: str, n: int, init: Sequence[int]) -> Tuple[List[
     return s, odo
 
 
-def dhar_identity(lattice: str, n: int) -> List[int]:
+def dhar_identity(lattice: str, n: int) -> list[int]:
     deg = 4 if lattice == "Z2" else 6
     mu = deg - 1
     s1, _ = stabilize_sandpile(lattice, n, [2 * mu] * (n * n))
@@ -184,12 +189,12 @@ def dhar_identity(lattice: str, n: int) -> List[int]:
     return e
 
 
-def audit_markov_tree(max_val: int) -> Dict[str, object]:
+def audit_markov_tree(max_val: int) -> dict[str, Any]:
     visited = {(1, 1, 1)}
     queue = deque([(1, 1, 1)])
-    max_counts: Dict[int, int] = {}
-    nums = set()
-    even_mod64 = set()
+    max_counts: dict[int, int] = {}
+    nums: set[int] = set()
+    even_mod64: set[int] = set()
     all_odd4 = True
     all_even32 = True
     while queue:
@@ -225,7 +230,7 @@ def audit_markov_tree(max_val: int) -> Dict[str, object]:
     }
 
 
-def markov_cluster_5step(x1: int, x2: int, x3: int) -> Tuple[int, int, int, int, int]:
+def markov_cluster_5step(x1: int, x2: int, x3: int) -> tuple[int, int, int, int, int]:
     p1 = x2 * x2 + x3 * x3
     v = x1 * x1 * x3 * x3
     w = x1 * x1 * x2 * x2
@@ -239,7 +244,7 @@ def markov_cluster_5step(x1: int, x2: int, x3: int) -> Tuple[int, int, int, int,
     return p1, p2, p3, p4, p5
 
 
-def full_oracle_report() -> Dict[str, object]:
+def full_oracle_report() -> dict[str, Any]:
     a1 = audit_apollonian_packing((-3, 5, 8, 8), 1000)
     a2 = audit_apollonian_packing((-7, 17, 12, 20), 1000)
     a3 = audit_apollonian_packing((-11, 21, 24, 28), 1000)
@@ -263,6 +268,7 @@ def full_oracle_report() -> Dict[str, object]:
             "a2_15x15_sum": sum(e_a2_15),
             "z2_3x3_id": dhar_identity("Z2", 3),
             "a2_3x3_id": dhar_identity("A2", 3),
+            "a2_2x2_id": dhar_identity("A2", 2),
         },
         "pillar3": {
             "markov_1e6": mk,
@@ -276,7 +282,7 @@ def main() -> None:
     out = Path(__file__).resolve().parents[2] / "results" / "exact_verification_report.json"
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
-    print(json.dumps({"oracle_status": "PASS", "output": str(out)}))
+    print(json.dumps({"oracle_status": "PASS", "version": "2.0.0", "output": str(out)}))
 
 
 if __name__ == "__main__":

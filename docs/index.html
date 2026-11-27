@@ -4,7 +4,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Apollonian–Sandpile–Markov (0TH-2026-018) — Zero-Mathlib Six-Kernel Formalization</title>
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; img-src 'self' data:; base-uri 'none'; form-action 'none';" />
+  <title>Apollonian–Sandpile–Markov (0TH-2026-018, v2.0.0) — Zero-Mathlib Six-Kernel Formalization</title>
   <style>
     :root {
       --bg: #0b1120;
@@ -47,9 +48,9 @@
 </head>
 <body>
   <section class="hero">
-    <div class="tag">0TH-2026-018 · ZERO-MATHLIB LEAN 4.35.0 · 6 INDEPENDENT KERNELS · ZERO SORRY</div>
-    <h1>Thin Vieta Reflection Groups, Apollonian–Octahedral Reciprocity Obstructions, Integer-Superharmonic Sandpile Envelopes, and Markov–Hurwitz Geodesic Spectra</h1>
-    <p>Alexander Stephen Donahue (ORCID 0009-0006-8168-9648) · 15 Machine-Checked Headline Theorems (T1a–T3e) + NonVacuity + Adversarial Refutations, Verified Across Six Formal Kernels and Three Computational Oracles (Rust, ISO C11 ASan/UBSan, Python + Hypothesis + 100% Mutation).</p>
+    <div class="tag">0TH-2026-018 · v2.0.0 · ZERO-MATHLIB LEAN 4.35.0 · 6 INDEPENDENT KERNELS · ZERO SORRY</div>
+    <h1>Thin Vieta Reflection Groups, Apollonian–Octahedral Obstructions, Lattice Sandpile Identities, and Markov–Hurwitz Spectra</h1>
+    <p>Alexander Stephen Donahue (ORCID 0009-0006-8168-9648) · 16 Machine-Checked Headline Statements (T1a–T3e + T2f) + Master + NonVacuity + 6 False-Variant Refutations (19 Audited Declarations), Verified Across Six Formal Kernels and Three Computational Oracles (Rust, ISO C11 ASan/UBSan + libFuzzer, Python + Hypothesis + 100% Mutation).</p>
     <div class="cta-row">
       <a class="cta primary" href="studio/index.html">Launch Interactive 4-Mode Observatory</a>
       <a class="cta" href="blueprint/index.html">Explore Lean 4 Proof Blueprint</a>
@@ -59,19 +60,19 @@
   </section>
 
   <main>
-    <img class="preview-img" src="media/social-preview.png" alt="Visual summary of HKRS Apollonian gasket, A2 triangular sandpile identity with 4-chip plateaus, and Cohn-Markov Mod-32 tree" />
+    <img class="preview-img" src="media/social-preview.png" alt="Visual summary of HKRS Apollonian gasket, A2 51x51 triangular sandpile Dhar identity computation, and Cohn-Markov Mod-32 tree" />
     <section class="pillars" aria-label="Three unified mathematical pillars">
       <article class="card">
         <h2>Pillar I · Thin Reflection Groups (T1a–T1e)</h2>
-        <p>Self-contained zero-Mathlib Eisenstein (1844) Gauss Quadratic Reciprocity, a formalization, for three packings, of the HKRS (Ann. of Math. 2024) square obstruction; mod-8 residue locking on one octahedral orbit (cf. arXiv:2510.21702); and the arithmetic fact (d-1) | 2 ⇔ d ∈ {2,3}.</p>
+        <p>Self-contained zero-Mathlib Eisenstein (1844) Gauss Quadratic Reciprocity; a formalization, for three packings, of the HKRS (Ann. of Math. 2024) square obstruction (with square-hitting contrast (-4,8,9,9)); mod-8 residue locking on one octahedral orbit plus five closed Jacobi evaluations (cf. Shi et al., arXiv:2510.21702); and the divisibility fact (d-1) | 2 ⇔ d ∈ {2,3} (LMW 2002) alongside all five form-preserving 3D Soddy involutions.</p>
       </article>
       <article class="card">
-        <h2>Pillar II · Sandpiles &amp; Tropical Curves (T2a–T2e)</h2>
-        <p>Universal Abelian sandpile confluence &amp; Least Action, det(L<sub>2×2</sub>) = 192 and a 3×3-grid block similarity whose block determinants multiply to 100,352 (no Matrix–Tree link formalized), Levine–Pegden–Smart Z² obstruction, an elementary A₂ even-Laplacian parity lemma (under M·K = 4A − 2B + 4C, K is even; it says nothing about height-5 sandpile configurations), and a lattice-polygon edge-normal closure identity (the Kalinin–Shkolnikov theorem is not formalized).</p>
+        <h2>Pillar II · Sandpiles &amp; Lattice Identities (T2a–T2f)</h2>
+        <p>Toppling commutativity, least-action bound, and uniqueness of legal stabilizing traces (no sink condition or termination proof); direct Lean 4×4 and 9×9 Laplace determinants on Z² (192; 100,352, T2b) and A₂ (1,092; 5,393,920, T2f) plus block similarities and legal Dhar traces (no Matrix–Tree link formalized); one isotropic Z² obstruction (T2c); an elementary A₂ even-Laplacian parity lemma (under M·K = 4A − 2B + 4C, K is even; says nothing about height-5 sandpile configurations); and a lattice-polygon edge-normal closure identity (Kalinin–Shkolnikov theorem not formalized).</p>
       </article>
       <article class="card">
-        <h2>Pillar III · Markov–Hurwitz &amp; Cluster (T3a–T3e)</h2>
-        <p>Universal SL₂(Z) Fricke trace &amp; Cohn tree correspondence, pairwise coprimality, odd prime obstruction p ≡ 1 (mod 4), Ying Zhang's mod-32 theorem (Acta Arith. 128 (2007) 295–301, arXiv:math/0612620; every even Markov number is 2 mod 32), formalized here for triples in the Markov tree, Hensel √(-1) mod p^k uniqueness, exchange identities along one five-step Markov-quiver mutation sequence, and Hurwitz's (1907) admissible-coefficient classification for n=4.</p>
+        <h2>Pillar III · Markov–Hurwitz &amp; Quiver (T3a–T3e)</h2>
+        <p>SL₂(Z) Fricke trace identity &amp; Cohn tree with explicit 3 | tr divisibility; pairwise coprimality, odd prime obstruction p ≡ 1 (mod 4), and Ying Zhang's mod-32 theorem (Acta Arith. 128 (2007) 295–301, arXiv:math/0612620; every even Markov number in the tree is 2 mod 32); Hensel √(-1) mod p^k uniqueness; exchange identities along one five-step Markov-quiver mutation sequence with value positivity at positive integers; and Hurwitz's (1907) admissible-coefficient classification (a ∈ {1,4}) for n=4.</p>
       </article>
     </section>
   </main>

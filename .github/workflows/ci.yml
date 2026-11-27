@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
-name: Apollonian-Sandpile-Markov CI (6 Lean Kernels, Rust, C11 ASan/UBSan, Python, Tectonic, SLSA)
+name: Apollonian-Sandpile-Markov CI (6 Lean Kernels, Negative Gate, Rust, C11/libFuzzer, Python, Tectonic, SLSA)
 
 on:
   push:
@@ -23,31 +23,35 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
-      - name: Build, test, clippy, and export JSON summary
+        with:
+          components: clippy
+      - name: Build, clippy (-D warnings), test, and export JSON summary
         working-directory: rust
         shell: bash
         run: |
+          cargo clippy --all-targets -- -D warnings
           cargo test --release
           cargo run --release -- --json rust_summary.json
           cat rust_summary.json
           python3 -c "import json; json.load(open('rust_summary.json'))" || python -c "import json; json.load(open('rust_summary.json'))"
           rm -f rust_summary.json
-          cargo clippy --all-targets || true
 
   c11-asan-ubsan-fuzz:
-    name: ISO C11 Verifier & 100k Fuzzer (ASan + UBSan)
+    name: ISO C11 Verifier, 100k 7-Law Fuzzer & Coverage-Guided libFuzzer (ASan + UBSan)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Compile and run strict ISO C11 verifier + 100,000-case fuzzer under ASan/UBSan
+      - name: Compile and run strict ISO C11 verifier, 100k fuzzer & libFuzzer under ASan/UBSan
         run: |
           gcc -std=c11 -O2 -Wall -Wextra -Werror -fsanitize=address,undefined native/asm_verify.c -o native/asm_verify
           ./native/asm_verify
           gcc -std=c11 -O2 -Wall -Wextra -Werror -fsanitize=address,undefined native/fuzz_asm.c -o native/fuzz_asm
           ./native/fuzz_asm
+          clang -std=c11 -O2 -Wall -Wextra -Werror -fsanitize=fuzzer,address,undefined native/fuzz_libfuzzer.c -o native/fuzz_libfuzzer
+          ./native/fuzz_libfuzzer -max_total_time=5
 
   python-oracle-and-differential:
-    name: Python Oracle, Hypothesis, Differential, Mutation & Audit (${{ matrix.os }})
+    name: Python Oracle, Ruff, Mypy, Hypothesis, Differential, Mutation & Audit (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -66,21 +70,22 @@ jobs:
           if command -v gcc >/dev/null 2>&1; then
             gcc -std=c11 -O2 -Wall -Wextra -Werror native/asm_verify.c -o native/asm_verify
           fi
-      - name: Install dependencies and run pytest, mutation, axiom, citation, and repo audits
+      - name: Install dependencies and run ruff, mypy, pytest, 10/10 mutation, axiom, citation, and repo audits
         shell: bash
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+          ruff check python tests scripts examples
+          mypy python scripts tests examples
           PYTHONPATH=python python examples/quickstart_demo.py
           PYTHONPATH=python pytest tests/test_all.py -v
           PYTHONPATH=python python scripts/mutate.py
           python scripts/check_readme_axioms.py
           python scripts/check_citations.py --offline
           python scripts/audit_repo.py
-          mypy python/asm_verify/__init__.py
 
   lean4-six-kernels:
-    name: Zero-Mathlib Lean 4.35.0 Six-Kernel & Palomar Comparator Audit
+    name: Zero-Mathlib Lean 4.35.0 Six-Kernel, Palomar Comparator & Negative Rejection Gate
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -89,7 +94,7 @@ jobs:
           sudo apt-get update && sudo apt-get install -y bubblewrap
           curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- -y --default-toolchain none
           echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
-      - name: Clean build, strict axiom audit & 6-kernel replay (lean, leanchecker, lean4lean, nanoda, con-leche, con-ron)
+      - name: Clean build, strict axiom audit & 6-kernel replay (lean, leanchecker --fresh, lean4lean, nanoda, con-leche, con-ron)
         working-directory: lean
         run: |
           elan show
@@ -98,8 +103,8 @@ jobs:
           cat /tmp/ci_axioms.txt
           ! grep -E "sorryAx|_native|Lean\.ofReduceBool|Lean\.trustCompiler" /tmp/ci_axioms.txt
           diff -u --strip-trailing-cr ../results/lean_axioms.txt /tmp/ci_axioms.txt
-          lake env leanchecker Solution
-          lake env leanchecker PalomarSolution
+          lake env leanchecker --fresh Solution
+          lake env leanchecker --fresh PalomarSolution
           lake env leanchecker-paranoid Solution
           lake env leanchecker-paranoid PalomarSolution
           lake env leanexport Solution -- ApollonianSandpileMarkov.Solution.master_all_theorems ApollonianSandpileMarkov.NonVacuity.nonvac_all_hypotheses ApollonianSandpileMarkov.Adversarial.all_adversarial_refutations > /tmp/Solution.export
@@ -117,9 +122,33 @@ jobs:
           EOF
           lake env nanoda_bin /tmp/nanoda.json
           lake comparator --config comparator.json --paranoid
+      - name: Live negative kernel rejection gate (prove sorry, custom axiom, and statement tampering fail closed)
+        working-directory: lean
+        run: |
+          cat << 'EOF' > /tmp/neg_sorry.lean
+          theorem bad_false : (5 : Int) % 2 = 0 := by sorry
+          #print axioms bad_false
+          EOF
+          lake env lean /tmp/neg_sorry.lean 2>&1 | grep -q "sorryAx"
+
+          cat << 'EOF' > /tmp/neg_axiom.lean
+          axiom forged_axiom : False
+          theorem bad_from_axiom : (5 : Int) % 2 = 0 := False.elim forged_axiom
+          #print axioms bad_from_axiom
+          EOF
+          lake env lean /tmp/neg_axiom.lean 2>&1 | grep -q "forged_axiom"
+
+          cp -r . /tmp/lean_tamper
+          sed -i 's/T2f_A2GridOrdersAndDharIdentity/True/' /tmp/lean_tamper/PalomarChallenge.lean
+          if (cd /tmp/lean_tamper && lake comparator --config comparator.json --paranoid); then
+            echo "ERROR: comparator unexpectedly accepted a tampered challenge statement!"
+            exit 1
+          else
+            echo "NEGATIVE GATE PASS: comparator hard-rejected tampered challenge statement."
+          fi
 
   white-paper-and-provenance:
-    name: AMS-LaTeX White Paper, Clean-Room arXiv Tarball, Checksums & SLSA Provenance
+    name: AMS-LaTeX White Paper, Clean-Room arXiv Tarball, Checksums, Dual Timestamps & SLSA Provenance
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -135,11 +164,14 @@ jobs:
           mkdir -p /tmp/arxiv_verify
           tar -xzf dist/arxiv_submission.tar.gz -C /tmp/arxiv_verify
           (cd /tmp/arxiv_verify && tectonic -X compile main.tex)
-      - name: Verify MANIFEST.sha256 & report-only secret scan
+      - name: Verify MANIFEST.sha256, SHA256SUMS, data/MANIFEST.sha256, dual timestamps & report-only secret scan
         run: |
           sha256sum -c MANIFEST.sha256
+          sha256sum -c SHA256SUMS
+          sha256sum -c data/MANIFEST.sha256
+          python3 -c "import hashlib, pathlib; d = hashlib.sha256(pathlib.Path('data/MANIFEST.sha256').read_bytes()).digest(); tsr = pathlib.Path('data/MANIFEST.sha256.tsr').read_bytes(); ots = pathlib.Path('data/MANIFEST.sha256.ots').read_bytes(); assert tsr[0]==0x30 and d in tsr and ots.startswith(b'\x00OpenTimestamps\x00\x00Proof\x00\xbf\x89\xe2\xe8\x84\xe8\x92\x94') and d in ots; print('DUAL TIMESTAMPS VERIFIED (RFC3161 + OTS)')"
           ! grep -rnE "ghp_[A-Za-z0-9]{30,}|sk-[A-Za-z0-9]{30,}|AKIA[0-9A-Z]{16}|BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY" --exclude-dir=.git --exclude-dir=.lake . || true
-      - name: Attest frozen PDF & arXiv tarball build provenance on main push
+      - name: Attest frozen PDF, arXiv tarball, checksums & axiom log build provenance on main push
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: actions/attest-build-provenance@v2
         with:
@@ -147,3 +179,6 @@ jobs:
             dist/Donahue_2026_apollonian_sandpile_markov.pdf
             dist/arxiv_submission.tar.gz
             MANIFEST.sha256
+            SHA256SUMS
+            data/MANIFEST.sha256
+            results/lean_axioms.txt

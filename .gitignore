@@ -13,6 +13,10 @@ native/asm_verify
 native/asm_verify.exe
 native/fuzz_asm
 native/fuzz_asm.exe
+native/fuzz_libfuzzer
+native/fuzz_libfuzzer.exe
+.env
+!.env.example
 _site/
 *.tmp
 .DS_Store
