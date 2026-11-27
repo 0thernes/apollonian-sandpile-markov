@@ -4,7 +4,7 @@ module
 public import Challenge
 
 /-!
-# Palomar Comparator Verified Solution (`apollonian-sandpile-markov` v2.1.0)
+# Palomar Comparator Verified Solution (`apollonian-sandpile-markov` v3.0.0)
 
 Zero `sorry`, zero `admit`, zero `native_decide`, zero custom axioms.
 -/

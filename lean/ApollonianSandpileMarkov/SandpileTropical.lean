@@ -6,9 +6,10 @@ module
 # Lattice-Laplacian Parity Obstructions, and Lattice-Polygon Edge-Normal Closure
 
 Formalizes:
-- `T2a`: Toppling commutativity, Laplacian odometer identity, Discrete Least Action bound, and
-  uniqueness of legal stabilizing traces for symmetric zero-diagonal adjacency with arbitrary
-  degrees (no sink condition and no termination theorem are formalized).
+- `T2a`: Toppling commutativity, Laplacian odometer identity, Discrete Least Action bound,
+  Church–Rosser confluence, AND universal finite termination & existence of a legal stabilizing
+  trace on every sinked dissipative sandpile graph (`IsDissipative G ∧ HasReachableSink G`),
+  proved via a constructive superharmonic potential `potentialVal`.
 - `T2b`: Exact `det4 (gridLap 2) = 192`, direct Laplace determinant `detMat 9 (gridLap 3) = 100352`,
   `D_4` integer block-diagonalization (`4 * 14^2 * 128 = 100,352`), and explicit legal Dhar traces
   on `2×2` and `3×3` `ℤ²` grids (no Matrix–Tree or group-identity link is formalized).
@@ -398,7 +399,461 @@ theorem sandpile_confluence {n : Nat} (G : SandpileGraph n) (s : Config n)
   apply sumNat_eq_of_eq; intro j hj
   simp only [hj, ↓reduceDIte, hcnt ⟨j, hj⟩]
 
-/-- **T2a Master Export.** -/
+/-- Total internal edge weight incident to vertex `i` (into non-sink vertices). -/
+def sumAdj {n : Nat} (G : SandpileGraph n) (i : Fin n) : Int :=
+  sumFin (fun j => (G.adj i j : Int))
+
+/-- A sandpile graph is dissipative if every vertex has total internal adjacency at most its degree
+    (strict inequality `sumAdj G i < G.deg i` signifies direct edges to the absorbing sink). -/
+def IsDissipative {n : Nat} (G : SandpileGraph n) : Prop :=
+  ∀ i : Fin n, sumAdj G i ≤ (G.deg i : Int)
+
+/-- Vertex `i` reaches a sink-adjacent boundary vertex in `d` internal edges. -/
+inductive ReachesSink {n : Nat} (G : SandpileGraph n) : Nat → Fin n → Prop
+  | base {i : Fin n} : sumAdj G i < (G.deg i : Int) → ReachesSink G 0 i
+  | step {d : Nat} {i j : Fin n} : 0 < G.adj i j → ReachesSink G d j → ReachesSink G (d + 1) i
+
+/-- Every non-sink vertex has a finite path to the absorbing sink. -/
+def HasReachableSink {n : Nat} (G : SandpileGraph n) : Prop :=
+  ∀ i : Fin n, ∃ d : Nat, ReachesSink G d i
+
+/-- Well-ordering on `Nat` (zero external dependencies). -/
+theorem nat_exists_min {P : Nat → Prop} (h : ∃ d : Nat, P d) :
+    ∃ m : Nat, P m ∧ ∀ d < m, ¬ P d := by
+  have haux : ∀ k d, d ≤ k → P d → ∃ m, P m ∧ ∀ d' < m, ¬ P d' := by
+    intro k
+    induction k with
+    | zero =>
+      intro d hd hP
+      have h0 : d = 0 := by omega
+      subst h0
+      exact ⟨0, hP, fun _ hlt => by omega⟩
+    | succ k ih =>
+      intro d hd hP
+      by_cases hex : ∃ d' ≤ k, P d'
+      · rcases hex with ⟨d', hd', hPd'⟩
+        exact ih d' hd' hPd'
+      · refine ⟨d, hP, ?_⟩
+        intro d' hlt hPd'
+        exact hex ⟨d', by omega, hPd'⟩
+  rcases h with ⟨d, hP⟩
+  exact haux d d (Nat.le_refl d) hP
+
+theorem sumFin_zero {n : Nat} : sumFin (fun _ : Fin n => (0 : Int)) = 0 := by
+  unfold sumFin
+  have h : sumNat n (fun i => if _ : i < n then (0 : Int) else 0) = sumNat n (fun _ => 0) :=
+    sumNat_eq_of_eq n _ _ (fun _ _ => by split <;> rfl)
+  rw [h, sumNat_const]; simp
+
+theorem sumFin_mul_left {n : Nat} (c : Int) (f : Fin n → Int) :
+    sumFin (fun i => c * f i) = c * sumFin f := by
+  unfold sumFin
+  have haux : ∀ m (g : Nat → Int), sumNat m (fun i => c * g i) = c * sumNat m g := by
+    intro m g
+    induction m with
+    | zero => simp [sumNat]
+    | succ k ih => simp only [sumNat, ih]; grind
+  rw [← haux]
+  apply sumNat_eq_of_eq
+  intro i hi; simp [hi]
+
+theorem sumFin_nonneg_of_nonneg {n : Nat} (f : Fin n → Int) (h : ∀ j, 0 ≤ f j) :
+    0 ≤ sumFin f := by
+  unfold sumFin
+  apply sumNat_nonneg
+  intro j hj
+  simp only [hj, ↓reduceDIte]
+  exact h ⟨j, hj⟩
+
+theorem sumFin_le_sumFin {n : Nat} (f g : Fin n → Int) (h : ∀ j, f j ≤ g j) :
+    sumFin f ≤ sumFin g := by
+  have hdiff : sumFin g - sumFin f = sumFin (fun j => g j - f j) := by
+    unfold sumFin
+    rw [← sumNat_sub]
+    apply sumNat_eq_of_eq
+    intro j hj; simp [hj]
+  have hnn : 0 ≤ sumFin (fun j => g j - f j) :=
+    sumFin_nonneg_of_nonneg _ (fun j => by have := h j; omega)
+  omega
+
+theorem sumFin_split_entry {n : Nat} (f : Fin n → Int) (u : Fin n) :
+    sumFin f = f u + sumFin (fun j => if j = u then 0 else f j) := by
+  rw [← sumFin_single u (f u), ← sumFin_add]
+  unfold sumFin
+  apply sumNat_eq_of_eq
+  intro j hj
+  simp only [hj, ↓reduceDIte]
+  by_cases hju : (⟨j, hj⟩ : Fin n) = u
+  · subst hju; simp
+  · simp [hju]
+
+theorem sumFin_ge_entry {n : Nat} (f : Fin n → Int) (hnn : ∀ j, 0 ≤ f j) (u : Fin n) :
+    f u ≤ sumFin f := by
+  rw [sumFin_split_entry f u]
+  have hrest : 0 ≤ sumFin (fun j => if j = u then 0 else f j) :=
+    sumFin_nonneg_of_nonneg _ (fun j => by
+      by_cases h : j = u
+      · simp [h]
+      · simp [h]; exact hnn j)
+  omega
+
+/-- Constructive strictly-concave superharmonic potential `∑_{k=0}^d D^{R-k}`. -/
+def potentialVal (R D : Nat) : Nat → Nat
+  | 0 => D ^ R
+  | k + 1 => potentialVal R D k + D ^ (R - (k + 1))
+
+theorem potentialVal_mono (R D : Nat) : ∀ {a b : Nat}, a ≤ b → potentialVal R D a ≤ potentialVal R D b := by
+  intro a b hab
+  induction b with
+  | zero =>
+    have h0 : a = 0 := by omega
+    subst h0; exact Nat.le_refl _
+  | succ k ih =>
+    by_cases hak : a = k + 1
+    · subst hak; exact Nat.le_refl _
+    · exact Nat.le_trans (ih (by omega)) (Nat.le_add_right _ _)
+
+/-- Every sinked dissipative sandpile graph admits a strictly superharmonic integer potential
+    `g : Fin n → Nat` satisfying `(L g)(i) ≥ 1` at every vertex `i`. -/
+theorem sandpile_superharmonic_potential {n : Nat} (G : SandpileGraph n)
+    (hdiss : IsDissipative G) (hsink : HasReachableSink G) :
+    ∃ g : Fin n → Nat, ∀ i : Fin n,
+      sumFin (fun j => (G.adj j i : Int) * (g j : Int)) + 1 ≤ (G.deg i : Int) * (g i : Int) := by
+  have hmin_ex : ∀ i : Fin n, ∃ m : Nat, ReachesSink G m i ∧ ∀ d < m, ¬ ReachesSink G d i :=
+    fun i => nat_exists_min (hsink i)
+  let dist : Fin n → Nat := fun i => Classical.choose (hmin_ex i)
+  have hdist_spec : ∀ i : Fin n, ReachesSink G (dist i) i ∧ ∀ d < dist i, ¬ ReachesSink G d i :=
+    fun i => Classical.choose_spec (hmin_ex i)
+  let D : Nat := 2 + (sumFin (fun j => (G.deg j : Int))).toNat
+  have hD_ge2 : 2 ≤ D := by dsimp [D]; omega
+  have hdeg_lt_D : ∀ i : Fin n, (G.deg i : Int) + 1 ≤ (D : Int) := by
+    intro i
+    have hge := sumFin_ge_entry (fun j => (G.deg j : Int)) (fun j => Int.natCast_nonneg _) i
+    have hnn := sumFin_nonneg_of_nonneg (fun j => (G.deg j : Int)) (fun j => Int.natCast_nonneg _)
+    dsimp [D]; omega
+  let R : Nat := 2 + (sumFin (fun j => (dist j : Int))).toNat
+  have hdist_le_R : ∀ i : Fin n, dist i + 2 ≤ R := by
+    intro i
+    have hge := sumFin_ge_entry (fun j => (dist j : Int)) (fun j => Int.natCast_nonneg _) i
+    have hnn := sumFin_nonneg_of_nonneg (fun j => (dist j : Int)) (fun j => Int.natCast_nonneg _)
+    dsimp [R]; omega
+  let g : Fin n → Nat := fun i => potentialVal R D (dist i)
+  refine ⟨g, fun i => ?_⟩
+  have hsym_sum : sumFin (fun j => (G.adj j i : Int) * (g j : Int)) =
+      sumFin (fun j => (G.adj i j : Int) * (g j : Int)) := by
+    unfold sumFin
+    apply sumNat_eq_of_eq; intro j hj
+    simp only [hj, ↓reduceDIte, G.adj_symm ⟨j, hj⟩ i]
+  rw [hsym_sum]
+  have hmul_sum : ∀ (c : Int) (f : Fin n → Int), sumFin (fun j => f j * c) = sumFin f * c := by
+    intro c f
+    have h := sumFin_mul_left c f
+    have hcongr : sumFin (fun j => f j * c) = sumFin (fun j => c * f j) := by
+      unfold sumFin; apply sumNat_eq_of_eq; intro j hj; simp only [hj, ↓reduceDIte]; grind
+    rw [hcongr, h]; grind
+  have hnbr_dist : ∀ j : Fin n, 0 < G.adj i j → dist j ≤ dist i + 1 := by
+    intro j hadj
+    have hstep : ReachesSink G (dist i + 1) j :=
+      ReachesSink.step (by rw [G.adj_symm]; exact hadj) (hdist_spec i).1
+    by_cases hle : dist j ≤ dist i + 1
+    · exact hle
+    · exfalso; exact (hdist_spec j).2 (dist i + 1) (by omega) hstep
+  have hreach_i := (hdist_spec i).1
+  cases hd : dist i with
+  | zero =>
+    rw [hd] at hreach_i
+    have hlt_deg : sumAdj G i < (G.deg i : Int) := by
+      cases hreach_i with
+      | base hlt => exact hlt
+    have hbound_j : ∀ j : Fin n,
+        (G.adj i j : Int) * (g j : Int) ≤ (G.adj i j : Int) * ((potentialVal R D 1 : Nat) : Int) := by
+      intro j
+      by_cases h0 : G.adj i j = 0
+      · simp [h0]
+      · have hle1 : dist j ≤ 1 := by have := hnbr_dist j (by omega); omega
+        have hpm : potentialVal R D (dist j) ≤ potentialVal R D 1 := potentialVal_mono R D hle1
+        exact Int.mul_le_mul_of_nonneg_left (Int.ofNat_le.mpr hpm) (Int.natCast_nonneg _)
+    have hsum_le : sumFin (fun j => (G.adj i j : Int) * (g j : Int)) ≤
+        sumAdj G i * ((potentialVal R D 1 : Nat) : Int) := by
+      calc sumFin (fun j => (G.adj i j : Int) * (g j : Int))
+          ≤ sumFin (fun j => (G.adj i j : Int) * ((potentialVal R D 1 : Nat) : Int)) :=
+            sumFin_le_sumFin _ _ hbound_j
+        _ = sumAdj G i * ((potentialVal R D 1 : Nat) : Int) := hmul_sum _ _
+    have hg0 : g i = D ^ R := by dsimp [g]; rw [hd]; rfl
+    have hp1 : potentialVal R D 1 = D ^ R + D ^ (R - 1) := rfl
+    have hR2 : 2 ≤ R := by have := hdist_le_R i; omega
+    have hpow : D ^ R = D * D ^ (R - 1) := by
+      have hsub : (R - 1) + 1 = R := by omega
+      conv => lhs; rw [← hsub, Nat.pow_succ, Nat.mul_comm]
+    have hpow_pos : 1 ≤ D ^ (R - 1) := Nat.one_le_pow (R - 1) D (by omega)
+    have hsumAdj_le_D : sumAdj G i ≤ (D : Int) - 1 := by
+      have := hdeg_lt_D i; omega
+    have hsumAdj_nn : 0 ≤ sumAdj G i := sumFin_nonneg_of_nonneg _ (fun _ => Int.natCast_nonneg _)
+    have hdiff_deg : 1 ≤ (G.deg i : Int) - sumAdj G i := by omega
+    have hterm1 : (D ^ R : Int) ≤ ((G.deg i : Int) - sumAdj G i) * (D ^ R : Int) := by
+      have h1 := Int.mul_le_mul_of_nonneg_right hdiff_deg (Int.natCast_nonneg (D ^ R))
+      simpa using h1
+    have hterm2 : sumAdj G i * (D ^ (R - 1) : Int) ≤ ((D : Int) - 1) * (D ^ (R - 1) : Int) :=
+      Int.mul_le_mul_of_nonneg_right hsumAdj_le_D (Int.natCast_nonneg (D ^ (R - 1)))
+    have hpow_i : ((D ^ R : Nat) : Int) = (D : Int) * ((D ^ (R - 1) : Nat) : Int) := by
+      rw [hpow, Int.natCast_mul]
+    rw [hg0]
+    rw [hp1, Int.natCast_add] at hsum_le
+    grind
+  | succ d =>
+    rw [hd] at hreach_i
+    cases hreach_i with
+    | @step _ _ j0 hadj0 hreach_j0 =>
+      have hdist_j0 : dist j0 ≤ d := by
+        by_cases hle : dist j0 ≤ d
+        · exact hle
+        · exfalso; exact (hdist_spec j0).2 d (by omega) hreach_j0
+      have hgi : g i = potentialVal R D (d + 1) := by dsimp [g]; rw [hd]
+      have hgj0_le : potentialVal R D (dist j0) ≤ potentialVal R D d := potentialVal_mono R D hdist_j0
+      have hstep_d1 : potentialVal R D (d + 1) = potentialVal R D d + D ^ (R - (d + 1)) := rfl
+      have hstep_d2 : potentialVal R D (d + 2) = potentialVal R D (d + 1) + D ^ (R - (d + 2)) := rfl
+      have hR_ge : d + 3 ≤ R := by have := hdist_le_R i; omega
+      have hpow : D ^ (R - (d + 1)) = D * D ^ (R - (d + 2)) := by
+        have hsub : (R - (d + 2)) + 1 = R - (d + 1) := by omega
+        conv => lhs; rw [← hsub, Nat.pow_succ, Nat.mul_comm]
+      have hpow_pos : 1 ≤ D ^ (R - (d + 2)) := Nat.one_le_pow (R - (d + 2)) D (by omega)
+      have hsplit_main := sumFin_split_entry (fun j => (G.adj i j : Int) * (g j : Int)) j0
+      have hsplit_adj := sumFin_split_entry (fun j => (G.adj i j : Int)) j0
+      have hrest_le :
+          sumFin (fun j => if j = j0 then 0 else (G.adj i j : Int) * (g j : Int)) ≤
+          sumFin (fun j => if j = j0 then 0 else (G.adj i j : Int)) * ((potentialVal R D (d + 2) : Nat) : Int) := by
+        rw [← hmul_sum]
+        apply sumFin_le_sumFin
+        intro j
+        by_cases hjj0 : j = j0
+        · simp [hjj0]
+        · simp only [hjj0, ↓reduceIte]
+          by_cases h0 : G.adj i j = 0
+          · simp [h0]
+          · have hle2 : dist j ≤ d + 2 := by have := hnbr_dist j (by omega); omega
+            exact Int.mul_le_mul_of_nonneg_left (Int.ofNat_le.mpr (potentialVal_mono R D hle2)) (Int.natCast_nonneg _)
+      have hj0_le : (G.adj i j0 : Int) * (g j0 : Int) ≤ (G.adj i j0 : Int) * ((potentialVal R D d : Nat) : Int) :=
+        Int.mul_le_mul_of_nonneg_left (Int.ofNat_le.mpr hgj0_le) (Int.natCast_nonneg _)
+      have hrest_adj_le_D : sumFin (fun j => if j = j0 then 0 else (G.adj i j : Int)) ≤ (D : Int) - 1 := by
+        have hdi := hdiss i
+        have hltD := hdeg_lt_D i
+        change sumFin (fun j => (G.adj i j : Int)) ≤ (G.deg i : Int) at hdi
+        omega
+      have hj0_ge1 : (1 : Int) ≤ (G.adj i j0 : Int) := by omega
+      have hterm_j0 : ((D ^ (R - (d + 1)) : Nat) : Int) ≤ (G.adj i j0 : Int) * ((D ^ (R - (d + 1)) : Nat) : Int) := by
+        have h1 := Int.mul_le_mul_of_nonneg_right hj0_ge1 (Int.natCast_nonneg (D ^ (R - (d + 1))))
+        simpa using h1
+      have hterm_rest :
+          sumFin (fun j => if j = j0 then 0 else (G.adj i j : Int)) * ((D ^ (R - (d + 2)) : Nat) : Int) ≤
+          ((D : Int) - 1) * ((D ^ (R - (d + 2)) : Nat) : Int) :=
+        Int.mul_le_mul_of_nonneg_right hrest_adj_le_D (Int.natCast_nonneg (D ^ (R - (d + 2))))
+      have hterm_deg : sumAdj G i * ((potentialVal R D (d + 1) : Nat) : Int) ≤
+          (G.deg i : Int) * ((potentialVal R D (d + 1) : Nat) : Int) :=
+        Int.mul_le_mul_of_nonneg_right (hdiss i) (Int.natCast_nonneg _)
+      have hpow_i : ((D ^ (R - (d + 1)) : Nat) : Int) = (D : Int) * ((D ^ (R - (d + 2)) : Nat) : Int) := by
+        rw [hpow, Int.natCast_mul]
+      have hstep_d1_i : ((potentialVal R D (d + 1) : Nat) : Int) =
+          ((potentialVal R D d : Nat) : Int) + ((D ^ (R - (d + 1)) : Nat) : Int) := by
+        rw [hstep_d1, Int.natCast_add]
+      have hstep_d2_i : ((potentialVal R D (d + 2) : Nat) : Int) =
+          ((potentialVal R D (d + 1) : Nat) : Int) + ((D ^ (R - (d + 2)) : Nat) : Int) := by
+        rw [hstep_d2, Int.natCast_add]
+      change sumAdj G i = (G.adj i j0 : Int) + sumFin (fun j => if j = j0 then 0 else (G.adj i j : Int)) at hsplit_adj
+      have hlin1 : (G.adj i j0 : Int) * ((potentialVal R D d : Nat) : Int) =
+          (G.adj i j0 : Int) * ((potentialVal R D (d + 1) : Nat) : Int) -
+          (G.adj i j0 : Int) * ((D ^ (R - (d + 1)) : Nat) : Int) := by rw [hstep_d1_i]; grind
+      have hlin2 : sumFin (fun j => if j = j0 then 0 else (G.adj i j : Int)) * ((potentialVal R D (d + 2) : Nat) : Int) =
+          sumFin (fun j => if j = j0 then 0 else (G.adj i j : Int)) * ((potentialVal R D (d + 1) : Nat) : Int) +
+          sumFin (fun j => if j = j0 then 0 else (G.adj i j : Int)) * ((D ^ (R - (d + 2)) : Nat) : Int) := by
+        rw [hstep_d2_i]; grind
+      have hlin3 : (G.adj i j0 : Int) * ((potentialVal R D (d + 1) : Nat) : Int) +
+          sumFin (fun j => if j = j0 then 0 else (G.adj i j : Int)) * ((potentialVal R D (d + 1) : Nat) : Int) =
+          sumAdj G i * ((potentialVal R D (d + 1) : Nat) : Int) := by rw [hsplit_adj]; grind
+      have hlin4 : ((D : Int) - 1) * ((D ^ (R - (d + 2)) : Nat) : Int) - ((D ^ (R - (d + 1)) : Nat) : Int) =
+          - ((D ^ (R - (d + 2)) : Nat) : Int) := by rw [hpow_i]; grind
+      rw [hgi, hsplit_main]
+      omega
+
+/-- Every configuration `s` on a sinked dissipative sandpile graph admits a stabilizing odometer `w`. -/
+theorem sandpile_stabilizing_odometer_exists {n : Nat} (G : SandpileGraph n)
+    (hdiss : IsDissipative G) (hsink : HasReachableSink G) (s : Config n) :
+    ∃ w : Fin n → Nat, IsStabilizingOdometer G s w := by
+  rcases sandpile_superharmonic_potential G hdiss hsink with ⟨g, hg⟩
+  let M : Nat := 1 + (sumFin (fun j => if 0 < s j then s j else 0)).toNat
+  have hM_gt : ∀ i : Fin n, s i < (M : Int) := by
+    intro i
+    have hnn := sumFin_nonneg_of_nonneg (fun j => if 0 < s j then s j else 0) (fun j => by split <;> omega)
+    have hge := sumFin_ge_entry (fun j => if 0 < s j then s j else 0) (fun j => by split <;> omega) i
+    by_cases hpos : 0 < s i
+    · simp only [hpos, ↓reduceIte] at hge; dsimp [M]; omega
+    · dsimp [M]; omega
+  refine ⟨fun i => M * g i, fun i => ?_⟩
+  have hgi := hg i
+  have hsum_scale : sumFin (fun j => (G.adj j i : Int) * ((M * g j : Nat) : Int)) =
+      (M : Int) * sumFin (fun j => (G.adj j i : Int) * (g j : Int)) := by
+    rw [← sumFin_mul_left]
+    unfold sumFin
+    apply sumNat_eq_of_eq; intro j hj
+    simp only [hj, ↓reduceDIte, Int.natCast_mul]; grind
+  rw [hsum_scale, Int.natCast_mul]
+  have hdrop : (M : Int) * 1 ≤ (M : Int) * ((G.deg i : Int) * (g i : Int) - sumFin (fun j => (G.adj j i : Int) * (g j : Int))) :=
+    Int.mul_le_mul_of_nonneg_left (by omega) (Int.natCast_nonneg M)
+  have hsi := hM_gt i
+  have hdeg0 : (0 : Int) ≤ (G.deg i : Int) := Int.natCast_nonneg _
+  grind
+
+/-- Structurally recursive unstable-vertex finder so both proofs and `decide` reduce cleanly. -/
+def findUnstableAux {n : Nat} (G : SandpileGraph n) (s : Config n) : Nat → Option (Fin n)
+  | 0 => none
+  | k + 1 =>
+    match findUnstableAux G s k with
+    | some u => some u
+    | none =>
+      if h : k < n then
+        if (G.deg ⟨k, h⟩ : Int) ≤ s ⟨k, h⟩ then some ⟨k, h⟩ else none
+      else none
+
+def findUnstable {n : Nat} (G : SandpileGraph n) (s : Config n) : Option (Fin n) :=
+  findUnstableAux G s n
+
+def stabilizeTrace {n : Nat} (G : SandpileGraph n) (fuel : Nat) (s : Config n) : List (Fin n) :=
+  match fuel with
+  | 0 => []
+  | f + 1 =>
+    match findUnstable G s with
+    | none => []
+    | some u => u :: stabilizeTrace G f (topple G u s)
+
+theorem findUnstableAux_none {n : Nat} (G : SandpileGraph n) (s : Config n) :
+    ∀ m, findUnstableAux G s m = none → ∀ i : Fin n, i.val < m → s i < (G.deg i : Int) := by
+  intro m
+  induction m with
+  | zero => intro _ i hi; omega
+  | succ k ih =>
+    intro hnone i hi
+    unfold findUnstableAux at hnone
+    cases hprev : findUnstableAux G s k with
+    | some u => rw [hprev] at hnone; simp at hnone
+    | none =>
+      rw [hprev] at hnone
+      by_cases hik : i.val < k
+      · exact ih hprev i hik
+      · have heq : i.val = k := by omega
+        have hkn : k < n := by omega
+        have hi_eq : (⟨k, hkn⟩ : Fin n) = i := Fin.ext heq.symm
+        simp only [hkn, ↓reduceDIte] at hnone
+        by_cases hge : (G.deg ⟨k, hkn⟩ : Int) ≤ s ⟨k, hkn⟩
+        · simp only [hge, ↓reduceIte] at hnone; simp at hnone
+        · rw [hi_eq] at hge; omega
+
+theorem findUnstableAux_some {n : Nat} (G : SandpileGraph n) (s : Config n) :
+    ∀ m u, findUnstableAux G s m = some u → (G.deg u : Int) ≤ s u := by
+  intro m
+  induction m with
+  | zero => intro _ h; simp [findUnstableAux] at h
+  | succ k ih =>
+    intro u hsome
+    unfold findUnstableAux at hsome
+    cases hprev : findUnstableAux G s k with
+    | some v =>
+      rw [hprev] at hsome
+      have huv : v = u := Option.some.inj hsome
+      subst huv
+      exact ih v hprev
+    | none =>
+      rw [hprev] at hsome
+      by_cases hkn : k < n
+      · simp only [hkn, ↓reduceDIte] at hsome
+        by_cases hge : (G.deg ⟨k, hkn⟩ : Int) ≤ s ⟨k, hkn⟩
+        · simp only [hge, ↓reduceIte] at hsome
+          have huv : (⟨k, hkn⟩ : Fin n) = u := Option.some.inj hsome
+          rwa [← huv]
+        · simp only [hge, ↓reduceIte] at hsome; simp at hsome
+      · simp only [hkn, ↓reduceDIte] at hsome; simp at hsome
+
+theorem stabilizeTrace_legal {n : Nat} (G : SandpileGraph n) :
+    ∀ fuel s, LegalTrace G (stabilizeTrace G fuel s) s := by
+  intro fuel
+  induction fuel with
+  | zero => intro _; trivial
+  | succ f ih =>
+    intro s
+    unfold stabilizeTrace
+    cases hfind : findUnstable G s with
+    | none => trivial
+    | some u =>
+      exact ⟨findUnstableAux_some G s n u hfind, ih (topple G u s)⟩
+
+theorem stabilizeTrace_stable_or_length {n : Nat} (G : SandpileGraph n) :
+    ∀ fuel s, IsStable G (toppleList G (stabilizeTrace G fuel s) s) ∨
+      (stabilizeTrace G fuel s).length = fuel := by
+  intro fuel
+  induction fuel with
+  | zero => intro _; right; rfl
+  | succ f ih =>
+    intro s
+    unfold stabilizeTrace
+    cases hfind : findUnstable G s with
+    | none =>
+      left
+      intro i
+      exact findUnstableAux_none G s n hfind i i.isLt
+    | some u =>
+      rcases ih (topple G u s) with hstab | hlen
+      · left; exact hstab
+      · right; simp [hlen]
+
+theorem length_eq_sumFin_countFin {n : Nat} (L : List (Fin n)) :
+    (L.length : Int) = sumFin (fun i => (countFin L i : Int)) := by
+  induction L with
+  | nil =>
+    simp only [List.length_nil, Int.natCast_zero, countFin]
+    exact sumFin_zero.symm
+  | cons u us ih =>
+    simp only [List.length_cons, Int.natCast_add, Int.natCast_one, ih, countFin]
+    have hsplit : sumFin (fun i => ((if u = i then 1 else 0 : Nat) : Int) + (countFin us i : Int)) =
+        sumFin (fun i => if i = u then (1 : Int) else 0) + sumFin (fun i => (countFin us i : Int)) := by
+      rw [← sumFin_add]
+      unfold sumFin
+      apply sumNat_eq_of_eq; intro j hj
+      simp only [hj, ↓reduceDIte]
+      by_cases huj : u = ⟨j, hj⟩
+      · subst huj; simp
+      · have hne : (⟨j, hj⟩ : Fin n) ≠ u := fun h => huj h.symm
+        simp [huj, hne]
+    rw [hsplit, sumFin_single u 1]
+    omega
+
+/-- **Universal Abelian Sandpile Finite Termination & Existence of Stabilization:**
+    On EVERY sinked dissipative graph (`IsDissipative G ∧ HasReachableSink G`) and EVERY initial
+    configuration `s : Config n`:
+    (1) There is a uniform finite upper bound `B` on the length of EVERY legal toppling trace from `s`;
+    (2) There EXISTS a finite legal toppling trace `L` from `s` terminating in a stable configuration. -/
+theorem sandpile_universal_termination_and_existence {n : Nat} (G : SandpileGraph n)
+    (hdiss : IsDissipative G) (hsink : HasReachableSink G) (s : Config n) :
+    (∃ B : Nat, ∀ L : List (Fin n), LegalTrace G L s → L.length ≤ B) ∧
+    (∃ L : List (Fin n), LegalTrace G L s ∧ IsStable G (toppleList G L s)) := by
+  rcases sandpile_stabilizing_odometer_exists G hdiss hsink s with ⟨w, hw⟩
+  let B : Nat := (sumFin (fun i => (w i : Int))).toNat
+  have hB_eq : (B : Int) = sumFin (fun i => (w i : Int)) :=
+    Int.toNat_of_nonneg (sumFin_nonneg_of_nonneg _ (fun _ => Int.natCast_nonneg _))
+  have hbound : ∀ L : List (Fin n), LegalTrace G L s → L.length ≤ B := by
+    intro L hleg
+    have hle := discrete_least_action G L s w hleg hw
+    have hlen_i : (L.length : Int) ≤ (B : Int) := by
+      rw [length_eq_sumFin_countFin L, hB_eq]
+      exact sumFin_le_sumFin _ _ (fun i => Int.ofNat_le.mpr (hle i))
+    exact Int.ofNat_le.mp hlen_i
+  refine ⟨⟨B, hbound⟩, ?_⟩
+  let L := stabilizeTrace G (B + 1) s
+  have hleg : LegalTrace G L s := stabilizeTrace_legal G (B + 1) s
+  have hlen_le : L.length ≤ B := hbound L hleg
+  rcases stabilizeTrace_stable_or_length G (B + 1) s with hstab | hlen_eq
+  · exact ⟨L, hleg, hstab⟩
+  · change L.length = B + 1 at hlen_eq; omega
+
+/-- **T2a Master Export:** Universal toppling commutativity, Discrete Least Action, Church–Rosser
+    confluence, and universal finite termination & existence on every sinked dissipative graph. -/
 theorem t2a_abelian_sandpile_confluence_and_least_action :
     (∀ {n} (G : SandpileGraph n) (u v : Fin n) (s : Config n),
       topple G u (topple G v s) = topple G v (topple G u s)) ∧
@@ -407,12 +862,16 @@ theorem t2a_abelian_sandpile_confluence_and_least_action :
     (∀ {n} (G : SandpileGraph n) (s : Config n) (L1 L2 : List (Fin n)),
       LegalTrace G L1 s → IsStable G (toppleList G L1 s) →
       LegalTrace G L2 s → IsStable G (toppleList G L2 s) →
-      (∀ i, countFin L1 i = countFin L2 i) ∧ toppleList G L1 s = toppleList G L2 s) :=
+      (∀ i, countFin L1 i = countFin L2 i) ∧ toppleList G L1 s = toppleList G L2 s) ∧
+    (∀ {n} (G : SandpileGraph n), IsDissipative G → HasReachableSink G → ∀ s : Config n,
+      (∃ B : Nat, ∀ L : List (Fin n), LegalTrace G L s → L.length ≤ B) ∧
+      (∃ L : List (Fin n), LegalTrace G L s ∧ IsStable G (toppleList G L s))) :=
   ⟨fun G u v s => topple_comm G u v s,
    fun G L s w h1 h2 => discrete_least_action G L s w h1 h2,
-   fun G s L1 L2 h1 h2 h3 h4 => sandpile_confluence G s L1 L2 h1 h2 h3 h4⟩
+   fun G s L1 L2 h1 h2 h3 h4 => sandpile_confluence G s L1 L2 h1 h2 h3 h4,
+   fun G hd hs s => sandpile_universal_termination_and_existence G hd hs s⟩
 
-/-! ### Part 3: Dhar's Critical Group Identity & Exact Matrix-Tree Grid Orders (`T2b`) -/
+/-! ### Part 3: Dhar's Critical Group Identity & Direct Laplace Grid Determinants (`T2b`) -/
 
 /-- Concrete `k × k` open-boundary square grid sandpile graph (`deg = 4` everywhere). -/
 def gridGraph (k : Nat) : SandpileGraph (k * k) where
@@ -478,24 +937,6 @@ theorem sumFin_eq_of_eq {n : Nat} (f g : Fin n → Int) (h : ∀ i, f i = g i) :
   apply sumNat_eq_of_eq
   intro i hi
   simp only [hi, ↓reduceDIte, h ⟨i, hi⟩]
-
-theorem sumFin_zero {n : Nat} : sumFin (fun _ : Fin n => (0 : Int)) = 0 := by
-  unfold sumFin
-  have h : sumNat n (fun i => if _ : i < n then (0 : Int) else 0) = sumNat n (fun _ => 0) :=
-    sumNat_eq_of_eq n _ _ (fun _ _ => by split <;> rfl)
-  rw [h, sumNat_const]; simp
-
-theorem sumFin_mul_left {n : Nat} (c : Int) (f : Fin n → Int) :
-    sumFin (fun i => c * f i) = c * sumFin f := by
-  unfold sumFin
-  have haux : ∀ m (g : Nat → Int), sumNat m (fun i => c * g i) = c * sumNat m g := by
-    intro m g
-    induction m with
-    | zero => simp [sumNat]
-    | succ k ih => simp only [sumNat, ih]; grind
-  rw [← haux]
-  apply sumNat_eq_of_eq
-  intro i hi; simp [hi]
 
 theorem sumFin_swap {m n : Nat} (f : Fin m → Fin n → Int) :
     sumFin (fun i => sumFin (fun j => f i j)) = sumFin (fun j => sumFin (fun i => f i j)) := by
@@ -1325,28 +1766,6 @@ def id3x3 : Config 9 := fun i =>
   | 3 => 1 | 4 => 0 | 5 => 1
   | 6 => 2 | 7 => 1 | 8 => 2
   | _ => 0
-
-/-- Structurally recursive unstable-vertex finder so `decide` reduces concrete traces in-kernel! -/
-def findUnstableAux {n : Nat} (G : SandpileGraph n) (s : Config n) : Nat → Option (Fin n)
-  | 0 => none
-  | k + 1 =>
-    match findUnstableAux G s k with
-    | some u => some u
-    | none =>
-      if h : k < n then
-        if (G.deg ⟨k, h⟩ : Int) ≤ s ⟨k, h⟩ then some ⟨k, h⟩ else none
-      else none
-
-def findUnstable {n : Nat} (G : SandpileGraph n) (s : Config n) : Option (Fin n) :=
-  findUnstableAux G s n
-
-def stabilizeTrace {n : Nat} (G : SandpileGraph n) (fuel : Nat) (s : Config n) : List (Fin n) :=
-  match fuel with
-  | 0 => []
-  | f + 1 =>
-    match findUnstable G s with
-    | none => []
-    | some u => u :: stabilizeTrace G f (topple G u s)
 
 /-- Helper to check `LegalTrace` and `IsStable` decidably on finite concrete instances. -/
 def isStableBool {n : Nat} (G : SandpileGraph n) (s : Config n) : Bool :=
@@ -2279,7 +2698,7 @@ theorem t2e_kalinin_shkolnikov_tropical_balancing_and_solitons :
    ⟨by decide, by decide⟩,
    ⟨by decide, by decide, by decide, by decide⟩⟩
 
-/-! ### Part 7: Exact Triangular Lattice `𝔸₂` Matrix-Tree Orders (`1,092`, `5,393,920`) & Dhar Identities (`T2f`) -/
+/-! ### Part 7: Direct Triangular Lattice `𝔸₂` Laplace Determinants (`1,092`, `5,393,920`) & Dhar Identities (`T2f`) -/
 
 /-- Concrete `k × k` open-boundary triangular lattice `𝔸₂` sandpile graph (`deg = 6` everywhere),
     with 6 neighbors `(r±1,c)`, `(r,c±1)`, `(r-1,c+1)`, and `(r+1,c-1)`. -/

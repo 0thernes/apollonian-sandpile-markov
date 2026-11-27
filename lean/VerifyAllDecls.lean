@@ -8,7 +8,7 @@ import ApollonianSandpileMarkov.NonVacuity
 import ApollonianSandpileMarkov.Adversarial
 
 /-!
-# Exhaustive Metaprogram Axiom Audit (`ApollonianSandpileMarkov` v2.1.0)
+# Exhaustive Metaprogram Axiom Audit (`ApollonianSandpileMarkov` v3.0.0)
 
 Walks EVERY declaration in the compiled environment under the `ApollonianSandpileMarkov` root
 namespace via `Lean.collectAxioms` and fails elaboration if ANY declaration depends on any axiom

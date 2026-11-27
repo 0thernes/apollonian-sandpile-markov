@@ -3,6 +3,20 @@
 
 This repository follows [Semantic Versioning 2.0.0](https://semver.org/) anchored in `VERSION` and synchronized across `pyproject.toml`, `rust/Cargo.toml`, `CITATION.cff`, `CITATION.bib`, `.zenodo.json`, `lean/lakefile.toml`, and `lean/formalization.yaml`.
 
+## Upgrading from `v2.1.0` to `v3.0.0`
+
+`v3.0.0` is a **major formal-contract upgrade** strictly strengthening the exported Lean 4 statements of `T1e`, `T2a`, `T3b`, and `T3e` (and adding a 10th adversarial refutation in `Adversarial.lean`) to close four major gaps previously documented in `LIMITATIONS.md` (see [`docs/adr/0003-v3-termination-descent-and-general-soddy.md`](docs/adr/0003-v3-termination-descent-and-general-soddy.md)):
+
+1. **Breaking Changes to Exported Lean Theorem Signatures (`Challenge.lean` / `PalomarChallenge.lean`):**
+   - `T1e_SoddyDimensionDichotomyAnd3DContrast` prepends two universal conjuncts for `soddyQ d` / `soddyRefl d α k` (general `d`-dimensional Lagarias–Mallows–Wilks 2002 integrality dichotomy + universal involution).
+   - `T2a_AbelianSandpileConfluenceAndLeastAction` appends universal finite termination and existence of a legal stabilizing trace under `IsDissipative G → HasReachableSink G`.
+   - `T3b_MarkovCoprimalityOddPrimesAndMod32` prepends `markov_descent_in_tree` and lifts the odd-prime, odd-entry, and Zhang mod-32 conjuncts from `InMarkovTree x y z` to arbitrary positive integer Markov solutions `1 ≤ x ∧ 1 ≤ y ∧ 1 ≤ z ∧ x^2 + y^2 + z^2 = 3*x*y*z`.
+   - `T3e_MarkovHurwitzN4CompleteClassification` adds exact bi-implications `IsHurwitz4 1 ↔ InHurwitz4Orbit 1 2 2 2 2` and `IsHurwitz4 4 ↔ InHurwitz4Orbit 4 1 1 1 1`.
+   - `Adversarial.all_adversarial_refutations` upgrades `adv2` to 4D `soddyRefl` non-integrality and appends `adv10_t2a_sink_reachability_necessary`.
+   - Exhaustive axiom audit (`VerifyAllDecls.lean`) now audits **884 declarations** (up from 818), all strictly within `[propext, Classical.choice, Quot.sound]`.
+2. **Non-Breaking UI, Script & Hygiene Fixes:**
+   - `studio/index.html` separates non-square mod-24 colors from perfect-square gold `#fbbf24`, fixes preset-aware HKRS status text, adds full WCAG keyboard tab navigation and `prefers-reduced-motion: reduce`, and removes all inline styles and untyped buttons (enforced by `scripts/audit_repo.py`).
+
 ## Upgrading from `v2.0.0` to `v2.1.0`
 
 `v2.1.0` is a backwards-compatible hardening release across all Lean proofs, oracles, audit gates, manuscript bibliography, and static web apps (all 17 `PalomarChallenge`/`PalomarSolution` theorem statements remain unchanged):

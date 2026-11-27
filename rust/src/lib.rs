@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: Apache-2.0
 #![forbid(unsafe_code)]
-//! Zero-dependency exact integer verification library (v2.1.0) for:
-//! - Pillar I: Apollonian (4-even HKRS), Generalized Octahedral (Q(sqrt(-2))), and 3D Soddy packings
-//! - Pillar II: Abelian sandpile confluence, Dhar critical identity on Z^2 and A_2, Matrix-Tree orders,
-//!   and Kalinin-Shkolnikov tropical balancing / soliton scattering
-//! - Pillar III: SL2(Z) Cohn-Fricke tree, exact Markov tree uniqueness + mod-32 locking + p ≡ 1 (mod 4),
-//!   symbolic 5-step Markov cluster Laurent polynomials, and generalized Markov-Hurwitz n=4.
+//! Zero-dependency exact integer verification library (v3.0.0) for:
+//! - Pillar I: Apollonian (4-even HKRS), Generalized Octahedral (Q(sqrt(-2))), and general/3D Soddy packings
+//! - Pillar II: Abelian sandpile confluence & termination, Dhar critical identity on Z^2 and A_2,
+//!   exact grid Laplacian determinants, and lattice-polygon tropical balancing / soliton scattering
+//! - Pillar III: SL2(Z) Cohn-Fricke tree, Markov descent + mod-32 locking + p ≡ 1 (mod 4),
+//!   symbolic 5-step Markov cluster Laurent polynomials, and complete Hurwitz n=4 Vieta orbits.
 
 use std::collections::{BTreeMap, BTreeSet, VecDeque};
 

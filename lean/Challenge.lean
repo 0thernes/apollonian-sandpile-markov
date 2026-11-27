@@ -7,7 +7,7 @@ public import ApollonianSandpileMarkov.SandpileTropical
 public import ApollonianSandpileMarkov.MarkovHurwitzCluster
 
 /-!
-# Formal Statement Contract (`Challenge.lean`, v2.0.0)
+# Formal Statement Contract (`Challenge.lean`, v3.0.0)
 
 Collects the exact formal statements of all 16 headline theorems (`T1a`–`T3e`, including `T2f`) and
 their master conjunction `AllApollonianSandpileMarkovTheorems`. Zero `sorry`, zero axioms.
@@ -63,6 +63,11 @@ abbrev T1d_OctahedralLorentzianAndSqrtNeg2Obstruction : Prop :=
    IsOctahedral octRootStrip ∧ octRootStrip.b3 = 1 * 1 ∧ octRootStrip.b4 = 2 * (1 * 1))
 
 abbrev T1e_SoddyDimensionDichotomyAnd3DContrast : Prop :=
+  (∀ d : Nat, 2 ≤ d →
+    ((∃ α : Int, ∀ (b : Fin (d + 2) → Int) (k : Fin (d + 2)),
+      soddyQ d (soddyRefl d α k b) = soddyQ d b) ↔ (d = 2 ∨ d = 3))) ∧
+  (∀ (d : Nat) (α : Int) (k : Fin (d + 2)) (b : Fin (d + 2) → Int),
+    soddyRefl d α k (soddyRefl d α k b) = b) ∧
   (∀ d : Nat, 2 ≤ d → ((d - 1) ∣ 2 ↔ d = 2 ∨ d = 3)) ∧
   (∀ s : Soddy3,
     soddy3Refl1 (soddy3Refl1 s) = s ∧ soddy3Refl2 (soddy3Refl2 s) = s ∧
@@ -91,7 +96,10 @@ abbrev T2a_AbelianSandpileConfluenceAndLeastAction : Prop :=
   (∀ {n} (G : SandpileGraph n) (s : Config n) (L1 L2 : List (Fin n)),
     LegalTrace G L1 s → IsStable G (toppleList G L1 s) →
     LegalTrace G L2 s → IsStable G (toppleList G L2 s) →
-    (∀ i, countFin L1 i = countFin L2 i) ∧ toppleList G L1 s = toppleList G L2 s)
+    (∀ i, countFin L1 i = countFin L2 i) ∧ toppleList G L1 s = toppleList G L2 s) ∧
+  (∀ {n} (G : SandpileGraph n), IsDissipative G → HasReachableSink G → ∀ s : Config n,
+    (∃ B : Nat, ∀ L : List (Fin n), LegalTrace G L s → L.length ≤ B) ∧
+    (∃ L : List (Fin n), LegalTrace G L s ∧ IsStable G (toppleList G L s)))
 
 abbrev T2b_DharCriticalIdentityAndGridOrders : Prop :=
   det4 (gridLap 2) = 192 ∧
@@ -189,12 +197,17 @@ abbrev T3a_SL2ZFrickeCohnMarkovCorrespondence : Prop :=
   (cohnA0.tr / 3 = 1 ∧ cohnB0.tr / 3 = 2 ∧ (Mat2.mul cohnA0 cohnB0).tr / 3 = 5)
 
 abbrev T3b_MarkovCoprimalityOddPrimesAndMod32 : Prop :=
-  (∀ x y z, InMarkovTree x y z →
+  (∀ x y z : Int, 1 ≤ x → 1 ≤ y → 1 ≤ z → x * x + y * y + z * z = 3 * x * y * z →
+    InMarkovTree x y z) ∧
+  (∀ x y z : Int, InMarkovTree x y z →
     1 ≤ x ∧ 1 ≤ y ∧ 1 ≤ z ∧ x * x + y * y + z * z = 3 * x * y * z ∧
     Nat.Coprime x.natAbs y.natAbs ∧ Nat.Coprime y.natAbs z.natAbs ∧ Nat.Coprime z.natAbs x.natAbs) ∧
-  (∀ x y z p, InMarkovTree x y z → IsPrime p → p % 2 = 1 → p ∣ x.natAbs → p % 4 = 1) ∧
-  (∀ x y z, InMarkovTree x y z → x % 2 = 1 → x % 4 = 1) ∧
-  (∀ x y z, InMarkovTree x y z → x % 2 = 0 → x % 32 = 2) ∧
+  (∀ (x y z : Int) (p : Nat), 1 ≤ x → 1 ≤ y → 1 ≤ z → x * x + y * y + z * z = 3 * x * y * z →
+    IsPrime p → p % 2 = 1 → p ∣ x.natAbs → p % 4 = 1) ∧
+  (∀ x y z : Int, 1 ≤ x → 1 ≤ y → 1 ≤ z → x * x + y * y + z * z = 3 * x * y * z →
+    x % 2 = 1 → x % 4 = 1) ∧
+  (∀ x y z : Int, 1 ≤ x → 1 ≤ y → 1 ≤ z → x * x + y * y + z * z = 3 * x * y * z →
+    x % 2 = 0 → x % 32 = 2) ∧
   (InMarkovTree 2 1 1 ∧ InMarkovTree 34 13 1 ∧ (2 : Int) % 64 = 2 ∧ (34 : Int) % 64 = 34)
 
 abbrev T3c_HenselSqrtNeg1PrimePowerUniqueness : Prop :=
@@ -222,6 +235,8 @@ abbrev T3e_MarkovHurwitzN4CompleteClassification : Prop :=
     (a = 1 ∧ x1 % 4 = 2 ∧ x2 % 4 = 2 ∧ x3 % 4 = 2 ∧ x4 % 4 = 2) ∨
     (a = 4 ∧ x1 % 2 = 1 ∧ x2 % 2 = 1 ∧ x3 % 2 = 1 ∧ x4 % 2 = 1)) ∧
   (∀ a x1 x2 x3 x4 : Nat, (a = 2 ∨ a = 3 ∨ 5 ≤ a) → ¬ IsHurwitz4 a x1 x2 x3 x4) ∧
+  (∀ x1 x2 x3 x4 : Nat, IsHurwitz4 1 x1 x2 x3 x4 ↔ InHurwitz4Orbit 1 2 2 2 2 x1 x2 x3 x4) ∧
+  (∀ x1 x2 x3 x4 : Nat, IsHurwitz4 4 x1 x2 x3 x4 ↔ InHurwitz4Orbit 4 1 1 1 1 x1 x2 x3 x4) ∧
   (IsHurwitz4 1 2 2 2 2 ∧ IsHurwitz4 1 2 2 2 6 ∧
    IsHurwitz4 4 1 1 1 1 ∧ IsHurwitz4 4 1 1 1 3)
 

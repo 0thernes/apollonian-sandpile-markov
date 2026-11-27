@@ -5,10 +5,10 @@ import Solution
 import PalomarSolution
 
 /-!
-# Strict Axiom Allowlist Audit (`ApollonianSandpileMarkov` v2.1.0)
+# Strict Axiom Allowlist Audit (`ApollonianSandpileMarkov` v3.0.0)
 
 Every exported headline theorem (`T1a`–`T3e`, including `T2f`), the master conjunction, the
-non-vacuity certificate, and all 9 adversarial false-variant refutations (19 audited declarations)
+non-vacuity certificate, and all 10 adversarial false-variant refutations (19 audited declarations)
 must depend strictly on a subset of `[propext, Classical.choice, Quot.sound]`.
 -/
 

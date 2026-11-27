@@ -5,7 +5,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; img-src 'self' data:; base-uri 'none'; form-action 'none';" />
-  <title>Lean 4 Proof Blueprint — Apollonian–Sandpile–Markov (0TH-2026-018, v2.1.0)</title>
+  <title>Lean 4 Proof Blueprint — Apollonian–Sandpile–Markov (0TH-2026-018, v3.0.0)</title>
   <style>
     :root {
       --bg: #0b1120;
@@ -92,8 +92,8 @@
   <a class="skip-link" href="#main-content">Skip to main content</a>
   <header>
     <div>
-      <h1>Lean 4.35.0 Formal Proof Blueprint (0TH-2026-018, v2.1.0)</h1>
-      <p>Zero Mathlib · Zero sorry · Zero native_decide · 19 Exported Declarations · 818 Exhaustively Axiom-Audited Declarations · 6 Independent Kernels</p>
+      <h1>Lean 4.35.0 Formal Proof Blueprint (0TH-2026-018, v3.0.0)</h1>
+      <p>Zero Mathlib · Zero sorry · Zero native_decide · 19 Exported Declarations · 884 Exhaustively Axiom-Audited Declarations · 6 Independent Kernels</p>
     </div>
     <nav class="nav-links" aria-label="Blueprint navigation">
       <a href="../index.html">Portal Home</a>
@@ -104,8 +104,8 @@
 
   <main id="main-content" tabindex="-1">
     <section class="summary-strip" aria-label="Verification metrics">
-      <div class="metric"><div class="num">16 + 3</div><div class="lbl">Headline Theorems + Master/NonVacuity/Adversarial (9 refutations)</div></div>
-      <div class="metric"><div class="num">818</div><div class="lbl">Declarations exhaustively audited via Lean.collectAxioms</div></div>
+      <div class="metric"><div class="num">16 + 3</div><div class="lbl">Headline Theorems + Master/NonVacuity/Adversarial (10 refutations)</div></div>
+      <div class="metric"><div class="num">884</div><div class="lbl">Declarations exhaustively audited via Lean.collectAxioms</div></div>
       <div class="metric"><div class="num">6</div><div class="lbl">Independent Type-Checking Kernels + Negative Rejection Gate in CI</div></div>
       <div class="metric"><div class="num">3 Axioms</div><div class="lbl">Strictly [propext, Classical.choice, Quot.sound]</div></div>
     </section>
@@ -123,7 +123,7 @@
     <section class="axiom-box">
       <h2>Machine-Checked Six-Kernel Verification Pipeline</h2>
       <pre>Kernels &amp; audits executed on every push in GitHub Actions (lean4-six-kernels):
-  1. Lean 4.35.0 kernel (lake build + VerifyAxioms.lean + VerifyAllDecls.lean across all 818 declarations)
+  1. Lean 4.35.0 kernel (lake build + VerifyAxioms.lean + VerifyAllDecls.lean across all 884 declarations)
   2. leanchecker --fresh (Solution &amp; PalomarSolution)
   3. leanchecker-paranoid (lean4lean independent Lean-in-Lean kernel)
   4. nanoda_bin (independent Rust kernel with unpermitted_axiom_hard_error=true)
@@ -143,21 +143,21 @@
       { id: "T1b", pillar: "p1", decl: "t1b_jacobi_reciprocity_master", file: "ApollonianSandpileMarkov/JacobiReciprocity.lean", deps: [], desc: "Self-contained zero-Mathlib Legendre-Jacobi symbol, Eisenstein (1844) lattice-point proof of Gauss Quadratic Reciprocity, both Supplementary Laws (-1/n) and (2/n), multiplicativity, and squares=1." },
       { id: "T1c", pillar: "p1", decl: "t1c_hkrs_apollonian_reciprocity_obstruction", file: "ApollonianSandpileMarkov/ApollonianReciprocity.lean", deps: ["T1a", "T1b"], desc: "Zero-Mathlib parabolic Dehn-twist CRT formalization of the HKRS (Annals of Math. 2024) square obstruction for the three packings (-3,5,8,8), (-7,17,12,20), (-11,21,24,28); contrast rootSquareContrast=(-4,8,9,9) hits 9 (still has HKRS 3n^2, 6n^2, n^4, 4n^4 obstructions)." },
       { id: "T1d", pillar: "p1", decl: "t1d_octahedral_lorentzian_and_sqrt_neg2_obstruction", file: "ApollonianSandpileMarkov/ApollonianReciprocity.lean", deps: ["T1b"], desc: "Octahedral 8 involutions, sqrt(-2) norm law, and mod-8 residue locking (2,2,1,0,0,1) on (-6,10,17,40,24,17) excluding squares at b1,b2 and twice-squares at b3,b6, plus 5 standalone closed Jacobi evaluations (no reciprocity proof formalized; cf. Shi et al., arXiv:2510.21702)." },
-      { id: "T1e", pillar: "p1", decl: "t1e_soddy_dimension_dichotomy_and_3d_contrast", file: "ApollonianSandpileMarkov/ApollonianReciprocity.lean", deps: [], desc: "Arithmetic divisibility fact (d-1) | 2 <=> d=2 or d=3 (used in LMW 2002; not linked in Lean to general d-dim reflections), all five 3D Soddy involutions preserving soddy3Q, and 3D cluster (-6,13,13,13,18) reflecting to 25=5^2." },
-      { id: "T2a", pillar: "p2", decl: "t2a_abelian_sandpile_confluence_and_least_action", file: "ApollonianSandpileMarkov/SandpileTropical.lean", deps: [], desc: "Toppling commutativity (Dhar 1990), discrete least-action bound, and uniqueness of legal stabilizing traces for SandpileGraph (symmetric zero-diagonal adjacency, arbitrary degrees, no sink condition, no termination theorem)." },
+      { id: "T1e", pillar: "p1", decl: "t1e_soddy_dimension_dichotomy_and_3d_contrast", file: "ApollonianSandpileMarkov/ApollonianReciprocity.lean", deps: [], desc: "General d-dimensional Soddy-Gosset integrality dichotomy (Lagarias-Mallows-Wilks 2002): integer reflections soddyRefl d alpha preserving soddyQ d exist iff d=2 or d=3 (all are involutions), plus (d-1)|2, all five 3D Soddy involutions, and (-6,13,13,13,18) reflecting to 25=5^2 (v3.0.0)." },
+      { id: "T2a", pillar: "p2", decl: "t2a_abelian_sandpile_confluence_and_least_action", file: "ApollonianSandpileMarkov/SandpileTropical.lean", deps: [], desc: "Universal Abelian sandpile toppling commutativity (Dhar 1990), discrete least-action bound, Church-Rosser confluence, AND universal finite termination & existence of a legal stabilizing trace on every sinked dissipative graph (IsDissipative G & HasReachableSink G) via a constructive superharmonic potential (v3.0.0)." },
       { id: "T2b", pillar: "p2", decl: "t2b_dhar_critical_identity_and_grid_orders", file: "ApollonianSandpileMarkov/SandpileTropical.lean", deps: ["T2a"], desc: "Direct Lean determinants det4(gridLap 2)=192 and detMat 9(gridLap 3)=100,352, D_4 integer block similarity with product 100,352, and explicit legal Dhar toppling traces on 2x2 and 3x3 Z^2 grids (no Matrix-Tree or group-identity theorem formalized)." },
       { id: "T2c", pillar: "p2", decl: "t2c_lps_z2_superharmonic_and_isotropic_obstruction", file: "ApollonianSandpileMarkov/SandpileTropical.lean", deps: [], desc: "Discrete torus Green's First Identity and one isotropic Z^2 superharmonic obstruction (4u = 3(x^2+y^2)+psi, lapZ2 u <= 3 -> False), plus constant-Laplacian 2 & 3 witnesses (not the full LPS classification)." },
       { id: "T2d", pillar: "p2", decl: "t2d_triangular_a2_even_laplacian_rigidity_and_obstruction", file: "ApollonianSandpileMarkov/SandpileTropical.lean", deps: [], desc: "Elementary A_2 even-Laplacian parity lemma (no prior statement found): if M>=1, psi periodic, M*u=Ax^2+Bxy+Cy^2+Dx+Ey+psi, M*K=4A-2B+4C, and lapA2 u <= K, then K % 2 = 0 (excluding K=5 in this class; K=2,4 attained; says nothing about sandpile heights)." },
       { id: "T2e", pillar: "p2", decl: "t2e_kalinin_shkolnikov_tropical_balancing_and_solitons", file: "ApollonianSandpileMarkov/SandpileTropical.lean", deps: [], desc: "Elementary lattice-polygon edge-normal closure identity sum R_90(v_{i+1}-v_i)=(0,0), 2x2 determinant identity for v1+v2+v3=(0,0), and closed numeric checks (Kalinin-Shkolnikov theorem is not formalized)." },
       { id: "T2f", pillar: "p2", decl: "t2f_a2_grid_orders_and_dhar_identity", file: "ApollonianSandpileMarkov/SandpileTropical.lean", deps: ["T2a"], desc: "Direct Lean determinants det4(a2GridLap 2)=1,092 and detMat 9(a2GridLap 3)=5,393,920, Klein-4 integer block similarity (7*28*40*688), and explicit legal Dhar toppling traces on A_2 2x2 and 3x3 grids (no Matrix-Tree or group-identity theorem formalized)." },
       { id: "T3a", pillar: "p3", decl: "t3a_sl2z_fricke_cohn_markov_correspondence", file: "ApollonianSandpileMarkov/MarkovHurwitzCluster.lean", deps: [], desc: "Classical SL_2(Z) Fricke trace identity and Cohn binary tree from A_0=((1,1),(1,2)), B_0=((1,2),(2,5)) exporting explicit 3|tr A, 3|tr B, 3|tr(AB) and Markov triples via tr/3 (Cohn 1955)." },
-      { id: "T3b", pillar: "p3", decl: "t3b_markov_coprimality_odd_primes_and_mod32", file: "ApollonianSandpileMarkov/MarkovHurwitzCluster.lean", deps: ["T1b"], desc: "For Markov tree triples from (1,1,1): pairwise coprimality, odd primes p=1(mod 4), odd m=1(mod 4), and zero-Mathlib formalization of Ying Zhang's theorem (Acta Arith. 2007, arXiv:math/0612620) that even m=2(mod 32) with witnesses 2 and 34." },
+      { id: "T3b", pillar: "p3", decl: "t3b_markov_coprimality_odd_primes_and_mod32", file: "ApollonianSandpileMarkov/MarkovHurwitzCluster.lean", deps: ["T1b"], desc: "Markov's classical descent theorem (1879/1880) proving EVERY positive integer Markov solution lies in InMarkovTree, together with universal pairwise coprimality, odd primes p=1(mod 4), odd m=1(mod 4), and Ying Zhang's theorem (Acta Arith. 2007, arXiv:math/0612620) that EVERY even Markov number satisfies m=2(mod 32), sharp mod 64 via 2 and 34 (v3.0.0)." },
       { id: "T3c", pillar: "p3", decl: "t3c_hensel_sqrt_neg1_prime_power_uniqueness", file: "ApollonianSandpileMarkov/MarkovHurwitzCluster.lean", deps: ["T1b"], desc: "Standard Hensel uniqueness of sqrt(-1) modulo odd prime powers p^k (k >= 1): p^k | (r1^2+1) and p^k | (r2^2+1) implies p^k | (r1-r2) or p^k | (r1+r2)." },
       { id: "T3d", pillar: "p3", decl: "t3d_cluster_algebra_markov_laurent_positivity", file: "ApollonianSandpileMarkov/MarkovHurwitzCluster.lean", deps: [], desc: "5-step Markov quiver exchange identities with subtraction-free numerators (divisions by non-monomial P1, P2) along the path through (2,5,29), (5,29,433), (29,433,37666); proves value positivity for x_i>=1 (coefficient positivity by inspection; finite instance of FZ 2002 / LS 2015)." },
-      { id: "T3e", pillar: "p3", decl: "t3e_markov_hurwitz_n4_complete_classification", file: "ApollonianSandpileMarkov/MarkovHurwitzCluster.lean", deps: [], desc: "Classical Hurwitz (1907) admissible-coefficient classification for n=4: positive solutions exist only for a=1 (all x_i=2 mod 4) or a=4 (all odd); none for a in {2,3} or a>=5 (Vieta-orbit description not in export)." },
+      { id: "T3e", pillar: "p3", decl: "t3e_markov_hurwitz_n4_complete_classification", file: "ApollonianSandpileMarkov/MarkovHurwitzCluster.lean", deps: [], desc: "Complete Hurwitz (1907) classification for n=4: positive solutions exist only for a=1 (all x_i=2 mod 4) or a=4 (all odd), with exact bi-implications identifying all solutions with InHurwitz4Orbit 1 2 2 2 2 and InHurwitz4Orbit 4 1 1 1 1 respectively (v3.0.0)." },
       { id: "MASTER", pillar: "aud", decl: "prove_all_apollonian_sandpile_markov_theorems", file: "PalomarSolution.lean", deps: ["T1a..T3e", "T2f"], desc: "Master conjunction proving the entire 16-statement contract AllApollonianSandpileMarkovTheorems for lake comparator --paranoid (17 targets in comparator.json)." },
-      { id: "NONVAC", pillar: "aud", decl: "nonvac_all_hypotheses", file: "ApollonianSandpileMarkov/NonVacuity.lean", deps: ["T1a..T3e", "T2f"], desc: "Constructive premise witnesses across all pillars, including all three HKRS roots (rootHKRS1-3), lapZ2 uZ2_lap3a <= 3, T2d hypothesis-bundle witness, IsStabilizingOdometer witnesses on gridGraph 2 and a2GridGraph 3, and Cohn seed determinants (v2.1.0)." },
-      { id: "ADV", pillar: "aud", decl: "all_adversarial_refutations", file: "ApollonianSandpileMarkov/Adversarial.lean", deps: ["T1a..T3e", "T2f"], desc: "Nine refutations of false strengthenings and dropped-hypothesis variants (adv1-adv9, including T2d mean-equation necessity, T2a LegalTrace necessity, and octahedral strip contrast in v2.1.0; adv6 is a corollary of T3e)." }
+      { id: "NONVAC", pillar: "aud", decl: "nonvac_all_hypotheses", file: "ApollonianSandpileMarkov/NonVacuity.lean", deps: ["T1a..T3e", "T2f"], desc: "Constructive premise witnesses across all pillars, including all three HKRS roots, general soddyQ 3, sinked-dissipative sandpile graphs (including multi-hop gridGraph 3), lapZ2 uZ2_lap3a <= 3, T2d hypothesis-bundle witness, IsStabilizingOdometer witnesses, InHurwitz4Orbit, and Cohn seed determinants (v3.0.0)." },
+      { id: "ADV", pillar: "aud", decl: "all_adversarial_refutations", file: "ApollonianSandpileMarkov/Adversarial.lean", deps: ["T1a..T3e", "T2f"], desc: "Ten refutations of false strengthenings and dropped-hypothesis variants (adv1-adv10, including 4D Soddy non-integrality, T2d mean-equation necessity, T2a LegalTrace necessity, octahedral strip contrast, and T2a HasReachableSink necessity on sinklessGraph2 in v3.0.0)." }
     ];
 
     const grid = document.getElementById("thm-grid");

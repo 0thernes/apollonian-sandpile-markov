@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
-"""Live citation, retraction (`update-to` & `updated-by`), and title/author audit for paper/references.bib (v2.1.0)."""
+"""Live citation, retraction (`update-to` & `updated-by`), and title/author audit for paper/references.bib (v3.0.0)."""
 
 from __future__ import annotations
 
@@ -76,7 +76,7 @@ def verify_entry(entry: dict[str, str], offline: bool = False) -> tuple[bool, st
             return False, f"[{key}] missing title or author in BibTeX entry"
         return True, f"[{key}] structural identifier + title/author present (offline mode)"
 
-    headers = {"User-Agent": "apollonian-sandpile-markov/2.1.0 (mailto:0_0@0thernes.art)"}
+    headers = {"User-Agent": "apollonian-sandpile-markov/3.0.0 (mailto:0_0@0thernes.art)"}
     expected_title_toks = normalize_tokens(bib_title)
     expected_surnames = bib_surnames(bib_author)
 

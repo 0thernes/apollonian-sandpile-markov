@@ -21,8 +21,10 @@ Formalizes:
   `(2, 2, 1, 0, 0, 1)` on the orbit of `(-6, 10, 17, 40, 24, 17)` excluding squares at `b1, b2`
   and twice-squares at `b3, b6` by congruence, plus five closed Jacobi evaluations and the strip
   contrast `(0, 0, 1, 2, 2, 1)` (cf. Shi, Shi, Whitehead, Williams-Tracy & Zhang, arXiv:2510.21702).
-- `T1e`: Arithmetic divisibility fact `(d - 1) ∣ 2 ↔ d = 2 ∨ d = 3` (used in Lagarias–Mallows–Wilks
-  2002), all five 3D Soddy involutions preserving `soddy3Q`, and the 3D reflection hitting `25 = 5^2`.
+- `T1e`: General `d`-dimensional Soddy–Gosset integrality dichotomy (`soddyQ d` is preserved by an
+  integer linear reflection `soddyRefl d α` iff `(d - 1) * α = 2`, hence iff `d = 2 ∨ d = 3`,
+  formalizing Lagarias–Mallows–Wilks 2002), all five 3D Soddy involutions preserving `soddy3Q`, and
+  the 3D reflection hitting `25 = 5^2`.
 -/
 
 namespace ApollonianSandpileMarkov.ApollonianReciprocity
@@ -985,14 +987,7 @@ theorem parabolic_transfer_same_parity {u1 u2 v1 v2 : Int}
   -- Key identity: u1 + cn = bqf u1 v1 v2 u2 (1 - n) n AND u2 + cn = bqf u2 v1 v2 u1 (1 - n) n!!
   have hbqf_u1_cn : bqf u1 v1 v2 u2 (1 - n) n = u1 + cn := by
     have h2k := two_mul_halfK ((descartesQ_perm u1 u2 v1 v2).1.symm.trans hQ)
-    -- Wait: check bqf u1 v1 v2 u2 (1 - n) n!
-    -- bqf u1 v1 v2 u2 (1-n) n = (u1+v1)(1-n)^2 + 2*k*(1-n)*n + (u1+v2)*n^2
-    -- where 2*k = u1 + v1 + v2 - u2!
-    -- Expand: (u1+v1)(1 - 2n + n^2) + (u1+v1+v2-u2)(n - n^2) + (u1+v2) n^2
-    --   coeff of n^2: (u1+v1) - (u1+v1+v2-u2) + (u1+v2) = u1 + u2 = A!
-    --   coeff of n:   -2(u1+v1) + (u1+v1+v2-u2) = v2 - v1 - u1 - u2 = B!
-    --   const term:   u1 + v1 = u1 + C!
-    -- OH!! MY!! GOD!! IT EQUALS u1 + cseq n IDENTICALLY BY `grind`!!
+    -- Expanding bqf u1 v1 v2 u2 (1 - n) n with 2*k = u1 + v1 + v2 - u2 yields u1 + cseq n.
     unfold bqf; dsimp [cn, cseq, A, B, C]; grind
   have hbqf_u2_cn : bqf u2 v1 v2 u1 (1 - n) n = u2 + cn := by
     have h2k := two_mul_halfK ((descartesQ_perm u1 u2 v1 v2).2.1.symm.trans hQ)
@@ -1259,27 +1254,7 @@ theorem hkrs_preserved_refl1 {q : Quad} (h : HasHKRSObstruction q) :
       jacobi q.c (bqf q.c q'.a q.b q.d x y).toNat = -1 := by
     intro x y hpos hodd hcop
     have hQc' : descartesQ q.c q'.a q.b q.d = 0 := (descartesQ_perm q'.a q.b q.c q.d).2.2.1.symm.trans hQ'
-    have hinv := jacobi_bqf_invariant hQc' (Or.inr ⟨hc4, ha4', hb4, hd4⟩)
-      (x1 := x) (y1 := y) (x2 := 0) (y2 := 1) hpos hodd hcop
-    -- Wait: (0, 1) might not be coprime to q.c! Instead, use bqf_refl_fourth on (q.c, q.b, q.d, q.a)!!
-    -- Notice bqf q.c q'.a q.b q.d x y = bqf q.c q.b q.d q'.a (y + x) (-x)?? Check!
-    -- Even better: bqf q.c q.b q.d q'.a x y = bqf q.c q.b q.d q.a x (-y), and bqf q.c q.a q.b q.d u v:
-    -- Just compute the EXACT unimodular substitution linking bqf q.c q'.a q.b q.d and bqf q.c q.a q.b q.d!!
-    -- For u = q.c, (c + a') = (c + b) + (c + d) + 2*k(c,b,d,a) = bqf c b d a 1 1!
-    -- Specifically: bqf c a' b d x y = bqf c a b d (-x) (y + 2*x)?? Let's check with `grind`!
-    -- Wait: a' = 2(b+c+d) - a, and 2*k1 = c + a + b - d, 2*k2 = c + a' + b - d = 2(b+c+d) + c + b - d - a = 3b + 3c + d - a!
-    -- Check bqf c a' b d x y = (c+a')x^2 + 2*k2*x*y + (c+b)y^2
-    -- vs bqf c a b d u v = (c+a)u^2 + 2*k1*u*v + (c+b)v^2:
-    -- Since a' + c = 2(b+c+d) - a + c = 2(c+b) + 2(c+d) - (c+a) = (c+a) + 4(c+b) - 4*k1!
-    -- Check (u, v) = (x, 2*x - y)!!
-    --   (c+a) x^2 + 2*k1*x*(2x-y) + (c+b)(2x-y)^2
-    --   = ((c+a) + 4*k1 + 4*(c+b)) x^2 - (2*k1 + 4*(c+b)) x*y + (c+b) y^2!
-    -- Check coeff of x^2 with 2*k1 = c + a + b - d:
-    --   (c+a) + 2(c+a+b-d) + 4(c+b) = 7c + 3a + 6b - 2d (not a'+c!).
-    -- Try (u, v) = (-x, y + 2*x) with 2*k1 = c+a+b-d => (c+a) - 4k1 + 4(c+b) = (c+a) - 2(c+a+b-d) + 4c + 4b = 3c - a + 2b + 2d = c + a'!!
-    -- CHECK coeff of x*y for (-x, y + 2*x):
-    --   2*k1*(-x)*y + (c+b)*4*x*y = (4(c+b) - 2*k1) x*y = (4c + 4b - c - a - b + d) x*y = (3c + 3b + d - a) x*y = 2*k2 * x*y!!
-    -- BOOOOOOOM!! EXACT UNIMODULAR SUBSTITUTION: bqf c a' b d x y = bqf c a b d (-x) (y + 2*x)!!
+    -- Exact unimodular substitution: bqf c a' b d x y = bqf c a b d (-x) (y + 2 * x).
     have hsub : bqf q.c q'.a q.b q.d x y = bqf q.c q.a q.b q.d (-x) (y + 2 * x) := by
       have h1 := two_mul_halfK ((descartesQ_perm q.a q.b q.c q.d).2.2.1.symm.trans hQ)
       have h2 := two_mul_halfK hQc'
@@ -1789,7 +1764,189 @@ theorem t1d_octahedral_lorentzian_and_sqrt_neg2_obstruction :
   · exact ⟨by decide, by decide, by decide, by decide, by decide,
            ⟨by decide, by decide, by decide⟩, by decide, by decide⟩
 
-/-! ### Part 5: Exact `d ∈ {2, 3}` Soddy Integrality Dichotomy & 3D Soddy Contrast (`T1e`) -/
+/-! ### Part 5: General `d`-Dimensional Soddy–Gosset Integrality Dichotomy & 3D Contrast (`T1e`) -/
+
+/-- Local integer finite sum helper over `0 .. n - 1` (zero external dependencies). -/
+def sumNatInt (n : Nat) (f : Nat → Int) : Int :=
+  match n with
+  | 0 => 0
+  | k + 1 => sumNatInt k f + f k
+
+/-- Sum of an `Int`-valued function over `Fin n`. -/
+def sumFinInt {n : Nat} (f : Fin n → Int) : Int :=
+  sumNatInt n (fun i => if h : i < n then f ⟨i, h⟩ else 0)
+
+theorem sumNatInt_eq_of_eq (n : Nat) (f g : Nat → Int) (h : ∀ i, i < n → f i = g i) :
+    sumNatInt n f = sumNatInt n g := by
+  induction n with
+  | zero => rfl
+  | succ k ih =>
+    simp only [sumNatInt, ih (fun i hi => h i (Nat.lt_succ_of_lt hi)), h k (Nat.lt_succ_self k)]
+
+theorem sumFinInt_eq_of_eq {n : Nat} (f g : Fin n → Int) (h : ∀ i, f i = g i) :
+    sumFinInt f = sumFinInt g := by
+  unfold sumFinInt
+  apply sumNatInt_eq_of_eq
+  intro i hi
+  simp only [hi, ↓reduceDIte, h ⟨i, hi⟩]
+
+theorem sumFinInt_zero {n : Nat} : sumFinInt (fun _ : Fin n => (0 : Int)) = 0 := by
+  unfold sumFinInt
+  have haux : ∀ m : Nat, sumNatInt m (fun i => if _ : i < n then (0 : Int) else 0) = 0 := by
+    intro m
+    induction m with
+    | zero => rfl
+    | succ k ih => simp only [sumNatInt, ih]; split <;> omega
+  exact haux n
+
+theorem sumFinInt_update {n : Nat} (f : Fin n → Int) (k : Fin n) (v : Int) :
+    sumFinInt (fun i => if i = k then v else f i) = sumFinInt f - f k + v := by
+  unfold sumFinInt
+  have haux : ∀ m (hm : m ≤ n),
+      sumNatInt m (fun i => if h : i < n then (if (⟨i, h⟩ : Fin n) = k then v else f ⟨i, h⟩) else 0) =
+      sumNatInt m (fun i => if h : i < n then f ⟨i, h⟩ else 0) + (if k.val < m then v - f k else 0) := by
+    intro m
+    induction m with
+    | zero => intro _; simp [sumNatInt]
+    | succ r ih =>
+      intro hr
+      have hr_lt : r < n := hr
+      simp only [sumNatInt, ih (Nat.le_of_succ_le hr), hr_lt, ↓reduceDIte]
+      by_cases hkr : k.val = r
+      · have heq : (⟨r, hr_lt⟩ : Fin n) = k := Fin.ext hkr.symm
+        have h1 : ¬ (k.val < r) := by omega
+        have h2 : k.val < r + 1 := by omega
+        simp only [heq, h1, h2, ↓reduceIte]; omega
+      · have hne : (⟨r, hr_lt⟩ : Fin n) ≠ k := fun h => hkr (congrArg Fin.val h).symm
+        by_cases hlt : k.val < r
+        · have hlt' : k.val < r + 1 := by omega
+          simp only [hne, hlt, hlt', ↓reduceIte]; omega
+        · have hlt' : ¬ (k.val < r + 1) := by omega
+          simp only [hne, hlt, hlt', ↓reduceIte]; omega
+  have hfull := haux n (Nat.le_refl n)
+  simp only [k.isLt, ↓reduceIte] at hfull
+  dsimp only at hfull ⊢
+  omega
+
+/-- General `d`-dimensional Soddy–Gosset quadratic form on `d + 2` mutually tangent spheres:
+    `(∑ b_i)^2 - d * ∑ b_i^2`. -/
+def soddyQ (d : Nat) (b : Fin (d + 2) → Int) : Int :=
+  (sumFinInt b) ^ 2 - (d : Int) * sumFinInt (fun i => b i * b i)
+
+/-- General `d`-dimensional integer linear sphere reflection with multiplier `α`:
+    replaces `b k` by `α * (∑_{i ≠ k} b_i) - b k`. -/
+def soddyRefl (d : Nat) (α : Int) (k : Fin (d + 2)) (b : Fin (d + 2) → Int) : Fin (d + 2) → Int :=
+  fun i => if i = k then α * (sumFinInt b - b k) - b k else b i
+
+/-- Every `soddyRefl d α k` is an exact involution for all `d, α, k, b`. -/
+theorem soddyRefl_involution (d : Nat) (α : Int) (k : Fin (d + 2)) (b : Fin (d + 2) → Int) :
+    soddyRefl d α k (soddyRefl d α k b) = b := by
+  have hS : sumFinInt (soddyRefl d α k b) - soddyRefl d α k b k = sumFinInt b - b k := by
+    have hupd := sumFinInt_update b k (α * (sumFinInt b - b k) - b k)
+    change sumFinInt (soddyRefl d α k b) = sumFinInt b - b k + (α * (sumFinInt b - b k) - b k) at hupd
+    have hk : soddyRefl d α k b k = α * (sumFinInt b - b k) - b k := by simp [soddyRefl]
+    omega
+  funext i
+  unfold soddyRefl
+  by_cases hik : i = k
+  · subst hik
+    simp only [↓reduceIte]
+    have hS' : sumFinInt (soddyRefl d α i b) - (α * (sumFinInt b - b i) - b i) = sumFinInt b - b i := by
+      simpa [soddyRefl] using hS
+    change α * (sumFinInt (soddyRefl d α i b) - (α * (sumFinInt b - b i) - b i)) - (α * (sumFinInt b - b i) - b i) = b i
+    rw [hS']; omega
+  · simp [hik]
+
+/-- Exact change in `soddyQ d` under a single reflection `soddyRefl d α k`. -/
+theorem soddyQ_refl_diff (d : Nat) (α : Int) (k : Fin (d + 2)) (b : Fin (d + 2) → Int) :
+    soddyQ d (soddyRefl d α k b) - soddyQ d b =
+    (α * (sumFinInt b - b k) - 2 * b k) * (sumFinInt b - b k) * (2 - ((d : Int) - 1) * α) := by
+  let S_other := sumFinInt b - b k
+  let x := b k
+  let x' := α * S_other - x
+  have hsum : sumFinInt (soddyRefl d α k b) = S_other + x' := by
+    have h := sumFinInt_update b k x'
+    change sumFinInt (soddyRefl d α k b) = sumFinInt b - b k + x' at h
+    dsimp [S_other]; omega
+  have hsq : sumFinInt (fun i => soddyRefl d α k b i * soddyRefl d α k b i) =
+      sumFinInt (fun i => b i * b i) - x * x + x' * x' := by
+    have hcongr : sumFinInt (fun i => soddyRefl d α k b i * soddyRefl d α k b i) =
+        sumFinInt (fun i => if i = k then x' * x' else b i * b i) := by
+      apply sumFinInt_eq_of_eq
+      intro i
+      unfold soddyRefl
+      by_cases hik : i = k <;> simp [hik, x', S_other, x]
+    rw [hcongr, sumFinInt_update (fun i => b i * b i) k (x' * x')]
+  unfold soddyQ
+  rw [hsum, hsq]
+  have hSb : sumFinInt b = S_other + x := by dsimp [S_other, x]; omega
+  rw [hSb]
+  dsimp [x']
+  grind
+
+/-- **General `d`-Dimensional Soddy–Gosset Reflection Preservation Criterion:**
+    For every dimension `d ≥ 2` and integer multiplier `α : Int`, the reflection `soddyRefl d α`
+    preserves `soddyQ d` for all tuples and indices if and only if `(d - 1) * α = 2`. -/
+theorem soddyRefl_preserves_soddyQ_iff (d : Nat) (hd : 2 ≤ d) (α : Int) :
+    (∀ (b : Fin (d + 2) → Int) (k : Fin (d + 2)), soddyQ d (soddyRefl d α k b) = soddyQ d b) ↔
+    ((d : Int) - 1) * α = 2 := by
+  constructor
+  · intro hall
+    let i0 : Fin (d + 2) := ⟨0, by omega⟩
+    let i1 : Fin (d + 2) := ⟨1, by omega⟩
+    have hne : i0 ≠ i1 := fun h => by have := congrArg Fin.val h; dsimp [i0, i1] at this; omega
+    let b1 : Fin (d + 2) → Int := fun i => if i = i1 then 1 else 0
+    have hsum1 : sumFinInt b1 = 1 := by
+      have h := sumFinInt_update (fun _ : Fin (d + 2) => (0 : Int)) i1 1
+      rw [sumFinInt_zero] at h
+      simpa [b1] using h
+    have hb1_0 : b1 i0 = 0 := by simp [b1, hne]
+    have hdiff1 := soddyQ_refl_diff d α i0 b1
+    rw [hall b1 i0, hsum1, hb1_0] at hdiff1
+    have hfac1 : α * (2 - ((d : Int) - 1) * α) = 0 := by grind
+    rcases Int.mul_eq_zero.mp hfac1 with hα0 | hmain
+    · exfalso
+      let b2 : Fin (d + 2) → Int := fun i => if i = i0 then 1 else b1 i
+      have hsum2 : sumFinInt b2 = 2 := by
+        have h := sumFinInt_update b1 i0 1
+        rw [hsum1, hb1_0] at h
+        simpa [b2] using h
+      have hb2_0 : b2 i0 = 1 := by simp [b2]
+      have hdiff2 := soddyQ_refl_diff d α i0 b2
+      rw [hall b2 i0, hsum2, hb2_0, hα0] at hdiff2
+      omega
+    · omega
+  · intro hα b k
+    have hdiff := soddyQ_refl_diff d α k b
+    have hz : 2 - ((d : Int) - 1) * α = 0 := by omega
+    rw [hz] at hdiff
+    omega
+
+/-- **Lagarias–Mallows–Wilks (2002) General `d`-Dimensional Soddy–Gosset Integrality Dichotomy:**
+    For `d ≥ 2`, an integer linear sphere-inversion family preserving the `d`-dimensional
+    Soddy–Gosset form `soddyQ d` exists if and only if `d = 2` (Apollonian, `α = 2`) or
+    `d = 3` (3D Soddy, `α = 1`). -/
+theorem soddy_general_d_integrality_dichotomy (d : Nat) (hd : 2 ≤ d) :
+    (∃ α : Int, ∀ (b : Fin (d + 2) → Int) (k : Fin (d + 2)),
+      soddyQ d (soddyRefl d α k b) = soddyQ d b) ↔ (d = 2 ∨ d = 3) := by
+  constructor
+  · rintro ⟨α, hα⟩
+    have heq : ((d : Int) - 1) * α = 2 := (soddyRefl_preserves_soddyQ_iff d hd α).mp hα
+    have hα_pos : 1 ≤ α := by
+      by_cases hle : α ≤ 0
+      · have hnp : ((d : Int) - 1) * α ≤ 0 := Int.mul_nonpos_of_nonneg_of_nonpos (by omega) hle
+        omega
+      · omega
+    have hd_le3 : d ≤ 3 := by
+      by_cases h4 : 4 ≤ d
+      · have hge3 : (3 : Int) * 1 ≤ ((d : Int) - 1) * α :=
+          Int.mul_le_mul (by omega) hα_pos (by decide) (by omega)
+        omega
+      · omega
+    omega
+  · rintro (rfl | rfl)
+    · exact ⟨2, (soddyRefl_preserves_soddyQ_iff 2 (by decide) 2).mpr (by decide)⟩
+    · exact ⟨1, (soddyRefl_preserves_soddyQ_iff 3 (by decide) 1).mpr (by decide)⟩
 
 /-- Exact 3D Soddy sphere-packing Descartes form: `(∑ b_i)^2 - 3 * ∑ b_i^2`. -/
 def soddy3Q (b1 b2 b3 b4 b5 : Int) : Int :=
@@ -1810,13 +1967,19 @@ def soddy3Refl4 (s : Soddy3) : Soddy3 := ⟨s.b1, s.b2, s.b3, s.b1 + s.b2 + s.b3
 def soddy3Refl5 (s : Soddy3) : Soddy3 := ⟨s.b1, s.b2, s.b3, s.b4, s.b1 + s.b2 + s.b3 + s.b4 - s.b5⟩
 
 /-- **T1e Master Export:**
-    1. Arithmetic divisibility fact `(d - 1) ∣ 2 ↔ d = 2 ∨ d = 3` for `d ≥ 2` (used in the
-       Lagarias–Mallows–Wilks 2002 integrality argument; not linked in Lean to general `d`-dimensional
-       reflections).
-    2. All five 3D Soddy reflections `soddy3Refl1`–`soddy3Refl5` are involutions preserving `soddy3Q`.
-    3. 3D Soddy contrast witnesses (`(-5, 9, 12, 13, 16)` containing `9 = 3^2` and `16 = 4^2`, and
+    1. General `d`-dimensional Soddy–Gosset integrality dichotomy (Lagarias–Mallows–Wilks 2002):
+       for all `d ≥ 2`, `soddyRefl d α` is an involution preserving `soddyQ d` iff `(d - 1) * α = 2`,
+       so an integer reflection group preserving `soddyQ d` exists iff `d = 2 ∨ d = 3`.
+    2. Arithmetic divisibility corollary `(d - 1) ∣ 2 ↔ d = 2 ∨ d = 3` for `d ≥ 2`.
+    3. All five 3D Soddy reflections `soddy3Refl1`–`soddy3Refl5` are involutions preserving `soddy3Q`.
+    4. 3D Soddy contrast witnesses (`(-5, 9, 12, 13, 16)` containing `9 = 3^2` and `16 = 4^2`, and
        `(-6, 13, 13, 13, 18)` reaching `25 = 5^2` in one reflection). -/
 theorem t1e_soddy_dimension_dichotomy_and_3d_contrast :
+    (∀ d : Nat, 2 ≤ d →
+      ((∃ α : Int, ∀ (b : Fin (d + 2) → Int) (k : Fin (d + 2)),
+        soddyQ d (soddyRefl d α k b) = soddyQ d b) ↔ (d = 2 ∨ d = 3))) ∧
+    (∀ (d : Nat) (α : Int) (k : Fin (d + 2)) (b : Fin (d + 2) → Int),
+      soddyRefl d α k (soddyRefl d α k b) = b) ∧
     (∀ d : Nat, 2 ≤ d → ((d - 1) ∣ 2 ↔ d = 2 ∨ d = 3)) ∧
     (∀ s : Soddy3,
       soddy3Refl1 (soddy3Refl1 s) = s ∧ soddy3Refl2 (soddy3Refl2 s) = s ∧
@@ -1836,7 +1999,7 @@ theorem t1e_soddy_dimension_dichotomy_and_3d_contrast :
      (soddy3Refl5 ⟨-6, 13, 13, 13, 18⟩).b5 = 15 ∧
      (soddy3Refl1 ⟨-6, 13, 13, 13, 18⟩).b1 = 63 ∧
      (soddy3Refl2 ⟨-6, 13, 13, 13, 18⟩).b2 = 25 ∧ 25 = 5 * 5) := by
-  refine ⟨?_, ?_, ?_⟩
+  refine ⟨soddy_general_d_integrality_dichotomy, soddyRefl_involution, ?_, ?_, ?_⟩
   · intro d hd
     constructor
     · intro hdvd

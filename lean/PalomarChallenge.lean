@@ -4,7 +4,7 @@ module
 public import Challenge
 
 /-!
-# Palomar Comparator Challenge Contract (`apollonian-sandpile-markov` v2.0.0)
+# Palomar Comparator Challenge Contract (`apollonian-sandpile-markov` v3.0.0)
 
 Statement contract for `lake comparator --config comparator.json --paranoid`.
 Excluded from `defaultTargets` in `lakefile.toml`; every theorem is proved with

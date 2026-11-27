@@ -12,18 +12,20 @@ Formalizes:
 - `T3a`: Classical `SL₂(ℤ)` Fricke trace identity, punctured-torus commutator `-2` invariance
   under Farey/Nielsen moves, explicit `3 ∣ tr` divisibility, and Cohn's (1955) seed generating
   Markov triples via `tr / 3`.
-- `T3b`: Markov tree pairwise coprimality, odd-prime `p ≡ 1 (mod 4)` constraint, and a zero-Mathlib
-  formalization of Ying Zhang's theorem (*Acta Arith.* 128 (2007) 295–301, arXiv:math/0612620):
-  every even entry of a tree triple satisfies `m % 32 = 2` (with witnesses `(2, 1, 1)` and
-  `(34, 13, 1)` distinguishing residues mod 64).
+- `T3b`: Markov's classical descent theorem (1879/1880) proving EVERY positive integer solution of
+  `x^2 + y^2 + z^2 = 3xyz` lies in `InMarkovTree x y z`, together with universal pairwise
+  coprimality, odd-prime `p ≡ 1 (mod 4)` constraint, odd `x ≡ 1 (mod 4)`, and Ying Zhang's theorem
+  (*Acta Arith.* 128 (2007) 295–301, arXiv:math/0612620) that EVERY even Markov number satisfies
+  `x % 32 = 2` (sharp mod 64 via `(2, 1, 1)` and `(34, 13, 1)`).
 - `T3c`: Classical prime-power Hensel `√(-1)` uniqueness modulo `p^k` for odd primes `p`, `k ≥ 1`.
 - `T3d`: Exchange identities with subtraction-free numerators along one five-step Markov-quiver
   mutation sequence (including non-monomial cancellations by `P1` and `P2`), positivity of values at
   positive integer inputs (coefficient positivity holds by inspection), and `(1, 1, 1)` values
   `(2, 5, 29, 433, 37666)` (finite instance of Fomin–Zelevinsky 2002 / Lee–Schiffler 2015).
-- `T3e`: Classical Hurwitz (1907) classification of admissible coefficients `a` with parity
-  constraints for `x1^2 + x2^2 + x3^2 + x4^2 = a x1 x2 x3 x4` over `ℤ_{>0}^4`: no solutions for
-  `a ∈ {2, 3}` or `a ≥ 5`; `a = 1` forces all `x_i ≡ 2 mod 4`; `a = 4` forces all `x_i` odd.
+- `T3e`: Complete Hurwitz (1907) classification of `x1^2 + x2^2 + x3^2 + x4^2 = a x1 x2 x3 x4` over
+  `ℤ_{>0}^4`: no solutions for `a ∈ {2, 3}` or `a ≥ 5`; exact bi-implication identifying all `a = 1`
+  solutions with the single Vieta/permutation orbit `InHurwitz4Orbit 1 2 2 2 2` (all `x_i ≡ 2 mod 4`)
+  and all `a = 4` solutions with the single orbit `InHurwitz4Orbit 4 1 1 1 1` (all `x_i` odd).
 -/
 
 namespace ApollonianSandpileMarkov.MarkovHurwitzCluster
@@ -383,11 +385,30 @@ theorem even_markov_mod32_core {e y z : Int}
     grind
   rw [h32, Int.mul_add_emod_self_left]; decide
 
+/-- Coordinate permutation closure of `InMarkovTree`. -/
+theorem markov_tree_perm {a b c : Int} (hm : InMarkovTree a b c) :
+    InMarkovTree b a c ∧ InMarkovTree c b a ∧ InMarkovTree a c b := by
+  have h12_13 : ∀ {x y z : Int}, InMarkovTree x y z → InMarkovTree y x z ∧ InMarkovTree z y x := by
+    intro x y z h
+    induction h with
+    | base => exact ⟨InMarkovTree.base, InMarkovTree.base⟩
+    | @s1 x' y' z' _ ih =>
+      exact ⟨by have h := InMarkovTree.s2 ih.1; rwa [show 3 * y' * z' - x' = 3 * y' * z' - x' from rfl],
+             by have h := InMarkovTree.s3 ih.2; rwa [show 3 * z' * y' - x' = 3 * y' * z' - x' by grind] at h⟩
+    | @s2 x' y' z' _ ih =>
+      exact ⟨by have h := InMarkovTree.s1 ih.1; rwa [show 3 * x' * z' - y' = 3 * x' * z' - y' from rfl],
+             by have h := InMarkovTree.s2 ih.2; rwa [show 3 * z' * x' - y' = 3 * x' * z' - y' by grind] at h⟩
+    | @s3 x' y' z' _ ih =>
+      exact ⟨by have h := InMarkovTree.s3 ih.1; rwa [show 3 * y' * x' - z' = 3 * x' * y' - z' by grind] at h,
+             by have h := InMarkovTree.s1 ih.2; rwa [show 3 * y' * x' - z' = 3 * x' * y' - z' by grind] at h⟩
+  have h1 := h12_13 hm
+  have h23 : InMarkovTree a c b := (h12_13 (h12_13 h1.2).1).2
+  exact ⟨h1.1, h1.2, h23⟩
+
 theorem markov_tree_even_mod32 {x y z : Int} (h : InMarkovTree x y z) (he : x % 2 = 0) :
     x % 32 = 2 := by
   have hinfo := markov_pos_eq_coprime h
   rcases hinfo with ⟨hx, hy, hz, heq, hxy, hyz, hzx⟩
-  -- Since x is even and Coprime x y, Coprime z x, BOTH y and z MUST be odd!
   have hy_odd : y % 2 = 1 := by
     by_cases h0 : y % 2 = 1
     · exact h0
@@ -404,51 +425,120 @@ theorem markov_tree_even_mod32 {x y z : Int} (h : InMarkovTree x y z) (he : x % 
       have h2z : 2 ∣ z.natAbs := by omega
       have hg : 2 ∣ Nat.gcd z.natAbs x.natAbs := Nat.dvd_gcd h2z h2x
       rw [hzx] at hg; have := Nat.le_of_dvd (by decide) hg; omega
-  -- Swap symmetries on InMarkovTree so we can apply markov_odd_entry_mod4 to y and z!
-  have hperm : ∀ {a b c : Int}, InMarkovTree a b c → InMarkovTree b a c ∧ InMarkovTree c b a := by
-    intro a b c hm
-    induction hm with
-    | base => exact ⟨InMarkovTree.base, InMarkovTree.base⟩
-    | @s1 x' y' z' _ ih =>
-      exact ⟨by have h := InMarkovTree.s2 ih.1; rwa [show 3 * y' * z' - x' = 3 * y' * z' - x' from rfl],
-             by have h := InMarkovTree.s3 ih.2; rwa [show 3 * z' * y' - x' = 3 * y' * z' - x' by grind] at h⟩
-    | @s2 x' y' z' _ ih =>
-      exact ⟨by have h := InMarkovTree.s1 ih.1; rwa [show 3 * x' * z' - y' = 3 * x' * z' - y' from rfl],
-             by have h := InMarkovTree.s2 ih.2; rwa [show 3 * z' * x' - y' = 3 * x' * z' - y' by grind] at h⟩
-    | @s3 x' y' z' _ ih =>
-      exact ⟨by have h := InMarkovTree.s3 ih.1; rwa [show 3 * y' * x' - z' = 3 * x' * y' - z' by grind] at h,
-             by have h := InMarkovTree.s1 ih.2; rwa [show 3 * y' * x' - z' = 3 * x' * y' - z' by grind] at h⟩
-  have hy4 : y % 4 = 1 := markov_odd_entry_mod4 (hperm h).1 hy_odd
-  have hz4 : z % 4 = 1 := markov_odd_entry_mod4 (hperm h).2 hz_odd
+  have hy4 : y % 4 = 1 := markov_odd_entry_mod4 (markov_tree_perm h).1 hy_odd
+  have hz4 : z % 4 = 1 := markov_odd_entry_mod4 (markov_tree_perm h).2.1 hz_odd
   exact even_markov_mod32_core heq he hy4 hz4
 
-/-- **T3b Master Export.** -/
-theorem t3b_markov_coprimality_odd_primes_and_mod32 :
-    (∀ x y z, InMarkovTree x y z →
-      1 ≤ x ∧ 1 ≤ y ∧ 1 ≤ z ∧ x * x + y * y + z * z = 3 * x * y * z ∧
-      Nat.Coprime x.natAbs y.natAbs ∧ Nat.Coprime y.natAbs z.natAbs ∧ Nat.Coprime z.natAbs x.natAbs) ∧
-    (∀ x y z p, InMarkovTree x y z → IsPrime p → p % 2 = 1 → p ∣ x.natAbs → p % 4 = 1) ∧
-    (∀ x y z, InMarkovTree x y z → x % 2 = 1 → x % 4 = 1) ∧
-    (∀ x y z, InMarkovTree x y z → x % 2 = 0 → x % 32 = 2) ∧
-    (InMarkovTree 2 1 1 ∧ InMarkovTree 34 13 1 ∧ (2 : Int) % 64 = 2 ∧ (34 : Int) % 64 = 34) := by
-  refine ⟨fun _ _ _ h => markov_pos_eq_coprime h,
-          fun _ _ _ _ h hp ho hd => markov_odd_prime_mod4 h hp ho hd,
-          fun _ _ _ h ho => markov_odd_entry_mod4 h ho,
-          fun _ _ _ h he => markov_tree_even_mod32 h he, ?_⟩
-  have h211 : InMarkovTree 2 1 1 := InMarkovTree.s1 InMarkovTree.base
-  have h251 : InMarkovTree 2 5 1 := by
-    have := InMarkovTree.s2 h211; simpa using this
-  have h13_5_1 : InMarkovTree 13 5 1 := by
-    have := InMarkovTree.s1 h251; simpa using this
-  -- Wait: 3*5*1 - 2 = 13! And 3*13*1 - 5 = 34!
-  have h13_34_1 : InMarkovTree 13 34 1 := by
-    have := InMarkovTree.s2 h13_5_1; simpa using this
-  -- Even simpler: (1, 1, 1) -> s2 (1, 2, 1) -> s1 (5, 2, 1) -> s2 (5, 13, 1) -> s1 (34, 13, 1)!
+/-- **Markov's Classical Descent Theorem (1879/1880):**
+    Every positive integer solution `(x, y, z)` of `x^2 + y^2 + z^2 = 3xyz` lies in `InMarkovTree x y z`! -/
+theorem markov_descent_aux :
+    ∀ (S : Nat) (x y z : Int),
+      1 ≤ x → 1 ≤ y → 1 ≤ z → (x + y + z).toNat ≤ S →
+      x * x + y * y + z * z = 3 * x * y * z →
+      InMarkovTree x y z := by
+  intro S
+  induction S with
+  | zero => intro x y z hx hy hz hS _; omega
+  | succ k ih =>
+    intro x y z hx hy hz hS heq
+    have hsorted : ∀ {a b c : Int}, 1 ≤ a → a ≤ b → b ≤ c → (a + b + c).toNat ≤ k + 1 →
+        a * a + b * b + c * c = 3 * a * b * c → InMarkovTree a b c := by
+      intro a b c ha hab hbc hSa heqa
+      by_cases hbc_eq : b = c
+      · subst hbc_eq
+        have ha1 : a = 1 := by
+          by_cases ha2 : 2 ≤ a
+          · have hab2 : a * a ≤ b * b := Int.mul_le_mul hab hab (by omega) (by omega)
+            have h3a : (4 : Int) * (b * b) ≤ (3 * a - 2) * (b * b) :=
+              Int.mul_le_mul_of_nonneg_right (by omega) (Int.mul_nonneg (by omega) (by omega))
+            have hb2_pos : 1 ≤ b * b := Int.mul_pos (by omega) (by omega)
+            have hid : a * a = (3 * a - 2) * (b * b) := by grind
+            omega
+          · omega
+        subst ha1
+        have hb1 : b = 1 := by
+          have hb2 : b * b = 1 := by grind
+          by_cases hb2' : 2 ≤ b
+          · have : 4 ≤ b * b := Int.mul_le_mul hb2' hb2' (by decide) (by omega)
+            omega
+          · omega
+        subst hb1
+        exact InMarkovTree.base
+      · have hlt : b < c := by omega
+        let c' : Int := 3 * a * b - c
+        have hprod : c * c' = a * a + b * b := by dsimp [c']; grind
+        have hc'_pos : 1 ≤ c' := by
+          have hab2 : 2 ≤ a * a + b * b := by
+            have h1 : 1 ≤ a * a := Int.mul_pos (by omega) (by omega)
+            have h2 : 1 ≤ b * b := Int.mul_pos (by omega) (by omega)
+            omega
+          by_cases hp : 1 ≤ c'
+          · exact hp
+          · exfalso
+            have hnp : c * c' ≤ 0 := Int.mul_nonpos_of_nonneg_of_nonpos (by omega) (by omega)
+            omega
+        have hc'_le_b : c' ≤ b := by
+          have hab2 : a * a ≤ b * b := Int.mul_le_mul hab hab (by omega) (by omega)
+          have h3a : (1 : Int) * (b * b) ≤ (3 * a - 2) * (b * b) :=
+            Int.mul_le_mul_of_nonneg_right (by omega) (Int.mul_nonneg (by omega) (by omega))
+          have hfac : (c - b) * (b - c') = (3 * a - 2) * (b * b) - a * a := by dsimp [c']; grind
+          by_cases hle : c' ≤ b
+          · exact hle
+          · exfalso
+            have hneg : (c - b) * (b - c') < 0 := by
+              have hpos_prod : 0 < (c - b) * (c' - b) := Int.mul_pos (by omega) (by omega)
+              grind
+            omega
+        have heq' : a * a + b * b + c' * c' = 3 * a * b * c' := by dsimp [c']; grind
+        have hsub : InMarkovTree a b c' := ih a b c' ha (by omega) hc'_pos (by omega) heq'
+        have hback : 3 * a * b - c' = c := by dsimp [c']; omega
+        have hs3 := InMarkovTree.s3 hsub
+        rwa [hback] at hs3
+    -- Sort `(x, y, z)` using `markov_tree_perm`:
+    by_cases hxy : x ≤ y
+    · by_cases hyz : y ≤ z
+      · exact hsorted hx hxy hyz hS heq
+      · by_cases hxz : x ≤ z
+        · exact (markov_tree_perm (hsorted hx hxz (by omega) (by omega) (by grind))).2.2
+        · exact (markov_tree_perm (markov_tree_perm (hsorted hz (by omega) hxy (by omega) (by grind))).2.1).1
+    · by_cases hxz : x ≤ z
+      · exact (markov_tree_perm (hsorted hy (by omega) hxz (by omega) (by grind))).1
+      · by_cases hyz : y ≤ z
+        · exact (markov_tree_perm (markov_tree_perm (hsorted hy hyz (by omega) (by omega) (by grind))).2.2).1
+        · exact (markov_tree_perm (hsorted hz (by omega) (by omega) (by omega) (by grind))).2.1
+
+theorem markov_descent_in_tree {x y z : Int} (hx : 1 ≤ x) (hy : 1 ≤ y) (hz : 1 ≤ z)
+    (heq : x * x + y * y + z * z = 3 * x * y * z) : InMarkovTree x y z :=
+  markov_descent_aux (x + y + z).toNat x y z hx hy hz (Nat.le_refl _) heq
+
+/-- Concrete Markov tree membership witness `(34, 13, 1)` (used for mod-64 sharpness). -/
+theorem markov_tree_34_13_1 : InMarkovTree 34 13 1 := by
   have h121 : InMarkovTree 1 2 1 := by simpa using InMarkovTree.s2 InMarkovTree.base
   have h521 : InMarkovTree 5 2 1 := by simpa using InMarkovTree.s1 h121
   have h5_13_1 : InMarkovTree 5 13 1 := by simpa using InMarkovTree.s2 h521
-  have h34_13_1 : InMarkovTree 34 13 1 := by simpa using InMarkovTree.s1 h5_13_1
-  exact ⟨h211, h34_13_1, by decide, by decide⟩
+  simpa using InMarkovTree.s1 h5_13_1
+
+/-- **T3b Master Export (Markov's Descent Theorem + Universal Coprimality, Odd-Prime `p ≡ 1 (mod 4)`,
+    and Ying Zhang's Mod-32 Even-Markov Theorem for EVERY positive integer Markov solution).** -/
+theorem t3b_markov_coprimality_odd_primes_and_mod32 :
+    (∀ x y z : Int, 1 ≤ x → 1 ≤ y → 1 ≤ z → x * x + y * y + z * z = 3 * x * y * z →
+      InMarkovTree x y z) ∧
+    (∀ x y z : Int, InMarkovTree x y z →
+      1 ≤ x ∧ 1 ≤ y ∧ 1 ≤ z ∧ x * x + y * y + z * z = 3 * x * y * z ∧
+      Nat.Coprime x.natAbs y.natAbs ∧ Nat.Coprime y.natAbs z.natAbs ∧ Nat.Coprime z.natAbs x.natAbs) ∧
+    (∀ (x y z : Int) (p : Nat), 1 ≤ x → 1 ≤ y → 1 ≤ z → x * x + y * y + z * z = 3 * x * y * z →
+      IsPrime p → p % 2 = 1 → p ∣ x.natAbs → p % 4 = 1) ∧
+    (∀ x y z : Int, 1 ≤ x → 1 ≤ y → 1 ≤ z → x * x + y * y + z * z = 3 * x * y * z →
+      x % 2 = 1 → x % 4 = 1) ∧
+    (∀ x y z : Int, 1 ≤ x → 1 ≤ y → 1 ≤ z → x * x + y * y + z * z = 3 * x * y * z →
+      x % 2 = 0 → x % 32 = 2) ∧
+    (InMarkovTree 2 1 1 ∧ InMarkovTree 34 13 1 ∧ (2 : Int) % 64 = 2 ∧ (34 : Int) % 64 = 34) :=
+  ⟨fun _ _ _ hx hy hz heq => markov_descent_in_tree hx hy hz heq,
+   fun _ _ _ h => markov_pos_eq_coprime h,
+   fun _ _ _ _ hx hy hz heq hp ho hd => markov_odd_prime_mod4 (markov_descent_in_tree hx hy hz heq) hp ho hd,
+   fun _ _ _ hx hy hz heq ho => markov_odd_entry_mod4 (markov_descent_in_tree hx hy hz heq) ho,
+   fun _ _ _ hx hy hz heq he => markov_tree_even_mod32 (markov_descent_in_tree hx hy hz heq) he,
+   ⟨InMarkovTree.s1 InMarkovTree.base, markov_tree_34_13_1, by decide, by decide⟩⟩
 
 /-! ### Part 3: Hensel `√(-1)` Prime-Power Uniqueness Criterion (`T3c`) -/
 
@@ -788,34 +878,85 @@ theorem hurwitz4_fundamental_classification {a x1 x2 x3 x4 : Nat}
     have hx1_c : x1 = 1 ∨ x1 = 2 := by omega
     rcases ha_c with rfl | rfl | rfl | rfl <;> rcases hx1_c with rfl | rfl <;> simp_all
 
+/-- The Hurwitz `n = 4` Vieta-reflection and coordinate-permutation orbit generated by `(r1, r2, r3, r4)`. -/
+inductive InHurwitz4Orbit (a r1 r2 r3 r4 : Nat) : Nat → Nat → Nat → Nat → Prop
+  | base : InHurwitz4Orbit a r1 r2 r3 r4 r1 r2 r3 r4
+  | swap12 {x1 x2 x3 x4} : InHurwitz4Orbit a r1 r2 r3 r4 x1 x2 x3 x4 → InHurwitz4Orbit a r1 r2 r3 r4 x2 x1 x3 x4
+  | swap23 {x1 x2 x3 x4} : InHurwitz4Orbit a r1 r2 r3 r4 x1 x2 x3 x4 → InHurwitz4Orbit a r1 r2 r3 r4 x1 x3 x2 x4
+  | swap34 {x1 x2 x3 x4} : InHurwitz4Orbit a r1 r2 r3 r4 x1 x2 x3 x4 → InHurwitz4Orbit a r1 r2 r3 r4 x1 x2 x4 x3
+  | vieta4 {x1 x2 x3 x4} : InHurwitz4Orbit a r1 r2 r3 r4 x1 x2 x3 x4 →
+      InHurwitz4Orbit a r1 r2 r3 r4 x1 x2 x3 (a * x1 * x2 * x3 - x4)
+
+theorem inHurwitz4Orbit_swap13 {a r1 r2 r3 r4 x1 x2 x3 x4 : Nat}
+    (h : InHurwitz4Orbit a r1 r2 r3 r4 x1 x2 x3 x4) :
+    InHurwitz4Orbit a r1 r2 r3 r4 x3 x2 x1 x4 :=
+  InHurwitz4Orbit.swap12 (InHurwitz4Orbit.swap23 (InHurwitz4Orbit.swap12 h))
+
+theorem inHurwitz4Orbit_swap24 {a r1 r2 r3 r4 x1 x2 x3 x4 : Nat}
+    (h : InHurwitz4Orbit a r1 r2 r3 r4 x1 x2 x3 x4) :
+    InHurwitz4Orbit a r1 r2 r3 r4 x1 x4 x3 x2 :=
+  InHurwitz4Orbit.swap23 (InHurwitz4Orbit.swap34 (InHurwitz4Orbit.swap23 h))
+
+/-- Every element in the Vieta/permutation orbit of a valid `IsHurwitz4` seed is a valid `IsHurwitz4` solution. -/
+theorem inHurwitz4Orbit_sound {a r1 r2 r3 r4 x1 x2 x3 x4 : Nat}
+    (hroot : IsHurwitz4 a r1 r2 r3 r4) (horb : InHurwitz4Orbit a r1 r2 r3 r4 x1 x2 x3 x4) :
+    IsHurwitz4 a x1 x2 x3 x4 := by
+  induction horb with
+  | base => exact hroot
+  | swap12 _ ih => rcases ih with ⟨ha, h1, h2, h3, h4, heq⟩; exact ⟨ha, h2, h1, h3, h4, by grind⟩
+  | swap23 _ ih => rcases ih with ⟨ha, h1, h2, h3, h4, heq⟩; exact ⟨ha, h1, h3, h2, h4, by grind⟩
+  | swap34 _ ih => rcases ih with ⟨ha, h1, h2, h3, h4, heq⟩; exact ⟨ha, h1, h2, h4, h3, by grind⟩
+  | @vieta4 u1 u2 u3 u4 _ ih =>
+    rcases ih with ⟨ha, hu1, hu2, hu3, hu4, heq⟩
+    have hge_u4 : u4 < a * u1 * u2 * u3 := by
+      have h1 : 1 ≤ u1 * u1 := Nat.mul_pos hu1 hu1
+      have h2 : 1 ≤ u2 * u2 := Nat.mul_pos hu2 hu2
+      have h3 : 1 ≤ u3 * u3 := Nat.mul_pos hu3 hu3
+      have h4 : u4 * u4 < a * u1 * u2 * u3 * u4 := by omega
+      by_cases hle : a * u1 * u2 * u3 ≤ u4
+      · have := Nat.mul_le_mul_right u4 hle; omega
+      · omega
+    refine ⟨ha, hu1, hu2, hu3, by omega, ?_⟩
+    have heqi := hurwitz4_int_eq heq
+    have hu4'i : ((a * u1 * u2 * u3 - u4 : Nat) : Int) = (a : Int) * u1 * u2 * u3 - u4 := by
+      have hsub_i : ((a * u1 * u2 * u3 - u4 : Nat) : Int) = ((a * u1 * u2 * u3 : Nat) : Int) - (u4 : Int) :=
+        Int.ofNat_sub (Nat.le_of_lt hge_u4)
+      simpa [Int.natCast_mul] using hsub_i
+    have hnewi : ((u1 * u1 + u2 * u2 + u3 * u3 + (a * u1 * u2 * u3 - u4) * (a * u1 * u2 * u3 - u4) : Nat) : Int) =
+                 ((a * u1 * u2 * u3 * (a * u1 * u2 * u3 - u4) : Nat) : Int) := by
+      simp only [Int.natCast_add, Int.natCast_mul, hu4'i]; grind
+    exact Int.ofNat.inj hnewi
+
 /-- Unsorted Vieta descent to a fundamental solution: EVERY positive solution of `IsHurwitz4 a x1 x2 x3 x4`
-    forces `a = 1` (with ALL four entries `≡ 2 mod 4`) OR `a = 4` (with ALL four entries odd)! -/
+    forces `a = 1` (all entries `≡ 2 mod 4` AND in `InHurwitz4Orbit 1 2 2 2 2`) OR
+    `a = 4` (all entries odd AND in `InHurwitz4Orbit 4 1 1 1 1`)! -/
 theorem hurwitz4_complete_dichotomy :
     ∀ (S : Nat) (a x1 x2 x3 x4 : Nat), x1 + x2 + x3 + x4 ≤ S → IsHurwitz4 a x1 x2 x3 x4 →
-      (a = 1 ∧ x1 % 4 = 2 ∧ x2 % 4 = 2 ∧ x3 % 4 = 2 ∧ x4 % 4 = 2) ∨
-      (a = 4 ∧ x1 % 2 = 1 ∧ x2 % 2 = 1 ∧ x3 % 2 = 1 ∧ x4 % 2 = 1) := by
+      (a = 1 ∧ x1 % 4 = 2 ∧ x2 % 4 = 2 ∧ x3 % 4 = 2 ∧ x4 % 4 = 2 ∧
+        InHurwitz4Orbit 1 2 2 2 2 x1 x2 x3 x4) ∨
+      (a = 4 ∧ x1 % 2 = 1 ∧ x2 % 2 = 1 ∧ x3 % 2 = 1 ∧ x4 % 2 = 1 ∧
+        InHurwitz4Orbit 4 1 1 1 1 x1 x2 x3 x4) := by
   intro S
   induction S with
   | zero => intro a x1 x2 x3 x4 hS ⟨_, hx1, _, _, _, _⟩; omega
   | succ k ih =>
     intro a x1 x2 x3 x4 hS hH
-    -- Helper: Vieta reflection on slot 4 preserves IsHurwitz4 AND preserves (a=1, all ≡2 mod 4) / (a=4, all odd)!
     have hdesc : ∀ {u1 u2 u3 u4 : Nat}, u1 + u2 + u3 + u4 ≤ k + 1 →
         IsHurwitz4 a u1 u2 u3 u4 → u1 ≤ u2 → u2 ≤ u3 → u3 ≤ u4 →
-        (a = 1 ∧ u1 % 4 = 2 ∧ u2 % 4 = 2 ∧ u3 % 4 = 2 ∧ u4 % 4 = 2) ∨
-        (a = 4 ∧ u1 % 2 = 1 ∧ u2 % 2 = 1 ∧ u3 % 2 = 1 ∧ u4 % 2 = 1) := by
+        (a = 1 ∧ u1 % 4 = 2 ∧ u2 % 4 = 2 ∧ u3 % 4 = 2 ∧ u4 % 4 = 2 ∧
+          InHurwitz4Orbit 1 2 2 2 2 u1 u2 u3 u4) ∨
+        (a = 4 ∧ u1 % 2 = 1 ∧ u2 % 2 = 1 ∧ u3 % 2 = 1 ∧ u4 % 2 = 1 ∧
+          InHurwitz4Orbit 4 1 1 1 1 u1 u2 u3 u4) := by
       intro u1 u2 u3 u4 hSu hHu h12 h23 h34
       by_cases hmin : 2 * u4 ≤ a * u1 * u2 * u3
       · rcases hurwitz4_fundamental_classification hHu h12 h23 h34 hmin with
           ⟨rfl, rfl, rfl, rfl, rfl⟩ | ⟨rfl, rfl, rfl, rfl, rfl⟩
-        · right; exact ⟨rfl, by decide, by decide, by decide, by decide⟩
-        · left; exact ⟨rfl, by decide, by decide, by decide, by decide⟩
-      · -- Strict descent: u4' := a * u1 * u2 * u3 - u4 satisfies 1 ≤ u4' < u4!
-        rcases hHu with ⟨ha, hu1, hu2, hu3, hu4, heq⟩
+        · right; exact ⟨rfl, by decide, by decide, by decide, by decide, InHurwitz4Orbit.base⟩
+        · left; exact ⟨rfl, by decide, by decide, by decide, by decide, InHurwitz4Orbit.base⟩
+      · rcases hHu with ⟨ha, hu1, hu2, hu3, hu4, heq⟩
         have hgt : a * u1 * u2 * u3 < 2 * u4 := by omega
         have hlt_u4 : a * u1 * u2 * u3 - u4 < u4 := by omega
         have hge_u4 : u4 < a * u1 * u2 * u3 := by
-          -- u4 * (a*u1*u2*u3 - u4) = u1^2 + u2^2 + u3^2 ≥ 3 > 0!
           have h1 : 1 ≤ u1 * u1 := Nat.mul_pos hu1 hu1
           have h2 : 1 ≤ u2 * u2 := Nat.mul_pos hu2 hu2
           have h3 : 1 ≤ u3 * u3 := Nat.mul_pos hu3 hu3
@@ -838,123 +979,164 @@ theorem hurwitz4_complete_dichotomy :
           exact Int.ofNat.inj hnewi
         have hsub := ih a u1 u2 u3 u4' (by dsimp [u4']; omega) hH'
         have hu4_eq : u4 = a * u1 * u2 * u3 - u4' := by dsimp [u4']; omega
-        rcases hsub with ⟨rfl, m1, m2, m3, m4'⟩ | ⟨rfl, m1, m2, m3, m4'⟩
+        rcases hsub with ⟨rfl, m1, m2, m3, m4', horb⟩ | ⟨rfl, m1, m2, m3, m4', horb⟩
         · left
-          refine ⟨rfl, m1, m2, m3, ?_⟩
+          have horb' : InHurwitz4Orbit 1 2 2 2 2 u1 u2 u3 u4 := by
+            have hv := InHurwitz4Orbit.vieta4 horb
+            rwa [← hu4_eq] at hv
+          refine ⟨rfl, m1, m2, m3, ?_, horb'⟩
           have hprod8 : (1 * u1 * u2 * u3) % 4 = 0 := by
             have : (u1 * u2 * u3) % 4 = (((u1 % 4) * (u2 % 4)) % 4 * (u3 % 4)) % 4 := by
               rw [Nat.mul_mod, Nat.mul_mod u1 u2 4]
             rw [Nat.one_mul, this, m1, m2, m3]
           omega
         · right
-          refine ⟨rfl, m1, m2, m3, ?_⟩
+          have horb' : InHurwitz4Orbit 4 1 1 1 1 u1 u2 u3 u4 := by
+            have hv := InHurwitz4Orbit.vieta4 horb
+            rwa [← hu4_eq] at hv
+          refine ⟨rfl, m1, m2, m3, ?_, horb'⟩
           have hprod2 : (4 * u1 * u2 * u3) % 2 = 0 := by
             have : 4 * u1 * u2 * u3 = 2 * (2 * u1 * u2 * u3) := by grind
             rw [this, Nat.mul_mod_right]
           omega
-    -- Sort the 4 arguments via permutation invariance of IsHurwitz4!
     have hperm_sym : ∀ {p1 p2 p3 p4 : Nat}, IsHurwitz4 a p1 p2 p3 p4 →
         IsHurwitz4 a p2 p1 p3 p4 ∧ IsHurwitz4 a p1 p3 p2 p4 ∧ IsHurwitz4 a p1 p2 p4 p3 := by
       intro p1 p2 p3 p4 ⟨ha, h1, h2, h3, h4, heq⟩
       refine ⟨⟨ha, h2, h1, h3, h4, by grind⟩, ⟨ha, h1, h3, h2, h4, by grind⟩, ⟨ha, h1, h2, h4, h3, by grind⟩⟩
-    -- 4-element sorting network (5 compare-swaps)!
-    -- Swap (x1, x2), (x3, x4), then (a1, a3), (a2, a4), then (b2, b3):
-    -- Even cleaner: just apply case splits on a 4-tuple sorting helper!
     have hsort : ∀ (p1 p2 p3 p4 : Nat), p1 + p2 + p3 + p4 ≤ k + 1 → IsHurwitz4 a p1 p2 p3 p4 →
         ∃ q1 q2 q3 q4, q1 ≤ q2 ∧ q2 ≤ q3 ∧ q3 ≤ q4 ∧ q1 + q2 + q3 + q4 = p1 + p2 + p3 + p4 ∧
           IsHurwitz4 a q1 q2 q3 q4 ∧
           ((q1 % 4 = 2 ∧ q2 % 4 = 2 ∧ q3 % 4 = 2 ∧ q4 % 4 = 2 →
             p1 % 4 = 2 ∧ p2 % 4 = 2 ∧ p3 % 4 = 2 ∧ p4 % 4 = 2) ∧
            (q1 % 2 = 1 ∧ q2 % 2 = 1 ∧ q3 % 2 = 1 ∧ q4 % 2 = 1 →
-            p1 % 2 = 1 ∧ p2 % 2 = 1 ∧ p3 % 2 = 1 ∧ p4 % 2 = 1)) := by
+            p1 % 2 = 1 ∧ p2 % 2 = 1 ∧ p3 % 2 = 1 ∧ p4 % 2 = 1) ∧
+           (∀ b r1 r2 r3 r4, InHurwitz4Orbit b r1 r2 r3 r4 q1 q2 q3 q4 →
+            InHurwitz4Orbit b r1 r2 r3 r4 p1 p2 p3 p4)) := by
       intro p1 p2 p3 p4 _ hP
       have hswap12 : ∀ r1 r2 r3 r4, IsHurwitz4 a r1 r2 r3 r4 →
           ∃ s1 s2, s1 ≤ s2 ∧ s1 + s2 = r1 + r2 ∧ IsHurwitz4 a s1 s2 r3 r4 ∧
             ((s1 % 4 = 2 ∧ s2 % 4 = 2 → r1 % 4 = 2 ∧ r2 % 4 = 2) ∧
-             (s1 % 2 = 1 ∧ s2 % 2 = 1 → r1 % 2 = 1 ∧ r2 % 2 = 1)) := by
+             (s1 % 2 = 1 ∧ s2 % 2 = 1 → r1 % 2 = 1 ∧ r2 % 2 = 1) ∧
+             (∀ b u1 u2 u3 u4, InHurwitz4Orbit b u1 u2 u3 u4 s1 s2 r3 r4 →
+              InHurwitz4Orbit b u1 u2 u3 u4 r1 r2 r3 r4)) := by
         intro r1 r2 r3 r4 hR
         by_cases hle : r1 ≤ r2
-        · exact ⟨r1, r2, hle, rfl, hR, ⟨id, id⟩⟩
-        · exact ⟨r2, r1, by omega, by omega, (hperm_sym hR).1, ⟨fun ⟨h1, h2⟩ => ⟨h2, h1⟩, fun ⟨h1, h2⟩ => ⟨h2, h1⟩⟩⟩
+        · exact ⟨r1, r2, hle, rfl, hR, ⟨id, id, fun _ _ _ _ _ h => h⟩⟩
+        · exact ⟨r2, r1, by omega, by omega, (hperm_sym hR).1,
+            ⟨fun ⟨h1, h2⟩ => ⟨h2, h1⟩, fun ⟨h1, h2⟩ => ⟨h2, h1⟩,
+             fun _ _ _ _ _ h => InHurwitz4Orbit.swap12 h⟩⟩
       rcases hswap12 p1 p2 p3 p4 hP with ⟨a1, a2, ha12, hsa12, hA, himpA⟩
-      -- Swap (p3, p4):
       have hswap34 : ∃ a3 a4, a3 ≤ a4 ∧ a3 + a4 = p3 + p4 ∧ IsHurwitz4 a a1 a2 a3 a4 ∧
           ((a3 % 4 = 2 ∧ a4 % 4 = 2 → p3 % 4 = 2 ∧ p4 % 4 = 2) ∧
-           (a3 % 2 = 1 ∧ a4 % 2 = 1 → p3 % 2 = 1 ∧ p4 % 2 = 1)) := by
+           (a3 % 2 = 1 ∧ a4 % 2 = 1 → p3 % 2 = 1 ∧ p4 % 2 = 1) ∧
+           (∀ b u1 u2 u3 u4, InHurwitz4Orbit b u1 u2 u3 u4 a1 a2 a3 a4 →
+            InHurwitz4Orbit b u1 u2 u3 u4 a1 a2 p3 p4)) := by
         by_cases hle : p3 ≤ p4
-        · exact ⟨p3, p4, hle, rfl, hA, ⟨id, id⟩⟩
-        · exact ⟨p4, p3, by omega, by omega, (hperm_sym hA).2.2, ⟨fun ⟨h1, h2⟩ => ⟨h2, h1⟩, fun ⟨h1, h2⟩ => ⟨h2, h1⟩⟩⟩
+        · exact ⟨p3, p4, hle, rfl, hA, ⟨id, id, fun _ _ _ _ _ h => h⟩⟩
+        · exact ⟨p4, p3, by omega, by omega, (hperm_sym hA).2.2,
+            ⟨fun ⟨h1, h2⟩ => ⟨h2, h1⟩, fun ⟨h1, h2⟩ => ⟨h2, h1⟩,
+             fun _ _ _ _ _ h => InHurwitz4Orbit.swap34 h⟩⟩
       rcases hswap34 with ⟨a3, a4, ha34, hsa34, hB, himpB⟩
-      -- Swap (a1, a3):
       have hswap13 : ∃ b1 b3, b1 ≤ b3 ∧ b1 + b3 = a1 + a3 ∧ IsHurwitz4 a b1 a2 b3 a4 ∧
           b1 ≤ a2 ∧ b1 ≤ a4 ∧ (b3 ≤ a2 ∨ b3 ≤ a4) ∧
           ((b1 % 4 = 2 ∧ b3 % 4 = 2 → a1 % 4 = 2 ∧ a3 % 4 = 2) ∧
-           (b1 % 2 = 1 ∧ b3 % 2 = 1 → a1 % 2 = 1 ∧ a3 % 2 = 1)) := by
+           (b1 % 2 = 1 ∧ b3 % 2 = 1 → a1 % 2 = 1 ∧ a3 % 2 = 1) ∧
+           (∀ b u1 u2 u3 u4, InHurwitz4Orbit b u1 u2 u3 u4 b1 a2 b3 a4 →
+            InHurwitz4Orbit b u1 u2 u3 u4 a1 a2 a3 a4)) := by
         by_cases hle : a1 ≤ a3
-        · exact ⟨a1, a3, hle, rfl, hB, ha12, Nat.le_trans hle ha34, Or.inr ha34, ⟨id, id⟩⟩
+        · exact ⟨a1, a3, hle, rfl, hB, ha12, Nat.le_trans hle ha34, Or.inr ha34,
+            ⟨id, id, fun _ _ _ _ _ h => h⟩⟩
         · have hB' : IsHurwitz4 a a3 a2 a1 a4 := by
             rcases hB with ⟨ha, h1, h2, h3, h4, heq⟩; exact ⟨ha, h3, h2, h1, h4, by grind⟩
-          exact ⟨a3, a1, by omega, by omega, hB', by omega, ha34, Or.inl ha12, ⟨fun ⟨h1, h2⟩ => ⟨h2, h1⟩, fun ⟨h1, h2⟩ => ⟨h2, h1⟩⟩⟩
+          exact ⟨a3, a1, by omega, by omega, hB', by omega, ha34, Or.inl ha12,
+            ⟨fun ⟨h1, h2⟩ => ⟨h2, h1⟩, fun ⟨h1, h2⟩ => ⟨h2, h1⟩,
+             fun _ _ _ _ _ h => inHurwitz4Orbit_swap13 h⟩⟩
       rcases hswap13 with ⟨b1, b3, hb13, hsb13, hC, hb12, hb14, hb3_le, himpC⟩
-      -- Swap (a2, a4):
       have hswap24 : ∃ b2 b4, b2 ≤ b4 ∧ b2 + b4 = a2 + a4 ∧ IsHurwitz4 a b1 b2 b3 b4 ∧
           b1 ≤ b2 ∧ b3 ≤ b4 ∧
           ((b2 % 4 = 2 ∧ b4 % 4 = 2 → a2 % 4 = 2 ∧ a4 % 4 = 2) ∧
-           (b2 % 2 = 1 ∧ b4 % 2 = 1 → a2 % 2 = 1 ∧ a4 % 2 = 1)) := by
+           (b2 % 2 = 1 ∧ b4 % 2 = 1 → a2 % 2 = 1 ∧ a4 % 2 = 1) ∧
+           (∀ b u1 u2 u3 u4, InHurwitz4Orbit b u1 u2 u3 u4 b1 b2 b3 b4 →
+            InHurwitz4Orbit b u1 u2 u3 u4 b1 a2 b3 a4)) := by
         by_cases hle : a2 ≤ a4
         · have hb34 : b3 ≤ a4 := by rcases hb3_le with h | h <;> omega
-          exact ⟨a2, a4, hle, rfl, hC, hb12, hb34, ⟨id, id⟩⟩
+          exact ⟨a2, a4, hle, rfl, hC, hb12, hb34, ⟨id, id, fun _ _ _ _ _ h => h⟩⟩
         · have hC' : IsHurwitz4 a b1 a4 b3 a2 := by
             rcases hC with ⟨ha, h1, h2, h3, h4, heq⟩; exact ⟨ha, h1, h4, h3, h2, by grind⟩
           have hb32 : b3 ≤ a2 := by rcases hb3_le with h | h <;> omega
-          exact ⟨a4, a2, by omega, by omega, hC', hb14, hb32, ⟨fun ⟨h1, h2⟩ => ⟨h2, h1⟩, fun ⟨h1, h2⟩ => ⟨h2, h1⟩⟩⟩
+          exact ⟨a4, a2, by omega, by omega, hC', hb14, hb32,
+            ⟨fun ⟨h1, h2⟩ => ⟨h2, h1⟩, fun ⟨h1, h2⟩ => ⟨h2, h1⟩,
+             fun _ _ _ _ _ h => inHurwitz4Orbit_swap24 h⟩⟩
       rcases hswap24 with ⟨b2, b4, hb24, hsb24, hD, hb12', hb34', himpD⟩
-      -- Final swap (b2, b3):
       by_cases hle : b2 ≤ b3
-      · refine ⟨b1, b2, b3, b4, hb12', hle, hb34', by omega, hD, ?_, ?_⟩
+      · refine ⟨b1, b2, b3, b4, hb12', hle, hb34', by omega, hD, ?_, ?_, ?_⟩
         · intro ⟨m1, m2, m3, m4⟩
           have hC' := himpC.1 ⟨m1, m3⟩; have hD' := himpD.1 ⟨m2, m4⟩
           have hA' := himpA.1 ⟨hC'.1, hD'.1⟩; have hB' := himpB.1 ⟨hC'.2, hD'.2⟩
           exact ⟨hA'.1, hA'.2, hB'.1, hB'.2⟩
         · intro ⟨m1, m2, m3, m4⟩
-          have hC' := himpC.2 ⟨m1, m3⟩; have hD' := himpD.2 ⟨m2, m4⟩
-          have hA' := himpA.2 ⟨hC'.1, hD'.1⟩; have hB' := himpB.2 ⟨hC'.2, hD'.2⟩
+          have hC' := himpC.2.1 ⟨m1, m3⟩; have hD' := himpD.2.1 ⟨m2, m4⟩
+          have hA' := himpA.2.1 ⟨hC'.1, hD'.1⟩; have hB' := himpB.2.1 ⟨hC'.2, hD'.2⟩
           exact ⟨hA'.1, hA'.2, hB'.1, hB'.2⟩
-      · refine ⟨b1, b3, b2, b4, hb13, by omega, hb24, by omega, (hperm_sym hD).2.1, ?_, ?_⟩
+        · intro b u1 u2 u3 u4 horb
+          exact himpA.2.2 b u1 u2 u3 u4 (himpB.2.2 b u1 u2 u3 u4 (himpC.2.2 b u1 u2 u3 u4 (himpD.2.2 b u1 u2 u3 u4 horb)))
+      · refine ⟨b1, b3, b2, b4, hb13, by omega, hb24, by omega, (hperm_sym hD).2.1, ?_, ?_, ?_⟩
         · intro ⟨m1, m3, m2, m4⟩
           have hC' := himpC.1 ⟨m1, m3⟩; have hD' := himpD.1 ⟨m2, m4⟩
           have hA' := himpA.1 ⟨hC'.1, hD'.1⟩; have hB' := himpB.1 ⟨hC'.2, hD'.2⟩
           exact ⟨hA'.1, hA'.2, hB'.1, hB'.2⟩
         · intro ⟨m1, m3, m2, m4⟩
-          have hC' := himpC.2 ⟨m1, m3⟩; have hD' := himpD.2 ⟨m2, m4⟩
-          have hA' := himpA.2 ⟨hC'.1, hD'.1⟩; have hB' := himpB.2 ⟨hC'.2, hD'.2⟩
+          have hC' := himpC.2.1 ⟨m1, m3⟩; have hD' := himpD.2.1 ⟨m2, m4⟩
+          have hA' := himpA.2.1 ⟨hC'.1, hD'.1⟩; have hB' := himpB.2.1 ⟨hC'.2, hD'.2⟩
           exact ⟨hA'.1, hA'.2, hB'.1, hB'.2⟩
-    rcases hsort x1 x2 x3 x4 hS hH with ⟨q1, q2, q3, q4, h12, h23, h34, hsum_eq, hQ, himp4, himp2⟩
-    rcases hdesc (by omega) hQ h12 h23 h34 with ⟨ha1, m1, m2, m3, m4⟩ | ⟨ha4, m1, m2, m3, m4⟩
-    · left; exact ⟨ha1, himp4 ⟨m1, m2, m3, m4⟩⟩
-    · right; exact ⟨ha4, himp2 ⟨m1, m2, m3, m4⟩⟩
+        · intro b u1 u2 u3 u4 horb
+          exact himpA.2.2 b u1 u2 u3 u4 (himpB.2.2 b u1 u2 u3 u4 (himpC.2.2 b u1 u2 u3 u4 (himpD.2.2 b u1 u2 u3 u4 (InHurwitz4Orbit.swap23 horb))))
+    rcases hsort x1 x2 x3 x4 hS hH with ⟨q1, q2, q3, q4, h12, h23, h34, hsum_eq, hQ, himp4, himp2, himpOrb⟩
+    rcases hdesc (by omega) hQ h12 h23 h34 with ⟨ha1, m1, m2, m3, m4, horb⟩ | ⟨ha4, m1, m2, m3, m4, horb⟩
+    · have hp := himp4 ⟨m1, m2, m3, m4⟩
+      left; exact ⟨ha1, hp.1, hp.2.1, hp.2.2.1, hp.2.2.2, himpOrb 1 2 2 2 2 horb⟩
+    · have hp := himp2 ⟨m1, m2, m3, m4⟩
+      right; exact ⟨ha4, hp.1, hp.2.1, hp.2.2.1, hp.2.2.2, himpOrb 4 1 1 1 1 horb⟩
 
-/-- **T3e Master Export (Complete `n = 4` Markov–Hurwitz Classification):**
-    1. ZERO positive integer solutions for `a = 2`, `a = 3`, or ANY `a ≥ 5`!
-    2. For `a = 1`: EVERY positive solution has ALL 4 entries `≡ 2 (mod 4)`, with minimal seed `(2, 2, 2, 2)`
-       and first Vieta descendant `(2, 2, 2, 6)`.
-    3. For `a = 4`: EVERY positive solution has ALL 4 entries ODD, with minimal seed `(1, 1, 1, 1)`
-       and first Vieta descendant `(1, 1, 1, 3)`. -/
+/-- **T3e Master Export (Complete Hurwitz 1907 `n = 4` Classification + Unique Vieta Orbits):**
+    1. Every positive solution has `a = 1` (all entries `≡ 2 mod 4`) OR `a = 4` (all entries odd).
+    2. ZERO positive integer solutions for `a = 2`, `a = 3`, or ANY `a ≥ 5`.
+    3. Exact bi-implication: `IsHurwitz4 1 x1 x2 x3 x4 ↔ InHurwitz4Orbit 1 2 2 2 2 x1 x2 x3 x4` and
+       `IsHurwitz4 4 x1 x2 x3 x4 ↔ InHurwitz4Orbit 4 1 1 1 1 x1 x2 x3 x4`.
+    4. Concrete seeds `(2, 2, 2, 2) ↦ (2, 2, 2, 6)` and `(1, 1, 1, 1) ↦ (1, 1, 1, 3)`. -/
 theorem t3e_markov_hurwitz_n4_complete_classification :
     (∀ a x1 x2 x3 x4 : Nat, IsHurwitz4 a x1 x2 x3 x4 →
       (a = 1 ∧ x1 % 4 = 2 ∧ x2 % 4 = 2 ∧ x3 % 4 = 2 ∧ x4 % 4 = 2) ∨
       (a = 4 ∧ x1 % 2 = 1 ∧ x2 % 2 = 1 ∧ x3 % 2 = 1 ∧ x4 % 2 = 1)) ∧
     (∀ a x1 x2 x3 x4 : Nat, (a = 2 ∨ a = 3 ∨ 5 ≤ a) → ¬ IsHurwitz4 a x1 x2 x3 x4) ∧
+    (∀ x1 x2 x3 x4 : Nat, IsHurwitz4 1 x1 x2 x3 x4 ↔ InHurwitz4Orbit 1 2 2 2 2 x1 x2 x3 x4) ∧
+    (∀ x1 x2 x3 x4 : Nat, IsHurwitz4 4 x1 x2 x3 x4 ↔ InHurwitz4Orbit 4 1 1 1 1 x1 x2 x3 x4) ∧
     (IsHurwitz4 1 2 2 2 2 ∧ IsHurwitz4 1 2 2 2 6 ∧
      IsHurwitz4 4 1 1 1 1 ∧ IsHurwitz4 4 1 1 1 3) := by
-  refine ⟨fun a x1 x2 x3 x4 h => hurwitz4_complete_dichotomy (x1 + x2 + x3 + x4) a x1 x2 x3 x4 (Nat.le_refl _) h,
+  have hseed1 : IsHurwitz4 1 2 2 2 2 := ⟨by decide, by decide, by decide, by decide, by decide, by decide⟩
+  have hseed4 : IsHurwitz4 4 1 1 1 1 := ⟨by decide, by decide, by decide, by decide, by decide, by decide⟩
+  refine ⟨fun a x1 x2 x3 x4 h => ?_,
           fun a x1 x2 x3 x4 ha h => ?_,
+          fun x1 x2 x3 x4 => ⟨fun h => ?_, fun h => inHurwitz4Orbit_sound hseed1 h⟩,
+          fun x1 x2 x3 x4 => ⟨fun h => ?_, fun h => inHurwitz4Orbit_sound hseed4 h⟩,
+          hseed1,
           ⟨by decide, by decide, by decide, by decide, by decide, by decide⟩,
-          ⟨by decide, by decide, by decide, by decide, by decide, by decide⟩,
-          ⟨by decide, by decide, by decide, by decide, by decide, by decide⟩,
+          hseed4,
           ⟨by decide, by decide, by decide, by decide, by decide, by decide⟩⟩
-  rcases hurwitz4_complete_dichotomy (x1 + x2 + x3 + x4) a x1 x2 x3 x4 (Nat.le_refl _) h with ⟨rfl, _⟩ | ⟨rfl, _⟩ <;>
-    omega
+  · rcases hurwitz4_complete_dichotomy (x1 + x2 + x3 + x4) a x1 x2 x3 x4 (Nat.le_refl _) h with
+      ⟨h1, m1, m2, m3, m4, _⟩ | ⟨h4, m1, m2, m3, m4, _⟩
+    · left; exact ⟨h1, m1, m2, m3, m4⟩
+    · right; exact ⟨h4, m1, m2, m3, m4⟩
+  · rcases hurwitz4_complete_dichotomy (x1 + x2 + x3 + x4) a x1 x2 x3 x4 (Nat.le_refl _) h with
+      ⟨rfl, _⟩ | ⟨rfl, _⟩ <;> omega
+  · rcases hurwitz4_complete_dichotomy (x1 + x2 + x3 + x4) 1 x1 x2 x3 x4 (Nat.le_refl _) h with
+      ⟨_, _, _, _, _, horb⟩ | ⟨h4, _⟩
+    · exact horb
+    · omega
+  · rcases hurwitz4_complete_dichotomy (x1 + x2 + x3 + x4) 4 x1 x2 x3 x4 (Nat.le_refl _) h with
+      ⟨h1, _⟩ | ⟨_, _, _, _, _, horb⟩
+    · omega
+    · exact horb
 
 end
 

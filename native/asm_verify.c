@@ -1,5 +1,5 @@
 /* SPDX-License-Identifier: Apache-2.0
- * Independent ISO C11 verifier for Apollonian-Sandpile-Markov (v2.1.0).
+ * Independent ISO C11 verifier for Apollonian-Sandpile-Markov (v3.0.0).
  * Compiles cleanly with: gcc -std=c11 -O2 -Wall -Wextra -Werror -fsanitize=address,undefined
  */
 #include <limits.h>
@@ -346,6 +346,6 @@ int main(void) {
         fprintf(stderr, "FAIL pillar3 rc=%d\n", rc);
         return rc;
     }
-    printf("{\"c11_status\":\"PASS\",\"version\":\"2.1.0\",\"pillars\":[1,2,3],\"dets\":[192,100352,1092,5393920],\"markov_mod32_sharp\":true,\"hurwitz_n4_clean\":true}\n");
+    printf("{\"c11_status\":\"PASS\",\"version\":\"3.0.0\",\"pillars\":[1,2,3],\"dets\":[192,100352,1092,5393920],\"markov_mod32_sharp\":true,\"hurwitz_n4_clean\":true}\n");
     return 0;
 }

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
-"""Automated Build Standard v1.2.0 & Playbook v1.3 repository hygiene auditor (v2.1.0)."""
+"""Automated Build Standard v1.2.0 & Playbook v1.3 repository hygiene auditor (v3.0.0)."""
 
 from __future__ import annotations
 
@@ -67,6 +67,7 @@ REQUIRED_FILES = [
     "docs/run-log.md",
     "docs/adr/0001-zero-mathlib-six-kernel-and-vieta-unification.md",
     "docs/adr/0002-direct-detmat-and-statement-audit-remediation.md",
+    "docs/adr/0003-v3-termination-descent-and-general-soddy.md",
     "docs/reviews/2026-11-26-10-pass-red-team-review.md",
     "lean/lean-toolchain",
     "lean/lakefile.toml",
@@ -134,11 +135,16 @@ def check_html_security_and_a11y(errors: list[str]) -> None:
             errors.append(f"Missing strict CSP header in {rel}")
         if 'class="skip-link"' not in html or 'id="main-content"' not in html:
             errors.append(f"Missing skip-link or #main-content landmark in {rel}")
+        if ".innerHTML" in html:
+            errors.append(f"Unsafe .innerHTML assignment detected in {rel}")
+        if re.search(r"<[a-zA-Z][^>]*\bstyle\s*=", html):
+            errors.append(f"Inline style= attribute detected in {rel}")
+        for btn in re.findall(r"<button\b[^>]*>", html):
+            if 'type="button"' not in btn:
+                errors.append(f"Button missing type=\"button\" in {rel}: {btn}")
     bp = ROOT / "blueprint" / "index.html"
     if bp.exists():
         bp_text = bp.read_text(encoding="utf-8")
-        if ".innerHTML" in bp_text:
-            errors.append("Unsafe .innerHTML assignment detected in blueprint/index.html")
         # Verify every Lean declaration listed in blueprint/index.html exists in lean/
         lean_corpus = "\n".join(
             lf.read_text(encoding="utf-8", errors="ignore")

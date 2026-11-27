@@ -13,7 +13,7 @@ from . import full_oracle_report
 def cli(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         prog="python -m asm_verify",
-        description="Run the exact arbitrary-precision Python verification oracle (v2.1.0).",
+        description="Run the exact arbitrary-precision Python verification oracle (v3.0.0).",
     )
     parser.add_argument(
         "--json",
@@ -26,7 +26,7 @@ def cli(argv: list[str] | None = None) -> int:
     out = args.json or (Path(__file__).resolve().parents[2] / "results" / "exact_verification_report.json")
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
-    print(json.dumps({"oracle_status": "PASS", "version": "2.1.0", "output": str(out)}))
+    print(json.dumps({"oracle_status": "PASS", "version": "3.0.0", "output": str(out)}))
     return 0
 
 

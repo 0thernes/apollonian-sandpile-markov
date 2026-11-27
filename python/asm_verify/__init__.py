@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
-"""Independent arbitrary-precision Python oracle for Apollonian-Sandpile-Markov (v2.1.0)."""
+"""Independent arbitrary-precision Python oracle for Apollonian-Sandpile-Markov (v3.0.0)."""
 
 from __future__ import annotations
 
@@ -302,7 +302,7 @@ def main() -> None:
     out = Path(__file__).resolve().parents[2] / "results" / "exact_verification_report.json"
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
-    print(json.dumps({"oracle_status": "PASS", "version": "2.1.0", "output": str(out)}))
+    print(json.dumps({"oracle_status": "PASS", "version": "3.0.0", "output": str(out)}))
 
 
 if __name__ == "__main__":

@@ -3,8 +3,8 @@ cff-version: 1.2.0
 message: "If you cite this formalization, white paper, or computational oracle, please use the metadata below."
 type: software
 title: "Thin Vieta Reflection Groups, Apollonian–Octahedral Obstructions, Lattice Sandpile Identities, and Markov–Hurwitz Spectra: A Zero-Mathlib Six-Kernel Formalization"
-version: "2.1.0"
-date-released: "2026-11-26"
+version: "3.0.0"
+date-released: "2026-11-27"
 authors:
   - family-names: "Donahue"
     given-names: "Alexander Stephen"
@@ -16,11 +16,11 @@ url: "https://0thernes.github.io/apollonian-sandpile-markov/"
 identifiers:
   - type: swh
     value: "swh:1:snp:392d116f12dbe6820df783848373d27bbf138c55"
-    description: "Software Heritage archived snapshot (v2.0.0; v2.1.0 snapshot archived via Save Code Now upon release)"
+    description: "Software Heritage archived snapshot (v2.0.0; subsequent snapshots queued via browser Save Code Now)"
 license:
   - Apache-2.0
   - CC-BY-4.0
-abstract: "A zero-Mathlib Lean 4.35.0 development of 16 statements (19 audited exports, 818 declarations exhaustively axiom-audited via Lean.collectAxioms, 9 adversarial false-variant and hypothesis-necessity refutations, verified across six formal kernels in CI), with Rust, ISO C11 (ASan/UBSan + 7-law fuzzing + 7-law libFuzzer), and Python programs for the finite data. Most statements formalize known results: the Haag-Kertzer-Rickards-Stange square obstruction for three Apollonian packings, Ying Zhang's 2007 theorem that even Markov numbers are 2 mod 32, the Hurwitz (1907) n=4 admissible-coefficient classification, and the Abelian sandpile toppling laws. The others are finite computations (including direct 9x9 Laplace determinants for Z^2 and A_2 grids), mod-8 residue locking on one octahedral orbit, elementary identities, and an elementary triangular-lattice parity lemma. No open problem is solved."
+abstract: "A zero-Mathlib Lean 4.35.0 development of 16 statements (19 audited exports, 884 declarations exhaustively axiom-audited via Lean.collectAxioms, 10 adversarial false-variant and hypothesis-necessity refutations, verified across six formal kernels in CI), with Rust, ISO C11 (ASan/UBSan + 7-law fuzzing + 7-law libFuzzer), and Python programs for the finite data. Formalizes the Haag-Kertzer-Rickards-Stange square obstruction for three Apollonian packings, the general d-dimensional Soddy-Gosset integrality dichotomy (LMW 2002), universal Abelian sandpile confluence and finite termination on sinked dissipative graphs, direct 9x9 Z^2 and A_2 Laplacian determinants and Dhar traces, an elementary triangular-lattice parity lemma, Markov's classical descent theorem combined with Ying Zhang's (2007) even mod-32 theorem for all positive Markov solutions, 5-step Markov quiver exchange identities, and Hurwitz's (1907) complete n=4 Vieta-orbit classification. No open problem is solved."
 keywords:
   - apollonian-circle-packings
   - quadratic-reciprocity

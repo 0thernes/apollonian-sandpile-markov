@@ -5,7 +5,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; img-src 'self' data:; base-uri 'none'; form-action 'none';" />
-  <title>Apollonian–Sandpile–Markov Interactive Observatory (0TH-2026-018, v2.1.0)</title>
+  <title>Apollonian–Sandpile–Markov Interactive Observatory (0TH-2026-018, v3.0.0)</title>
   <style>
     :root {
       --bg: #0b1120;
@@ -105,6 +105,7 @@
     .badge.warn { background: rgba(248, 113, 113, 0.16); color: var(--rose); border: 1px solid var(--rose); }
     .badge.info { background: rgba(56, 189, 248, 0.16); color: var(--accent); border: 1px solid var(--accent); }
     .triple-inputs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .hint-text { font-size: 0.82rem; color: var(--muted); margin: 6px 0; }
     footer {
       border-top: 1px solid var(--border); padding: 16px 24px; text-align: center;
       font-size: 0.8rem; color: var(--muted);
@@ -116,7 +117,7 @@
   <header>
     <div>
       <h1>Apollonian–Sandpile–Markov Interactive Observatory</h1>
-      <p>0TH-2026-018 (v2.1.0) · Zero-Mathlib Lean 4.35.0 (16 Theorems, 19 Exports, 818 Axiom-Audited Decls, 6 Kernels) · Live Exact Browser Lab</p>
+      <p>0TH-2026-018 (v3.0.0) · Zero-Mathlib Lean 4.35.0 (16 Theorems, 19 Exports, 884 Axiom-Audited Decls, 6 Kernels) · Live Exact Browser Lab</p>
     </div>
     <nav class="nav-links" aria-label="Project navigation">
       <a href="../index.html">Portal Home</a>
@@ -126,26 +127,26 @@
   </header>
 
   <nav class="tabs" role="tablist" aria-label="Observatory modes">
-    <button class="tab-btn" role="tab" id="tab-sandpile" aria-selected="true" aria-controls="panel-sandpile" data-mode="sandpile">
+    <button type="button" class="tab-btn" role="tab" id="tab-sandpile" aria-selected="true" tabindex="0" aria-controls="panel-sandpile" data-mode="sandpile">
       1. Sandpile &amp; A₂ Tropical Lab (T2a–T2f)
     </button>
-    <button class="tab-btn" role="tab" id="tab-apollonian" aria-selected="false" aria-controls="panel-apollonian" data-mode="apollonian">
+    <button type="button" class="tab-btn" role="tab" id="tab-apollonian" aria-selected="false" tabindex="-1" aria-controls="panel-apollonian" data-mode="apollonian">
       2. Apollonian &amp; Octahedral Reciprocity (T1a–T1d)
     </button>
-    <button class="tab-btn" role="tab" id="tab-soddy" aria-selected="false" aria-controls="panel-soddy" data-mode="soddy">
-      3. 3D Soddy Sphere Cluster (T1e)
+    <button type="button" class="tab-btn" role="tab" id="tab-soddy" aria-selected="false" tabindex="-1" aria-controls="panel-soddy" data-mode="soddy">
+      3. General &amp; 3D Soddy Spheres (T1e)
     </button>
-    <button class="tab-btn" role="tab" id="tab-markov" aria-selected="false" aria-controls="panel-markov" data-mode="markov">
-      4. Markov Mod-32 &amp; 5-Step Cluster (T3a–T3e)
+    <button type="button" class="tab-btn" role="tab" id="tab-markov" aria-selected="false" tabindex="-1" aria-controls="panel-markov" data-mode="markov">
+      4. Markov Descent, Mod-32 &amp; Cluster (T3a–T3e)
     </button>
   </nav>
 
-  <main id="main-content">
+  <main id="main-content" tabindex="-1">
     <!-- MODE 1: SANDPILE & TROPICAL SOLITON LAB -->
     <section id="panel-sandpile" class="mode-panel active" role="tabpanel" aria-labelledby="tab-sandpile">
       <div class="card">
         <h2>Abelian Sandpile &amp; Tropical Solitons</h2>
-        <span class="badge ok">T2a Toppling Laws</span>
+        <span class="badge ok">T2a Confluence &amp; Termination</span>
         <span class="badge info">T2b/T2f Direct det9</span>
         <label for="sp-lattice">Lattice Geometry</label>
         <select id="sp-lattice">
@@ -160,12 +161,12 @@
           <option value="65">65 × 65 (Paper Fig. 2)</option>
         </select>
         <div class="btn-row">
-          <button class="action-btn primary" id="btn-sp-id">Compute Dhar Identity</button>
-          <button class="action-btn" id="btn-sp-trop">Tropical Soliton Sea</button>
-          <button class="action-btn" id="btn-sp-clear">Max-Stable Sea</button>
+          <button type="button" class="action-btn primary" id="btn-sp-id">Compute Dhar Identity</button>
+          <button type="button" class="action-btn" id="btn-sp-trop">3-Drop Relaxation Sea</button>
+          <button type="button" class="action-btn" id="btn-sp-clear">Max-Stable Sea</button>
         </div>
         <h3>Interactive Tip</h3>
-        <p style="font-size:0.82rem;color:var(--muted);margin:4px 0;">
+        <p class="hint-text">
           Click anywhere on the grid to drop +1 sand grain and run exact Abelian relaxation (finite browser computation; cf. Kalinin–Shkolnikov 2016).
         </p>
         <div class="stat-box" id="sp-stats" aria-live="polite">Initializing...</div>
@@ -193,29 +194,29 @@
         <label for="ap-cutoff">Curvature Cutoff B: <span id="ap-cutoff-val">320</span></label>
         <input type="range" id="ap-cutoff" min="60" max="550" step="10" value="320" />
         <div class="btn-row">
-          <button class="action-btn primary" id="btn-ap-render">Render Packing</button>
-          <button class="action-btn" id="btn-oct-audit">Run Octahedral Q(√-2) Audit</button>
+          <button type="button" class="action-btn primary" id="btn-ap-render">Render Packing</button>
+          <button type="button" class="action-btn" id="btn-oct-audit">Run Octahedral Q(√-2) Audit</button>
         </div>
         <div class="stat-box" id="ap-stats" aria-live="polite">Ready.</div>
       </div>
       <div class="canvas-wrap">
         <canvas id="canvas-apollonian" width="600" height="600" aria-label="Apollonian gasket interactive canvas"></canvas>
-        <div class="caption">Gold glowing circles mark perfect-square curvatures b = m². Compare (-7,17,12,20) vs (-4,8,9,9): identical mod-24 set, opposite global fate!</div>
+        <div class="caption">Gold glowing circles mark exclusively perfect-square curvatures b = m². Compare (-7,17,12,20) vs (-4,8,9,9): identical mod-24 set, opposite global fate!</div>
       </div>
     </section>
 
     <!-- MODE 3: 3D SODDY SPHERE CLUSTER -->
     <section id="panel-soddy" class="mode-panel" role="tabpanel" aria-labelledby="tab-soddy">
       <div class="card">
-        <h2>3D Soddy Spheres &amp; Dimension Dichotomy</h2>
-        <span class="badge ok">T1e (d-1) | 2 ⇔ d ∈ {2,3}</span>
+        <h2>General &amp; 3D Soddy Dimension Dichotomy</h2>
+        <span class="badge ok">T1e General d-Dim Soddy ⇔ d ∈ {2,3}</span>
         <label for="soddy-dim">Explore Dimension d: <span id="soddy-dim-val">3</span></label>
         <input type="range" id="soddy-dim" min="2" max="8" step="1" value="3" />
         <div class="btn-row">
-          <button class="action-btn primary" id="btn-soddy-spin">Toggle Auto-Rotate</button>
-          <button class="action-btn" id="btn-soddy-refl">Highlight Reflected 25 = 5² Sphere</button>
+          <button type="button" class="action-btn primary" id="btn-soddy-spin">Toggle Auto-Rotate</button>
+          <button type="button" class="action-btn" id="btn-soddy-refl">Highlight Reflected 25 = 5² Sphere</button>
         </div>
-        <p style="font-size:0.82rem;color:var(--muted);margin-top:10px;">
+        <p class="hint-text">
           Drag across the 3D viewport to orbit the exact integral 3D Soddy cluster (-6, 13, 13, 13, 18) together with its Vieta-reflected sphere of bend 25 = 5².
         </p>
         <div class="stat-box" id="soddy-stats" aria-live="polite"></div>
@@ -229,9 +230,9 @@
     <!-- MODE 4: MARKOV MOD-32 & 5-STEP CLUSTER -->
     <section id="panel-markov" class="mode-panel" role="tabpanel" aria-labelledby="tab-markov">
       <div class="card">
-        <h2>Markov Mod-32 (Zhang 2007) &amp; 5-Step Quiver Engine</h2>
-        <span class="badge ok">T3b Zhang (2007) m ≡ 2 (mod 32)</span>
-        <span class="badge info">T3d 5-Step Identities</span>
+        <h2>Markov Descent, Mod-32 &amp; 5-Step Quiver Engine</h2>
+        <span class="badge ok">T3b Descent + Zhang (2007) m ≡ 2 (32)</span>
+        <span class="badge info">T3d/T3e Quiver &amp; Hurwitz Orbits</span>
         <h3>Live BigInt 5-Step Cluster Mutation (T3d)</h3>
         <div class="triple-inputs">
           <div><label for="cl-x1">x₁</label><input type="number" id="cl-x1" min="1" max="20" value="1" /></div>
@@ -239,7 +240,7 @@
           <div><label for="cl-x3">x₃</label><input type="number" id="cl-x3" min="1" max="20" value="1" /></div>
         </div>
         <div class="btn-row">
-          <button class="action-btn primary" id="btn-cl-eval">Evaluate 5-Step Laurent Numerators</button>
+          <button type="button" class="action-btn primary" id="btn-cl-eval">Evaluate 5-Step Laurent Numerators</button>
         </div>
         <div class="stat-box" id="mk-stats" aria-live="polite"></div>
       </div>
@@ -258,17 +259,35 @@
   (function () {
     "use strict";
 
-    // --- Tab switching ---
-    const tabs = document.querySelectorAll(".tab-btn");
+    // --- Tab switching (with WCAG ArrowLeft/ArrowRight/Home/End roving tabindex) ---
+    const tabs = Array.from(document.querySelectorAll(".tab-btn"));
     const panels = document.querySelectorAll(".mode-panel");
     function setMode(mode) {
-      tabs.forEach((b) => b.setAttribute("aria-selected", String(b.dataset.mode === mode)));
+      tabs.forEach((b) => {
+        const active = b.dataset.mode === mode;
+        b.setAttribute("aria-selected", String(active));
+        b.setAttribute("tabindex", active ? "0" : "-1");
+      });
       panels.forEach((p) => p.classList.toggle("active", p.id === "panel-" + mode));
       if (mode === "apollonian") renderApollonian();
       if (mode === "soddy") drawSoddy();
       if (mode === "markov") drawMarkovTree();
     }
-    tabs.forEach((btn) => btn.addEventListener("click", () => setMode(btn.dataset.mode)));
+    tabs.forEach((btn, idx) => {
+      btn.addEventListener("click", () => setMode(btn.dataset.mode));
+      btn.addEventListener("keydown", (e) => {
+        let nextIdx = -1;
+        if (e.key === "ArrowRight") nextIdx = (idx + 1) % tabs.length;
+        else if (e.key === "ArrowLeft") nextIdx = (idx - 1 + tabs.length) % tabs.length;
+        else if (e.key === "Home") nextIdx = 0;
+        else if (e.key === "End") nextIdx = tabs.length - 1;
+        if (nextIdx >= 0) {
+          e.preventDefault();
+          tabs[nextIdx].focus();
+          setMode(tabs[nextIdx].dataset.mode);
+        }
+      });
+    });
 
     // --- Exact Math Helpers (BigInt Jacobi & Primes) ---
     function jacobiBig(a, n) {
@@ -378,7 +397,7 @@
       for (const [r, c] of spDrops) spGrid[r * spN + c] += 1;
       spLastTopplings = stabilizeInPlace(spGrid, spN, spLattice);
       renderSandpile();
-      spCaption.textContent = "Kalinin–Shkolnikov Tropical Soliton Curve (" + spDrops.length + " drops on height-" + (deg - 1) + " sea). Click to add more drops!";
+      spCaption.textContent = "3-Drop Sandpile Relaxation (" + spDrops.length + " drops on height-" + (deg - 1) + " sea; finite browser computation, cf. Kalinin–Shkolnikov 2016). Click to add more drops!";
     }
 
     function initMaxSea() {
@@ -538,7 +557,9 @@
       apCtx.lineWidth = 2.2;
       apCtx.stroke();
 
-      const cols = ["#38bdf8", "#34d399", "#fbbf24", "#a78bfa", "#f87171", "#60a5fa"];
+      // Non-gold palette so gold (#fbbf24) is reserved exclusively for perfect-square curvatures b = m^2
+      const cols = ["#38bdf8", "#34d399", "#2dd4bf", "#a78bfa", "#f87171", "#60a5fa"];
+      const HKRS_OBSTRUCTED_ROOTS = new Set(["-3,5,8,8", "-7,17,12,20", "-11,21,24,28"]);
       const mod24Set = new Set();
       const squares = new Set();
       circles.sort((a, b) => a[0] - b[0]);
@@ -568,11 +589,16 @@
       }
       const sortedMod = Array.from(mod24Set).sort((a, b) => a - b);
       const sortedSq = Array.from(squares).sort((a, b) => a - b);
+      const sqSummary = sortedSq.length
+        ? sortedSq.join(", ")
+        : (HKRS_OBSTRUCTED_ROOTS.has(apPreset.value)
+            ? "NONE (0 hits — HKRS obstructed by T1c!)"
+            : "NONE up to B <= " + maxB);
       apStats.textContent =
         "Root: (" + parts.join(", ") + ")   Max bend B <= " + maxB + "\n" +
         "Quads visited: " + quads + "   Circles drawn: " + circles.length + "\n" +
         "Mod-24 residues: {" + sortedMod.join(", ") + "}\n" +
-        "Perfect-square bends found: " + (sortedSq.length ? sortedSq.join(", ") : "NONE (0 hits — HKRS obstructed!)");
+        "Perfect-square bends found: " + sqSummary;
     }
 
     document.getElementById("btn-ap-render").addEventListener("click", renderApollonian);
@@ -603,7 +629,8 @@
     const sdDimVal = document.getElementById("soddy-dim-val");
     const sdStats = document.getElementById("soddy-stats");
 
-    let yaw = 0.55, pitch = 0.35, autoSpin = true, highlightRefl = true, dragging = false, lastX = 0, lastY = 0;
+    const prefersReducedMotion = Boolean(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+    let yaw = 0.55, pitch = 0.35, autoSpin = !prefersReducedMotion, highlightRefl = true, dragging = false, lastX = 0, lastY = 0;
 
     // Exact analytical 3D tangent sphere coordinates for (-6, 13, 13, 13, 18) + reflected b=15 and b=25=5^2.
     // All pairwise tangency errors are < 1e-15:

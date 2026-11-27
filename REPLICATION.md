@@ -1,5 +1,5 @@
 <!-- SPDX-License-Identifier: CC-BY-4.0 -->
-# Clean-Clone Replication Protocol (`REPLICATION.md`, v2.1.0)
+# Clean-Clone Replication Protocol (`REPLICATION.md`, v3.0.0)
 
 ## Prerequisites
 
@@ -15,7 +15,7 @@
 git clone https://github.com/0thernes/apollonian-sandpile-markov.git
 cd apollonian-sandpile-markov
 
-# 1. Verify Lean 4.35.0 proofs, axiom footprints (19 exports + 818 decls), and --fresh kernel replay (zero Mathlib)
+# 1. Verify Lean 4.35.0 proofs, axiom footprints (19 exports + 884 decls), and --fresh kernel replay (zero Mathlib)
 (cd lean && lake build && lake env lean VerifyAxioms.lean > /tmp/local_axioms.txt && diff -u --strip-trailing-cr ../results/lean_axioms.txt /tmp/local_axioms.txt && lake env lean VerifyAllDecls.lean && lake env leanchecker --fresh Solution && lake env leanchecker --fresh PalomarSolution)
 
 # 2. Verify zero-unsafe Rust core (clippy -D warnings, release tests, JSON summary)
@@ -59,7 +59,8 @@ python scripts/audit_repo.py
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | 2026-11-26 | `v1.0.0` | `0cf60c5` | GitHub Actions (`ubuntu-latest` + `windows-latest`, CI run `45849166650`) | 6 Lean kernels (`lean`, `leanchecker`, `lean4lean`, `nanoda_bin`, `con-leche`, `con-ron`, `comparator --paranoid`), Rust, C11 ASan/UBSan, Python/Hypothesis/8-mutant, Tectonic PDF + arXiv tarball, SLSA `#72728455` | PASS (internal CI clean-clone) |
 | 2026-11-26 | `v2.0.0` | `cdadedb` | GitHub Actions (`ubuntu-latest` + `windows-latest`, CI run `45943369402`, Pages `45943369337`) | All 19 Lean decls (`T1a`–`T3e` + `T2f`) + `--fresh` + 6 kernels + negative rejection gate, Rust `#![forbid(unsafe_code)]`, C11 + 7-law fuzz + `libFuzzer`, Python `ruff`/`mypy`/11 tests/10-mutant 100%, Tectonic + arXiv + SLSA `#72946806` (Rekor `4141939272`) + SWHID `swh:1:snp:392d116f12dbe6820df783848373d27bbf138c55` | PASS (internal CI clean-clone; 7/7 CI jobs green) |
-| 2026-11-26 | `v2.1.0` | `v2.1.0` (verified locally & pushed to `origin main`) | Local Windows 11 (ReFS Dev Drive) + GitHub Actions (`ubuntu-latest` + `windows-latest`) | Exhaustive 818-decl `VerifyAllDecls.lean`, 9 adversarial refutations, 6/6 Rust tests, 7-law `libFuzzer`, 12/12 Python tests + `python -m asm_verify`, 10/10 mutants, live 23/23 Crossref (`updated-by` + title/author) & arXiv audit, `plainurl` clickable DOIs, OpenSSL RFC 3161 check, 100% `audit-repo.sh` | PASS (internal clean-clone; external human reproduction pending) |
+| 2026-11-26 | `v2.1.0` | `94ece6a` | GitHub Actions (`ubuntu-latest` + `windows-latest`, CI run `46009124568`, Pages `46009124413`) | Exhaustive 818-decl `VerifyAllDecls.lean`, 9 adversarial refutations, 6/6 Rust tests, 7-law `libFuzzer`, 12/12 Python tests + `python -m asm_verify`, 10/10 mutants, live 23/23 Crossref & arXiv audit, `plainurl` DOIs, OpenSSL RFC 3161 check, SLSA `#73128469`, 100% `audit-repo.sh` | PASS (internal CI clean-clone; 7/7 CI jobs green) |
+| 2026-11-27 | `v3.0.0` | `v3.0.0` (verified locally & pushed to `origin main`) | Local Windows 11 (ReFS Dev Drive) + GitHub Actions (`ubuntu-latest` + `windows-latest`) | Upgraded `T1e` (general `d`-dim Soddy), `T2a` (universal sinked termination), `T3b` (Markov descent for all positive solutions), `T3e` (complete Hurwitz `n=4` Vieta orbits), 10 refutations (`adv10`), exhaustive 884-decl `VerifyAllDecls.lean`, `leanchecker --fresh`, 6 kernels, Rust/C11/Python/100% mutation, 23/23 live citations, zero-warning PDF, 100% `audit-repo.sh` | PASS (internal clean-clone; external human reproduction pending) |
 
 ## Windows PowerShell Note
 

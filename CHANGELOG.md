@@ -3,6 +3,20 @@
 
 All notable changes to `apollonian-sandpile-markov` (`0TH-2026-018`) are documented in this file following [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and [Semantic Versioning](https://semver.org/).
 
+## [3.0.0] - 2026-11-27
+
+### Added & Upgraded — Four Major Formal-Proof Gap Closures + Deep Adversarial Hardening (`ADR 0003`)
+- **Lean 4.35.0 Formal Upgrades (Breaking Strengthening of `T1e`, `T2a`, `T3b`, `T3e` in `Challenge.lean` / `PalomarChallenge.lean`; 884 Exhaustively Axiom-Audited Declarations):**
+  - **`T1e` (`ApollonianReciprocity.lean`):** Formalized the full **Lagarias–Mallows–Wilks (2002) general `d`-dimensional Soddy–Gosset integrality dichotomy** (`soddyQ d`, `soddyRefl d α k`, universal involution, exact change factorization, preservation iff `(d - 1) * α = 2`, hence existence iff `d = 2 ∨ d = 3`).
+  - **`T2a` (`SandpileTropical.lean`):** Formalized `IsDissipative`, inductive `ReachesSink` / `HasReachableSink`, a constructive strictly superharmonic potential `potentialVal R D (dist i)`, explicit stabilizing odometers, uniform trace-length bounds, and **universal finite termination and existence of a legal stabilizing trace** on every sinked dissipative sandpile graph.
+  - **`T3b` (`MarkovHurwitzCluster.lean`):** Formalized **Markov's classical descent theorem (1879/1880)** proving *every* positive integer solution `(x, y, z)` of `x^2 + y^2 + z^2 = 3xyz` lies in `InMarkovTree x y z`, lifting pairwise coprimality, odd-prime `p ≡ 1 (mod 4)`, and Ying Zhang's mod-32 theorem to all positive integer Markov solutions.
+  - **`T3e` (`MarkovHurwitzCluster.lean`):** Defined `InHurwitz4Orbit` and proved **Hurwitz's (1907) complete `n = 4` Vieta-orbit bi-implications** (`IsHurwitz4 1 ↔ InHurwitz4Orbit 1 2 2 2 2` and `IsHurwitz4 4 ↔ InHurwitz4Orbit 4 1 1 1 1`).
+  - **`NonVacuity.lean` & `Adversarial.lean`:** Added witnesses for `soddyQ 3`, sinked-dissipative multi-hop `gridGraph 3`, and `InHurwitz4Orbit`; strengthened `adv2_4d_soddy_not_integral` to refute 4D `soddyRefl`; and added 10th refutation `adv10_t2a_sink_reachability_necessary` proving `HasReachableSink` is strictly necessary even for dissipative graphs (`sinklessGraph2`).
+  - Removed dead `have` bindings and informal scratch comments in `ApollonianReciprocity.lean` and `MarkovHurwitzCluster.lean`, and cleaned stale `Matrix-Tree` section comments in `SandpileTropical.lean` and `rust/src/lib.rs`.
+- **Interactive Observatory, Tooling, Hygiene & Documentation Fixes:**
+  - **`studio/index.html`:** Fixed Mode 2 circle palette collision (`C4-01`: non-square mod-24 circles no longer reuse gold `#fbbf24`, which is now reserved exclusively for perfect squares); fixed `C4-02` unconditional HKRS message on non-HKRS presets; eliminated all inline `style=` attributes, added `type="button"` to all 11 buttons, added WCAG roving-`tabindex` Arrow/Home/End keyboard navigation, honored `prefers-reduced-motion: reduce`, and aligned Mode 1 3-drop caption wording.
+  - **`.gitleaks.toml`, `ERRATA.md`, `scripts/make_figures.py`, `scripts/audit_repo.py`:** Fixed copy-pasted title and `SHA256SUMS` allowlist in `.gitleaks.toml`; fixed Build Standard 10-class taxonomy and historical audit heading in `ERRATA.md`; removed unused `n` parameter in `stabilize_grid` and typed `make_fig1(rust_summary: dict[str, Any])`; expanded `audit_repo.py` to enforce zero inline `style=`, zero `.innerHTML`, and explicit `type="button"` across all three HTML portals; added `docs/adr/0003-v3-termination-descent-and-general-soddy.md`; regenerated figures, zero-warning AMS-LaTeX PDF, deterministic arXiv tarball, dual timestamps, and SHA-256 manifests.
+
 ## [2.1.0] - 2026-11-26
 
 ### Added & Hardened — 3-Cycle Adversarial Audit (`28` Findings Resolved Across Lean, Rust, C11, Python, Paper, Web, CI & Docs)

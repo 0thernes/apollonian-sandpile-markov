@@ -1,6 +1,9 @@
 <!-- SPDX-License-Identifier: CC-BY-4.0 -->
 # Roadmap (`ROADMAP.md`)
 
+## Shipped — `v3.0.0` (2026-11-27)
+- **Four Major Formal-Proof Gap Closures (`ADR 0003`, 884 Exhaustively Audited Decls, 10 Adversarial Refutations):** Formalized the Lagarias–Mallows–Wilks (2002) general `d`-dimensional Soddy–Gosset integrality dichotomy (`T1e`), universal Abelian sandpile finite termination and existence on every sinked dissipative graph via a constructive superharmonic potential (`T2a`), Markov's classical descent theorem lifting Zhang's mod-32 theorem to all positive integer Markov solutions (`T3b`), Hurwitz's (1907) complete `n=4` Vieta-orbit bi-implications (`T3e`), and `adv10_t2a_sink_reachability_necessary` (`sinklessGraph2`), plus `studio/index.html` color/a11y/reduced-motion fixes, `.gitleaks.toml` / `ERRATA.md` fixes, and stricter HTML checks in `audit_repo.py`.
+
 ## Shipped — `v2.1.0` (2026-11-26)
 - **3-Cycle Adversarial Hardening Release (`28` findings resolved):** Added exhaustive 818-declaration `Lean.collectAxioms` audit (`VerifyAllDecls.lean`), expanded `NonVacuity.lean` & `Adversarial.lean` (9 refutations including `T2d` & `T2a` hypothesis-necessity sharpness), added `python -m asm_verify` CLI + strict input validation + 6/6 Rust tests + 7-law `libFuzzer`, hardened `audit_repo.py` (unconditional local schema, Palomar, markdown links, HTML CSP/a11y, blueprint decls) & `check_citations.py` (`update-to` + `updated-by` retractions + title/author overlap), switched PDF bibliography to `plainurl` clickable DOIs, and added OpenSSL RFC 3161 verification and SWHID metadata.
 
@@ -14,7 +17,7 @@
 - Independent Rust, ISO C11 (ASan/UBSan + 100k fuzz), and Python + Hypothesis + 8/8 (100%) mutation suite.
 - Zero-warning AMS-LaTeX white paper, 4 vector PDF figures, deterministic clean-room arXiv tarball, and live 4-mode GitHub Pages Observatory + Proof Blueprint.
 
-## Future Research Directions (`v2.2.0+`, Open)
+## Future Research Directions (`v3.1.0+`, Open)
 - Extend Pillar I formalizations to additional Bianchi rings $\mathbb{Q}(\sqrt{-d})$ ($d \in \{3, 7, 11\}$) and higher-conductor Apollonian reciprocity obstructions.
 - Extend symbolic Markov quiver cluster mutation proofs (`T3d`) beyond step 5 and explore formalizing Lee–Schiffler snake-graph positivity.
 - Submit arXiv preprint (`dist/arxiv_submission.tar.gz`) and Zenodo archival deposit under independent researcher metadata.

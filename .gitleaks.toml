@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
-title = "promislow-fracton-amoeba gitleaks config"
+title = "apollonian-sandpile-markov gitleaks config"
 
 [extend]
 useDefault = true
@@ -8,6 +8,6 @@ useDefault = true
 description = "Allow deterministic SHA-256 checksum manifests and ORCID identifiers"
 paths = [
   '''MANIFEST\.sha256''',
-  '''CHECKSUMS\.sha256''',
+  '''SHA256SUMS''',
   '''results/exact_verification_report\.json''',
 ]

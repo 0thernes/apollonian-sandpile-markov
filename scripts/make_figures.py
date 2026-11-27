@@ -144,7 +144,7 @@ def audit_apollonian_bends(root: tuple[int, int, int, int], max_bend: int) -> li
     return sorted(bends)
 
 
-def stabilize_grid(lattice: str, n: int, init: np.ndarray) -> np.ndarray:
+def stabilize_grid(lattice: str, init: np.ndarray) -> np.ndarray:
     """Fast vectorized exact Abelian sandpile stabilization on Z^2 or A_2."""
     deg = 4 if lattice == "Z2" else 6
     grid = init.astype(np.int64).copy()
@@ -167,8 +167,8 @@ def dhar_identity_grid(lattice: str, n: int) -> np.ndarray:
     deg = 4 if lattice == "Z2" else 6
     mu = deg - 1
     base = np.full((n, n), 2 * mu, dtype=np.int64)
-    s1 = stabilize_grid(lattice, n, base)
-    return stabilize_grid(lattice, n, 2 * mu - s1)
+    s1 = stabilize_grid(lattice, base)
+    return stabilize_grid(lattice, 2 * mu - s1)
 
 
 def generate_markov_tree(max_val: int) -> tuple[list[tuple[int, int, int]], list[int]]:
@@ -207,7 +207,7 @@ def factor_odd_primes(n: int) -> list[int]:
 
 # --- Figure 1: Apollonian, Octahedral Q(sqrt(-2)), & Soddy Dimension Dichotomy ---
 
-def make_fig1(rust_summary: dict) -> None:
+def make_fig1(rust_summary: dict[str, Any]) -> None:
     fig, axes = plt.subplots(2, 2, figsize=(13.2, 8.8), dpi=300)
     fig.subplots_adjust(left=0.06, right=0.97, top=0.92, bottom=0.07, wspace=0.25, hspace=0.30)
     fig.suptitle(
@@ -352,7 +352,7 @@ def make_fig2() -> dict[str, Any]:
     drops = [(18, 22), (46, 20), (34, 48)]
     for r, c in drops:
         bg[r, c] += 1
-    trop = stabilize_grid("Z2", n, bg)
+    trop = stabilize_grid("Z2", bg)
 
     fig, axes = plt.subplots(1, 3, figsize=(14.4, 5.2), dpi=300)
     fig.subplots_adjust(left=0.035, right=0.985, top=0.84, bottom=0.11, wspace=0.18)
@@ -598,7 +598,7 @@ def make_fig4() -> None:
             zorder=1,
         )
 
-    ax.text(50, 54.4, "Unified Vieta-Reflection Architecture & Six-Kernel Verification Pipeline (0TH-2026-018, v2.1.0)",
+    ax.text(50, 54.4, "Unified Vieta-Reflection Architecture & Six-Kernel Verification Pipeline (0TH-2026-018, v3.0.0)",
             ha="center", va="center", fontsize=12.4, fontweight="bold", color="#1a202c")
 
     # Tier 0: Root Generator
@@ -616,12 +616,12 @@ def make_fig4() -> None:
         "T1c: HKRS (2024) obstruction on 3 roots\n"
         "     (contrast (-4,8,9,9) hits 9)\n"
         "T1d: Octahedral mod-8 lock + 5 Jacobi vals\n"
-        "T1e: (d-1)|2 <-> d in {2,3}; 5 3D Soddy refls",
+        "T1e: General d-dim Soddy refls <-> d in {2,3}",
         "#fff5f5", "#c53030")
 
     box(35.0, 23.5, 30.0, 16.5,
         "Pillar II: Sandpiles & Lattice Identities",
-        "T2a: Toppling comm., least action, unique trace\n"
+        "T2a: Comm., least action, confluence & TERM.\n"
         "T2b: Direct Z^2 det4=192, det9=100,352 + traces\n"
         "T2c: One isotropic Z^2 K=3 obstruction\n"
         "T2d: Elem. A_2 parity lemma (MK=4A-2B+4C -> 2|K)\n"
@@ -632,11 +632,11 @@ def make_fig4() -> None:
     box(67.5, 23.5, 30.0, 16.5,
         "Pillar III: Markov-Hurwitz & Quiver",
         "T3a: SL2(Z) Fricke trace & Cohn tree (3 | tr)\n"
-        "T3b: Coprime, p=1(4), Zhang (2007) m=2(32)\n"
-        "     (tree triples; witnesses 2 and 34)\n"
+        "T3b: Markov descent + Zhang (2007) m=2(32)\n"
+        "     (ALL pos. sols; witnesses 2 and 34)\n"
         "T3c: Hensel sqrt(-1) mod p^k uniqueness\n"
         "T3d: 5-step quiver exchange ids (P1, P2 div.)\n"
-        "T3e: Hurwitz (1907) n=4 admissible a in {1,4}",
+        "T3e: Hurwitz (1907) n=4 complete Vieta orbits",
         "#f0fff4", "#2f855a")
 
     arrow(36, 44.5, 17.5, 40.6, "#c53030")
@@ -646,7 +646,7 @@ def make_fig4() -> None:
     # Tier 2: Contract & NonVacuity / Adversarial
     box(11, 12.2, 78, 6.8,
         "Machine-Checked Contract: Challenge.lean + Solution.lean + PalomarSolution.lean + VerifyAllDecls.lean",
-        "19 Exported Declarations (16 Theorems + Master + NonVacuity + 9 Refutations)  |  818 Exhaustively Axiom-Audited Decls\n"
+        "19 Exported Declarations (16 Theorems + Master + NonVacuity + 10 Refutations)  |  884 Exhaustively Axiom-Audited Decls\n"
         "Strictly [propext, Classical.choice, Quot.sound]  |  0 sorry  |  0 admit  |  0 native_decide  |  0 Mathlib",
         "#faf5ff", "#6b46c1", title_fs=9.0, body_fs=7.6)
 
@@ -727,7 +727,7 @@ def make_social_preview() -> None:
     fig.text(0.5, 0.80, "Thin Vieta Reflection Groups  •  Lattice Sandpile Identities  •  Markov-Hurwitz Spectra",
              ha="center", va="center", color="#94a3b8", fontsize=13.5, family="sans-serif")
     fig.text(0.5, 0.055,
-             "16 Lean 4.35.0 Statements (19 Exports, 818 Audited)  |  Zero Mathlib  |  6 Independent Kernels  |  Rust + C11 + Python",
+             "16 Lean 4.35.0 Statements (19 Exports, 884 Audited)  |  Zero Mathlib  |  6 Independent Kernels  |  Rust + C11 + Python",
              ha="center", va="center", color="#38bdf8", fontsize=10.5, fontweight="bold", family="sans-serif")
 
     fig.savefig(MEDIA_DIR / "social-preview.png", dpi=100, facecolor="#0b1120")

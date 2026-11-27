@@ -108,7 +108,9 @@ An independent statement audit of commit `0cf60c5` (audit log: <https://github.c
     - Correction: add the three references; note the reprint year for `baragar1993`.
     - Affects a theorem statement: no.
 
-### Known issues in the formal code (not yet fixed)
+### Historical 2026-11-26 Audit Snapshot — Formal-Code Items (All 9 Resolved in `v2.0.0`–`v3.0.0`)
+
+*(Items 1–9 below record the pre-`v2.0.0` findings verbatim; items 1–8 were resolved in `v2.0.0`–`v2.1.0`, and `v3.0.0` additionally closed the general `d`-dimensional Soddy reflection link in `T1e`, universal sandpile termination in `T2a`, Markov descent in `T3b`, and complete Hurwitz `n=4` Vieta orbits in `T3e`.)*
 
 1. `lean/lake-manifest.json` line 4: package name `PromislowFracton` does not match `name = "ApollonianSandpileMarkov"` in `lean/lakefile.toml`. Fix: regenerate the manifest. Does not affect any theorem statement.
 2. `lean/Challenge.lean` lines 88–94 (`T2b`): there is no 9×9 determinant statement. Fix: prove `det9 (gridLap 3) = 100352` directly, or keep the block-similarity statement and its description. Affects the scope of `T2b` only.
@@ -122,5 +124,5 @@ An independent statement audit of commit `0cf60c5` (audit log: <https://github.c
 
 ## Correction Procedure
 
-1. Open a GitHub Issue using the `Finding Report` template and select the applicable finding class (e.g., `correctness`, `proof-soundness`, `numeric`, `docs`).
+1. Open a GitHub Issue using the `Finding Report` template and select the applicable Build Standard v1.2.0 finding class (`bug`, `error`, `issue`, `problem`, `concern`, `dilemma`, `conflict`, `gap`, `hole`, or `blindspot`).
 2. Confirmed errata are appended chronologically above with the affected file or theorem and the commit that records them. Frozen releases are not silently rewritten.

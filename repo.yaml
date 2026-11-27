@@ -3,7 +3,7 @@
 # Project manifest for the Build Standard for LLMs v1.2.0 (90/90 items evaluated; 0 FAILs).
 standard: "1.2.0"
 name: "apollonian-sandpile-markov"
-description: "Zero-Mathlib Lean 4.35.0 six-kernel formalization of 16 statements (19 audited decls) covering HKRS (2024) Apollonian obstructions on 3 roots, octahedral mod-8 locking, direct 9x9 Z^2 and A_2 determinants, an elementary A_2 parity lemma, Zhang (2007) Markov mod-32, 5-step quiver identities, and Hurwitz (1907) n=4 — with Rust/C11/Python oracles, AMS-LaTeX paper, and 4-mode observatory."
+description: "Zero-Mathlib Lean 4.35.0 six-kernel formalization of 16 statements (19 audited exports, 884 decls) covering HKRS (2024) Apollonian obstructions, octahedral mod-8 locking, general d-dim Soddy integrality, universal sinked sandpile termination, direct 9x9 Z^2 and A_2 determinants, A_2 parity lemma, Markov descent + Zhang (2007) mod-32, 5-step quiver identities, and complete Hurwitz (1907) n=4 Vieta orbits."
 owner: "0thernes"
 year: "2026"
 project_type: research
@@ -36,11 +36,11 @@ items:
   A04: {status: done, evidence: "README.md ## Usage & Examples section + CLI/Rust/C11/Python/Lean usage + justfile"}
   A05: {status: done, evidence: "docs/media/social-preview.png + 4 visually verified vector PDF figures + live 4-mode interactive Observatory"}
   A06: {status: done, evidence: "Dual license: LICENSE (CC-BY-4.0 prose/paper/data) and LICENSE-CODE (Apache-2.0 code)"}
-  A07: {status: done, evidence: "CHANGELOG.md in Keep a Changelog format covering v1.0.0, v2.0.0, and v2.1.0"}
-  A08: {status: done, evidence: "VERSION (2.1.0) synced across pyproject.toml, rust/Cargo.toml, CITATION.cff, CITATION.bib, .zenodo.json, lean/lakefile.toml, lean/formalization.yaml + v2.1.0 tag"}
-  A09: {status: done, evidence: "cargo test --release (6/6), C11 ASan/UBSan + 100k 7-law fuzz + 7-law libFuzzer, pytest (12/12), mutate.py (10/10 = 100%), Lean 4.35.0 (19 exports + 818 decls via VerifyAllDecls.lean)"}
+  A07: {status: done, evidence: "CHANGELOG.md in Keep a Changelog format covering v1.0.0, v2.0.0, v2.1.0, and v3.0.0"}
+  A08: {status: done, evidence: "VERSION (3.0.0) synced across pyproject.toml, rust/Cargo.toml, CITATION.cff, CITATION.bib, .zenodo.json, lean/lakefile.toml, lean/formalization.yaml + v3.0.0 tag"}
+  A09: {status: done, evidence: "cargo test --release (6/6), C11 ASan/UBSan + 100k 7-law fuzz + 7-law libFuzzer, pytest (12/12), mutate.py (10/10 = 100%), Lean 4.35.0 (19 exports + 884 decls via VerifyAllDecls.lean)"}
   A10: {status: done, evidence: ".github/workflows/ci.yml (informational multi-OS CI with 6 Lean kernels, VerifyAllDecls.lean, negative kernel gate, Rust, C11 ASan/UBSan + 7-law libFuzzer, Python, Tectonic, OpenSSL TSR, SLSA)"}
-  A11: {status: done, evidence: "GitHub Releases v1.0.0, v2.0.0 & v2.1.0 with frozen PDF, clean-room arXiv tarball, SHA256SUMS, and dual .tsr/.ots timestamps attached"}
+  A11: {status: done, evidence: "GitHub Releases v1.0.0, v2.0.0, v2.1.0 & v3.0.0 with frozen PDF, clean-room arXiv tarball, SHA256SUMS, and dual .tsr/.ots timestamps attached"}
   A12: {status: done, evidence: ".gitignore excluding .venv, rust/target, lean/.lake, paper/build, native binaries"}
   A13: {status: done, evidence: ".gitattributes (LF/CRLF/binary) and .editorconfig"}
   A14: {status: done, evidence: "CONTRIBUTING.md with zero-Mathlib proof, mutation, SPDX, and taxonomy guidelines"}
@@ -50,7 +50,7 @@ items:
   A18: {status: done, evidence: ".github/ISSUE_TEMPLATE/finding_report.yml with 10-class Build Standard dropdown"}
   A19: {status: done, evidence: "GitHub About description, homepage URL, and research topics configured via gh repo edit"}
   A20: {status: done, evidence: "docs/ with architecture.md, configuration.md, operations.md, statement-fidelity.md, literature-log.md, adr/, faq.md, glossary.md, threat-model.md, benchmarks.md, run-log.md, reviews/, index.html, media/"}
-  A21: {status: done, evidence: "docs/adr/0001-zero-mathlib-six-kernel-and-vieta-unification.md and docs/adr/0002-direct-detmat-and-statement-audit-remediation.md"}
+  A21: {status: done, evidence: "docs/adr/0001-zero-mathlib-six-kernel-and-vieta-unification.md, 0002-direct-detmat-and-statement-audit-remediation.md, and 0003-v3-termination-descent-and-general-soddy.md"}
   A22: {status: done, evidence: "CITATION.cff (with SWHID) + CITATION.bib + .zenodo.json (ORCID 0009-0006-8168-9648)"}
   A23: {status: done, evidence: "Clean commit history on main under Alexander Stephen Donahue <0_0@0thernes.art>"}
   A24: {status: done, evidence: ".gitleaks.toml + CI secret scan + no build artifacts or secrets committed"}
@@ -58,7 +58,7 @@ items:
   A26: {status: done, evidence: "docs/media/social-preview.png (1280x640) visually verified via read_file"}
   A27: {status: done, evidence: ".github/workflows/pages.yml deploying docs/index.html + studio/ + blueprint/ + frozen PDF to GitHub Pages"}
   A28: {status: done, evidence: "pyproject.toml, requirements.txt, rust/Cargo.toml, lean/lakefile.toml"}
-  A29: {status: done, evidence: "ROADMAP.md separating v1.0.0/v2.0.0 shipped milestones from v2.1.0+ open research"}
+  A29: {status: done, evidence: "ROADMAP.md separating v1.0.0–v3.0.0 shipped milestones from v3.1+ open research"}
   A30: {status: done, evidence: ".github/labels.tsv + all 10 exact Build Standard finding-class labels created on GitHub"}
   A31: {status: done, evidence: "justfile with one-word commands (demo, rust, c11, fuzz, python, lint, test, mutate, lean, figures, paper, citations, audit, reproduce, deploy, rollback, all)"}
   A32: {status: done, evidence: "AGENTS.md (canonical), CLAUDE.md (@AGENTS.md), GEMINI.md (@./AGENTS.md), .cursor/rules/build-standard.mdc, llms.txt, llms-full.txt"}
@@ -67,10 +67,10 @@ items:
   A35: {status: done, evidence: "docs/operations.md documenting offsite git bundle backup, Software Heritage SWHID, 0thernes-research-archive submodule mirror, and GitHub Releases"}
   A36: {status: done, evidence: "justfile deploy/rollback recipes + single-workflow static Pages deployment (.github/workflows/pages.yml)"}
   A37: {status: done, evidence: "docs/benchmarks.md recording measured runtime budgets across Lean, Rust, Python, figures, and Tectonic"}
-  A38: {status: done, evidence: "studio/index.html, blueprint/index.html, and docs/index.html include strict CSP meta tags, .skip-link + #main-content landmarks, ARIA roles/pressed/live regions, :focus-visible outlines, safe DOM creation (zero innerHTML), and high-contrast palettes"}
+  A38: {status: done, evidence: "studio/index.html, blueprint/index.html, and docs/index.html enforce strict CSP meta tags, zero inline style=, zero innerHTML, explicit type=button, .skip-link + #main-content landmarks, WCAG keyboard roving tabindex, prefers-reduced-motion, and high-contrast palettes"}
   A39: {status: done, evidence: "SPDX license headers on all source files; THIRD_PARTY_NOTICES.md; zero external Lean/Rust/C11 dependencies; 23 live-verified references (update-to + updated-by + title/author)"}
   A40: {status: n/a, note: "Repository ships no runtime AI/ML models or LLM API calls; authoring AI disclosure is in paper/main.tex and lean/formalization.yaml (DEVIATIONS.md)"}
-  A41: {status: done, evidence: "UPGRADING.md + Semantic Versioning (VERSION=2.1.0) + CHANGELOG.md + ERRATA.md correction policy"}
+  A41: {status: done, evidence: "UPGRADING.md + Semantic Versioning (VERSION=3.0.0) + CHANGELOG.md + ERRATA.md correction policy"}
   A42: {status: done, evidence: "Maintenance status declared in README.md and SUPPORT.md"}
   A43: {status: done, evidence: "examples/quickstart_demo.py exercising all three pillars offline"}
   A44: {status: done, evidence: "docs/faq.md and docs/glossary.md"}

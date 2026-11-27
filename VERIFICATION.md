@@ -1,13 +1,13 @@
 <!-- SPDX-License-Identifier: CC-BY-4.0 -->
-# Multi-Layer Verification Architecture (`VERIFICATION.md`, v2.1.0)
+# Multi-Layer Verification Architecture (`VERIFICATION.md`, v3.0.0)
 
-This repository implements defense-in-depth verification across **six independent formal type-checking kernels**, an **exhaustive 818-declaration `Lean.collectAxioms` metaprogram audit**, a **live negative kernel rejection gate**, and **three independent computational languages**.
+This repository implements defense-in-depth verification across **six independent formal type-checking kernels**, an **exhaustive 884-declaration `Lean.collectAxioms` metaprogram audit**, a **live negative kernel rejection gate**, and **three independent computational languages**.
 
 ## 1. Six Independent Formal Type-Checking Kernels (Zero Mathlib)
 
-All **19 exported audited declarations** (`T1a`–`T3e`, `T2f`, master conjunction `prove_all_apollonian_sandpile_markov_theorems`, `nonvac_all_hypotheses`, and `all_adversarial_refutations` covering 9 refutations) — plus all **818 declarations** under `ApollonianSandpileMarkov.*` checked exhaustively by `lean/VerifyAllDecls.lean` — depend strictly on `[propext, Classical.choice, Quot.sound]` (`lean/PalomarChallenge.lean` holds 17 intentional `by sorry` stubs as the comparator contract and is not a build target). In GitHub Actions (`lean4-six-kernels`), verification runs across six independent kernels:
+All **19 exported audited declarations** (`T1a`–`T3e`, `T2f`, master conjunction `prove_all_apollonian_sandpile_markov_theorems`, `nonvac_all_hypotheses`, and `all_adversarial_refutations` covering 10 refutations) — plus all **884 declarations** under `ApollonianSandpileMarkov.*` checked exhaustively by `lean/VerifyAllDecls.lean` — depend strictly on `[propext, Classical.choice, Quot.sound]` (`lean/PalomarChallenge.lean` holds 17 intentional `by sorry` stubs as the comparator contract and is not a build target). In GitHub Actions (`lean4-six-kernels`), verification runs across six independent kernels:
 
-1. **Lean 4.35.0 Kernel** (`lake build` + `VerifyAxioms.lean` diffed against `results/lean_axioms.txt` + exhaustive `VerifyAllDecls.lean` across all 818 declarations)
+1. **Lean 4.35.0 Kernel** (`lake build` + `VerifyAxioms.lean` diffed against `results/lean_axioms.txt` + exhaustive `VerifyAllDecls.lean` across all 884 declarations)
 2. **`leanchecker --fresh`** (replays `Solution` and `PalomarSolution`)
 3. **`leanchecker-paranoid`** (`lean4lean` independent Lean-in-Lean kernel replaying `Solution` and `PalomarSolution`)
 4. **`nanoda_bin`** (independent Rust kernel checking the exported three root declarations and their dependency closure with `unpermitted_axiom_hard_error: true`, permitted axioms strictly `["propext", "Classical.choice", "Quot.sound"]`)

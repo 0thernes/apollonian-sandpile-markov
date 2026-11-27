@@ -186,7 +186,7 @@ def test_python_module_cli_entrypoint(tmp_path: Path) -> None:
     )
     meta = json.loads(proc.stdout)
     assert meta["oracle_status"] == "PASS"
-    assert meta["version"] == "2.1.0"
+    assert meta["version"] == "3.0.0"
     payload = json.loads(out_file.read_text(encoding="utf-8"))
     assert payload["pillar1"]["square_contrast_4899"]["squares"][0] == 9
     assert payload["pillar3"]["cluster_5step_at_111"] == [2, 5, 29, 433, 37_666]

@@ -5,7 +5,7 @@ public import ApollonianSandpileMarkov
 public import PalomarSolution
 
 /-!
-# Top-Level Solution Entrypoint (`Solution.lean`, v2.1.0)
+# Top-Level Solution Entrypoint (`Solution.lean`, v3.0.0)
 -/
 
 namespace ApollonianSandpileMarkov.Solution

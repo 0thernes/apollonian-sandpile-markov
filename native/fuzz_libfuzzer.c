@@ -1,5 +1,5 @@
 /* SPDX-License-Identifier: Apache-2.0
- * Coverage-guided libFuzzer target for Apollonian-Sandpile-Markov (ISO C11, v2.1.0).
+ * Coverage-guided libFuzzer target for Apollonian-Sandpile-Markov (ISO C11, v3.0.0).
  * Fuzzes ALL 7 algebraic laws: Gauss QR + supplementary laws, SL2(Z) Fricke trace identity,
  * Descartes involutions, Octahedral 8-face involutions, 3D Soddy 5-sphere involutions,
  * A_2 even-Laplacian witness uA2_lap4 == 4, and 5-step Markov cluster Laurent cancellations.
