@@ -3,6 +3,14 @@
 
 This repository follows [Semantic Versioning 2.0.0](https://semver.org/) anchored in `VERSION` and synchronized across `pyproject.toml`, `rust/Cargo.toml`, `CITATION.cff`, `CITATION.bib`, `.zenodo.json`, `lean/lakefile.toml`, and `lean/formalization.yaml`.
 
+## Upgrading from `v2.0.0` to `v2.1.0`
+
+`v2.1.0` is a backwards-compatible hardening release across all Lean proofs, oracles, audit gates, manuscript bibliography, and static web apps (all 17 `PalomarChallenge`/`PalomarSolution` theorem statements remain unchanged):
+
+1. **Lean 4:** Added exhaustive 818-declaration metaprogram audit `lean/VerifyAllDecls.lean`, expanded `NonVacuity.lean` (`rootHKRS2`/`rootHKRS3`, `lapZ2 uZ2_lap3a ≤ 3`, Cohn seed dets), and expanded `Adversarial.lean` to 9 refutations (`adv7`–`adv9`).
+2. **Oracles & CLI:** Added `python -m asm_verify [--json PATH]`, strict `ValueError` validation on invalid lattice/size/index inputs, total Rust `exact_det_bareiss` with squareness check (`6/6` Rust tests), 7-law `native/fuzz_libfuzzer.c`, and renamed the last legacy JSON report key `"unobstructed_4899"` → `"square_contrast_4899"` in `results/rust_summary.json` and `results/exact_verification_report.json`.
+3. **Manuscript, Web & Governance:** Switched PDF bibliography to `plainurl` (visible clickable DOIs), added SWHID to `CITATION.cff`/`.zenodo.json`, hardened `audit_repo.py` / `check_citations.py` / `check_readme_axioms.py`, and upgraded accessibility & safe DOM construction in `docs/index.html` and `blueprint/index.html`.
+
 ## Upgrading from `v1.0.0` to `v2.0.0`
 
 `v2.0.0` is a comprehensive formalization, oracle, provenance, and Build Standard v1.2.0 / Playbook v1.3 hardening upgrade:

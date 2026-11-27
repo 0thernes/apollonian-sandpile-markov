@@ -1,7 +1,7 @@
 <!-- SPDX-License-Identifier: CC-BY-4.0 -->
-# Claims Matrix (`CLAIMS.md`, v2.0.0)
+# Claims Matrix (`CLAIMS.md`, v2.1.0)
 
-Each claim in `apollonian-sandpile-markov` (`0TH-2026-018`) is mapped below to its Lean declaration, its exact scope as stated in Lean, and its relation to prior work. Release `v2.0.0` resolves all 13 paper/doc items and all 9 formal-code items from the 2026-11-26 independent statement audit ([audit log](https://github.com/0thernes/0thernes-research-archive/blob/main/docs/reviews/2026-11-26-statement-audit.md); see also [`ERRATA.md`](ERRATA.md)) and adds `T2f` (`A_2` direct 9×9 determinant & Dhar traces).
+Each claim in `apollonian-sandpile-markov` (`0TH-2026-018`) is mapped below to its Lean declaration, its exact scope as stated in Lean, and its relation to prior work. Releases `v2.0.0`–`v2.1.0` resolve all 13 paper/doc items and all 9 formal-code items from the 2026-11-26 independent statement audit ([audit log](https://github.com/0thernes/0thernes-research-archive/blob/main/docs/reviews/2026-11-26-statement-audit.md); see also [`ERRATA.md`](ERRATA.md)), add `T2f` (`A_2` direct 9×9 determinant & Dhar traces), expand `NonVacuity`/`Adversarial` (9 refutations), and add exhaustive `Lean.collectAxioms` auditing (`VerifyAllDecls.lean`, 818 declarations).
 
 Overall: most statements are zero-Mathlib formalizations of known results; the rest are finite computations, elementary identities, and one elementary parity lemma (`T2d`) with no prior statement found. No statement is a bounded case of `STAT-058` or `NT-083`.
 
@@ -27,8 +27,8 @@ All built modules contain zero `sorry`, zero `admit`, and zero `native_decide`; 
 | `T3c` | `t3c_hensel_sqrt_neg1_prime_power_uniqueness` | Uniqueness of `sqrt(-1)` modulo `p^k` up to sign, `p` odd prime, `k ≥ 1` | Standard | `[propext, Classical.choice, Quot.sound]` |
 | `T3d` | `t3d_cluster_algebra_markov_laurent_positivity` | Exchange identities along one 5-step Markov-quiver mutation sequence with subtraction-free numerators; values `≥ 1` at positive inputs; `(1,1,1) ↦ (2,5,29,433,37666)` | Finite instance of Fomin–Zelevinsky (2002) and Lee–Schiffler (2015). Coefficient positivity holds by inspection, not as a stated theorem | `[propext, Classical.choice, Quot.sound]` |
 | `T3e` | `t3e_markov_hurwitz_n4_complete_classification` | Positive solutions of the `n=4` Hurwitz equation exist only for `a=1` (all `≡ 2 mod 4`) or `a=4` (all odd) | Classical (Hurwitz, 1907). The Vieta-orbit description of all solutions is not part of the export | `[propext, Classical.choice, Quot.sound]` |
-| `NONVAC` | `NonVacuity.nonvac_all_hypotheses` | Constructive premise witnesses across all pillars, including explicit `T2d` hypothesis-bundle witness and `IsStabilizingOdometer` witnesses on `gridGraph 2` and `a2GridGraph 3` (`v2.0.0`) | Constructive non-vacuity checks | `[propext, Classical.choice, Quot.sound]` |
-| `ADV` | `Adversarial.all_adversarial_refutations` | Six refutations of false variants (`adv1_square_contrast_hits_square` renamed in `v2.0.0`) | `adv6` is a corollary of `T3e`; the suite does not claim every single hypothesis is tight | `[propext, Classical.choice, Quot.sound]` |
+| `NONVAC` | `NonVacuity.nonvac_all_hypotheses` | Constructive premise witnesses across all pillars, including all three HKRS roots (`rootHKRS1`–`rootHKRS3`), `lapZ2 uZ2_lap3a ≤ 3`, explicit `T2d` hypothesis-bundle witness, `IsStabilizingOdometer` witnesses on `gridGraph 2` and `a2GridGraph 3`, and Cohn seed determinants (`v2.1.0`) | Constructive non-vacuity checks | `[propext, Classical.choice, Quot.sound]` |
+| `ADV` | `Adversarial.all_adversarial_refutations` | Nine refutations of false strengthenings and dropped-hypothesis variants (`adv1_square_contrast_hits_square` through `adv9_octahedral_strip_hits_square_and_double_square`, including `T2d` mean-equation necessity and `T2a` `LegalTrace` necessity in `v2.1.0`) | `adv6` is a corollary of `T3e`; the suite does not claim every single hypothesis is tight | `[propext, Classical.choice, Quot.sound]` |
 
 ## Tier 2 — Computation (Rust, ISO C11, Python; not Lean)
 

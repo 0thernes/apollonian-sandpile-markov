@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 #![forbid(unsafe_code)]
-//! Zero-dependency exact integer verification library (v2.0.0) for:
+//! Zero-dependency exact integer verification library (v2.1.0) for:
 //! - Pillar I: Apollonian (4-even HKRS), Generalized Octahedral (Q(sqrt(-2))), and 3D Soddy packings
 //! - Pillar II: Abelian sandpile confluence, Dhar critical identity on Z^2 and A_2, Matrix-Tree orders,
 //!   and Kalinin-Shkolnikov tropical balancing / soliton scattering
@@ -484,6 +484,13 @@ pub fn compute_dhar_identity(kind: LatticeKind, n: usize) -> (Vec<i32>, bool, bo
 /// Exact Bareiss integer determinant for small n x n matrices (e.g., 4x4, 9x9, 16x16).
 pub fn exact_det_bareiss(mat: &[Vec<i128>]) -> i128 {
     let n = mat.len();
+    assert!(
+        mat.iter().all(|row| row.len() == n),
+        "exact_det_bareiss requires a square n x n matrix"
+    );
+    if n == 0 {
+        return 1;
+    }
     let mut a = mat.to_vec();
     let mut sign: i128 = 1;
     let mut prev_pivot: i128 = 1;
@@ -550,6 +557,7 @@ pub struct MarkovAudit {
 }
 
 fn smallest_prime_factor(n: u128) -> u128 {
+    assert!(n >= 2, "smallest_prime_factor requires n >= 2");
     if n.is_multiple_of(2) {
         return 2;
     }
@@ -787,5 +795,32 @@ mod tests {
         for a in 5..=8 {
             assert!(hw[&a].is_empty());
         }
+    }
+
+    #[test]
+    fn test_edge_cases_and_invariants() {
+        assert_eq!(exact_det_bareiss(&[]), 1);
+        assert_eq!(exact_det_bareiss(&[vec![7]]), 7);
+        assert_eq!(exact_det_bareiss(&[vec![1, 2], vec![2, 4]]), 0);
+        assert!(!is_perfect_square(-1));
+        assert!(is_perfect_square(0));
+        assert!(is_perfect_square(1));
+        assert!(!is_perfect_square(15));
+        assert_eq!(signed_odd_part(0), 0);
+        assert_eq!(signed_odd_part(-24), -3);
+        assert_eq!(jacobi(6, 9), 0);
+        assert_eq!(jacobi(5, 1), 1);
+    }
+
+    #[test]
+    #[should_panic(expected = "Jacobi denominator must be positive odd")]
+    fn test_jacobi_rejects_even_denominator() {
+        let _ = jacobi(3, 4);
+    }
+
+    #[test]
+    #[should_panic(expected = "exact_det_bareiss requires a square n x n matrix")]
+    fn test_det_bareiss_rejects_nonsquare() {
+        let _ = exact_det_bareiss(&[vec![1, 2, 3], vec![4, 5, 6]]);
     }
 }

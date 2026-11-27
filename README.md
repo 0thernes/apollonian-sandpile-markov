@@ -14,8 +14,8 @@
 ![Visual overview of an HKRS Apollonian packing, the A2 51x51 Dhar identity computation, and the Markov tree](docs/media/social-preview.png)
 
 - **Author:** Alexander Stephen Donahue (Independent Researcher, Spokane, WA, USA · ORCID `0009-0006-8168-9648`)
-- **Version:** `v2.0.0` (November 26, 2026 — resolves all 13 paper items & all 9 formal-code items from the 2026-11-26 statement audit; see [`ERRATA.md`](ERRATA.md))
-- **Archive ID:** `0TH-2026-018` (registered in [0thernes-research-archive](https://github.com/0thernes/0thernes-research-archive))
+- **Version:** `v2.1.0` (November 26, 2026 — 3-cycle adversarial hardening upgrade: exhaustive 818-decl `Lean.collectAxioms` audit, 9 refutations, 7-law `libFuzzer`, `plainurl` clickable DOIs, hardened audit/citation gates; see [`HARDENING_LOG.md`](HARDENING_LOG.md) & [`ERRATA.md`](ERRATA.md))
+- **Archive ID:** `0TH-2026-018` (registered in [0thernes-research-archive](https://github.com/0thernes/0thernes-research-archive) · SWHID (`v2.0.0`): `swh:1:snp:392d116f12dbe6820df783848373d27bbf138c55`)
 - **Live Interactive Observatory:** [https://0thernes.github.io/apollonian-sandpile-markov/studio/](https://0thernes.github.io/apollonian-sandpile-markov/studio/)
 - **Live Lean 4 Proof Blueprint:** [https://0thernes.github.io/apollonian-sandpile-markov/blueprint/](https://0thernes.github.io/apollonian-sandpile-markov/blueprint/)
 - **Frozen AMS-LaTeX White Paper:** [dist/Donahue_2026_apollonian_sandpile_markov.pdf](dist/Donahue_2026_apollonian_sandpile_markov.pdf)
@@ -24,11 +24,11 @@
 
 ## Summary
 
-This repository contains a zero-Mathlib Lean 4.35.0 development with **16 headline statements** (`T1a`–`T3e` plus `T2f`), a master conjunction, constructive non-vacuity witnesses, and six false-variant refutations (**19 kernel-audited declarations**), together with Rust, ISO C11 (ASan/UBSan + 100k 7-law fuzz + `libFuzzer`), and Python programs that recompute and cross-check the finite data.
+This repository contains a zero-Mathlib Lean 4.35.0 development with **16 headline statements** (`T1a`–`T3e` plus `T2f`), a master conjunction, constructive non-vacuity witnesses, and nine false-variant and hypothesis-necessity refutations (**19 exported kernel-audited declarations**; **818 declarations** exhaustively axiom-audited via `VerifyAllDecls.lean`), together with Rust, ISO C11 (ASan/UBSan + 100k 7-law fuzz + 7-law `libFuzzer`), and Python (`python -m asm_verify`) programs that recompute and cross-check the finite data.
 
 Most of the 16 statements are zero-Mathlib formalizations of known results: the Haag–Kertzer–Rickards–Stange square obstruction for three specific Apollonian packings, Ying Zhang's 2007 theorem that every even Markov number is 2 mod 32, the classical Hurwitz `n = 4` admissible-coefficient classification, and the Abelian sandpile toppling laws (Dhar 1990). The others are finite computations (including direct kernel-checked 9×9 Laplace determinants `detMat 9` in `T2b` and `T2f`), elementary identities, and one elementary parity lemma on the triangular lattice (`T2d`) for which no prior statement was found. No open problem is solved, and no theorem here is a bounded case of `STAT-058` or `NT-083`; those links are thematic only.
 
-**What is checked and how.** All built Lean modules contain zero `sorry`, zero `admit`, and zero `native_decide`. The file `lean/PalomarChallenge.lean` holds 17 intentional `by sorry` stubs: it is the comparator challenge contract and is not a build target. All **19 audited declarations** depend strictly on `[propext, Classical.choice, Quot.sound]` (block below). Ubuntu CI runs `lake build` and diffs `VerifyAxioms.lean` against `results/lean_axioms.txt`; replays `Solution` and `PalomarSolution` with `leanchecker --fresh` and `leanchecker-paranoid` (`lean4lean`); checks an export of the three root declarations (master conjunction, `NonVacuity.nonvac_all_hypotheses`, `Adversarial.all_adversarial_refutations`) and their dependency closure with `nanoda_bin`, `con-leche`, and `con-ron`; runs `lake comparator --paranoid` on all 17 targets listed in `lean/comparator.json`; and executes a live negative kernel rejection gate proving tampered `sorry`, custom `axiom`, and altered statement inputs fail closed. CI also runs differential tests across Rust, C11, and Python and a Python semantic mutation harness (10/10 = 100% killed).
+**What is checked and how.** All built Lean modules contain zero `sorry`, zero `admit`, and zero `native_decide`. The file `lean/PalomarChallenge.lean` holds 17 intentional `by sorry` stubs: it is the comparator challenge contract and is not a build target. All **19 exported audited declarations** — and all **818 declarations** under `ApollonianSandpileMarkov.*` checked exhaustively via `Lean.collectAxioms` in `VerifyAllDecls.lean` — depend strictly on `[propext, Classical.choice, Quot.sound]` (block below). Ubuntu CI runs `lake build`, diffs `VerifyAxioms.lean` against `results/lean_axioms.txt`, runs `VerifyAllDecls.lean`, replays `Solution` and `PalomarSolution` with `leanchecker --fresh` and `leanchecker-paranoid` (`lean4lean`), checks an export of the three root declarations (master conjunction, `NonVacuity.nonvac_all_hypotheses`, `Adversarial.all_adversarial_refutations`) and their dependency closure with `nanoda_bin`, `con-leche`, and `con-ron`, runs `lake comparator --paranoid` on all 17 targets listed in `lean/comparator.json`, and executes a live negative kernel rejection gate proving tampered `sorry`, custom `axiom`, and altered statement inputs fail closed. CI also runs differential tests across Rust, C11, and Python and a Python semantic mutation harness (10/10 = 100% killed).
 
 ### What the Lean statements say
 
@@ -52,7 +52,7 @@ Most of the 16 statements are zero-Mathlib formalizations of known results: the 
    - `T3d`: Exchange identities along one five-step mutation sequence of the Markov quiver (whose `(1,1,1)` specialization passes through `(2,5,29)`, `(5,29,433)`, `(29,433,37666)`): `P1*P4 = x1^4 x2^2 x3^2 P2^2 + P3^2` and `P2*P5 = x1^6 x2^4 x3^2 P3^2 + P4^2` for explicit subtraction-free polynomials, including divisions by the non-monomial `P1 = x2^2 + x3^2` and `P2 = P1^2 + x1^2 x3^2`. Lean states positivity of values at positive integers; coefficient positivity holds by inspection of the definitions, not as a stated theorem. Finite instance of Fomin–Zelevinsky (2002) and Lee–Schiffler (2015).
    - `T3e`: Positive integer solutions of `x1^2 + x2^2 + x3^2 + x4^2 = a*x1*x2*x3*x4` exist only for `a = 1` (all `x_i ≡ 2 mod 4`) or `a = 4` (all `x_i` odd); there are none for `a ∈ {2,3}` or `a ≥ 5`; explicit solutions are given. Classical classification of admissible coefficients (Hurwitz, 1907). The description of all solutions as Vieta orbits is not part of the exported statement.
 
-`NonVacuity.lean` provides constructive premise witnesses across all pillars (including explicit witnesses for the `T2d` hypothesis bundle and `IsStabilizingOdometer` on `gridGraph 2` and `a2GridGraph 3` added in `v2.0.0`). `Adversarial.lean` proves six refutations of false variants; `adv6` is a corollary of `T3e`, and the suite does not claim every single hypothesis of every theorem is individually tight.
+`NonVacuity.lean` provides constructive premise witnesses across all pillars (including all three HKRS roots `rootHKRS1`–`rootHKRS3`, `lapZ2 uZ2_lap3a ≤ 3`, the `T2d` hypothesis bundle, `IsStabilizingOdometer` on `gridGraph 2` and `a2GridGraph 3`, and Cohn seed determinants `cohnA0.det = 1 ∧ cohnB0.det = 1`). `Adversarial.lean` proves nine refutations of false strengthenings and dropped-hypothesis variants (`adv1`–`adv9`, including `T2d` mean-equation necessity, `T2a` `LegalTrace` necessity, and the octahedral strip contrast); `adv6` is a corollary of `T3e`, and the suite does not claim every single hypothesis of every theorem is individually tight.
 
 ---
 
@@ -138,8 +138,8 @@ clang -std=c11 -O1 -g -Wall -Wextra -Werror -fsanitize=fuzzer,address,undefined 
 PYTHONPATH=python pytest -v tests/test_all.py
 PYTHONPATH=python python scripts/mutate.py
 
-# 5. Zero-Mathlib Lean 4.35.0 build, axiom audit & fresh leanchecker
-(cd lean && lake build && lake env lean VerifyAxioms.lean && lake env leanchecker --fresh Solution && lake env leanchecker --fresh PalomarSolution)
+# 5. Zero-Mathlib Lean 4.35.0 build, axiom audits (19 exports + 818 decls) & fresh leanchecker
+(cd lean && lake build && lake env lean VerifyAxioms.lean && lake env lean VerifyAllDecls.lean && lake env leanchecker --fresh Solution && lake env leanchecker --fresh PalomarSolution)
 
 # 6. Full repo hygiene, verbatim axioms, and 23/23 live citation verification
 python scripts/check_readme_axioms.py && python scripts/check_citations.py && python scripts/audit_repo.py
@@ -151,10 +151,10 @@ Or run `just all` via [`justfile`](justfile).
 
 ## Usage & Examples
 
-- **Python CLI / library (`python/apollonian_sandpile_markov/oracle.py`):**
+- **Python CLI / library (`python/asm_verify/__init__.py` & `python/asm_verify/__main__.py`):**
   ```bash
   PYTHONPATH=python python examples/quickstart_demo.py
-  PYTHONPATH=python python -m apollonian_sandpile_markov.oracle --json results/exact_verification_report.json
+  PYTHONPATH=python python -m asm_verify --json results/exact_verification_report.json
   ```
 - **Rust CLI (`rust/src/main.rs`):**
   ```bash
@@ -176,5 +176,5 @@ All 16 statements are kernel-checked as written; their exact scope is given abov
 
 ## Maintenance & Licensing
 
-- **Status:** Actively maintained `v2.0.0` archival research release. Report findings via GitHub Issues (10-class Build Standard taxonomy).
+- **Status:** Actively maintained `v2.1.0` archival research release. Report findings via GitHub Issues (10-class Build Standard taxonomy).
 - **Dual License:** All software, Lean 4 proofs, Rust/C11/Python code, scripts, and studio HTML/JS are licensed under **Apache-2.0** ([`LICENSE-CODE`](LICENSE-CODE)). All prose, white paper, figures, documentation, and verified datasets are licensed under **CC-BY-4.0** ([`LICENSE`](LICENSE)).

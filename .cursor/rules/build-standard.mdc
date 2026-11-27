@@ -1,6 +1,7 @@
 ---
+# SPDX-License-Identifier: CC-BY-4.0
 description: Canonical Build Standard v1.2.0 & Lean 4.35.0 zero-Mathlib proof invariants
 globs: ["**/*"]
 alwaysApply: true
 ---
-Follow AGENTS.md: keep lean/ strictly zero-Mathlib, zero sorry, zero native_decide, strictly within [propext, Classical.choice, Quot.sound]; maintain 100% mutation kill rate in scripts/mutate.py; keep README.md synchronized with results/lean_axioms.txt; run scripts/audit_repo.py before pushing to main.
+Follow AGENTS.md: keep lean/ strictly zero-Mathlib, zero sorry, zero native_decide, strictly within [propext, Classical.choice, Quot.sound] across all 19 exports and all 818 declarations (VerifyAllDecls.lean); maintain 100% mutation kill rate in scripts/mutate.py; keep README.md synchronized with results/lean_axioms.txt; run scripts/audit_repo.py before pushing to main.

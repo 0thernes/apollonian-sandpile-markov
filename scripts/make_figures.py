@@ -598,7 +598,7 @@ def make_fig4() -> None:
             zorder=1,
         )
 
-    ax.text(50, 54.4, "Unified Vieta-Reflection Architecture & Six-Kernel Verification Pipeline (0TH-2026-018, v2.0.0)",
+    ax.text(50, 54.4, "Unified Vieta-Reflection Architecture & Six-Kernel Verification Pipeline (0TH-2026-018, v2.1.0)",
             ha="center", va="center", fontsize=12.4, fontweight="bold", color="#1a202c")
 
     # Tier 0: Root Generator
@@ -644,28 +644,28 @@ def make_fig4() -> None:
     arrow(64, 44.5, 82.5, 40.6, "#2f855a")
 
     # Tier 2: Contract & NonVacuity / Adversarial
-    box(15, 12.2, 70, 6.8,
-        "Machine-Checked Contract: Challenge.lean + Solution.lean + PalomarSolution.lean",
-        "19 Audited Declarations (16 Theorems T1a..T3e + T2f + Master + NonVacuity + Adversarial)\n"
+    box(11, 12.2, 78, 6.8,
+        "Machine-Checked Contract: Challenge.lean + Solution.lean + PalomarSolution.lean + VerifyAllDecls.lean",
+        "19 Exported Declarations (16 Theorems + Master + NonVacuity + 9 Refutations)  |  818 Exhaustively Axiom-Audited Decls\n"
         "Strictly [propext, Classical.choice, Quot.sound]  |  0 sorry  |  0 admit  |  0 native_decide  |  0 Mathlib",
-        "#faf5ff", "#6b46c1", title_fs=9.3, body_fs=7.9)
+        "#faf5ff", "#6b46c1", title_fs=9.0, body_fs=7.6)
 
     arrow(17.5, 23.5, 30.0, 19.6, "#6b46c1")
     arrow(50.0, 23.5, 50.0, 19.6, "#6b46c1")
     arrow(82.5, 23.5, 70.0, 19.6, "#6b46c1")
 
     # Tier 3: Independent Verification Oracles
-    box(2.5, 1.5, 46.0, 7.0,
-        "Six Independent Formal Type-Checking Kernels",
-        "lean 4.35.0  |  leanchecker --fresh  |  leanchecker-paranoid (lean4lean)\n"
-        "nanoda_bin  |  con-leche  |  con-ron  +  lake comparator --paranoid",
-        "#edf2f7", "#2d3748", title_fs=9.0, body_fs=7.7)
+    box(2.0, 1.5, 47.0, 7.0,
+        "Six Independent Formal Type-Checking Kernels + Negative Gate",
+        "lean 4.35.0 + VerifyAllDecls  |  leanchecker --fresh  |  lean4lean\n"
+        "nanoda_bin  |  con-leche  |  con-ron  |  lake check & comparator --paranoid",
+        "#edf2f7", "#2d3748", title_fs=8.8, body_fs=7.4)
 
-    box(51.5, 1.5, 46.0, 7.0,
+    box(51.0, 1.5, 47.0, 7.0,
         "Three Independent Computational & Differential Oracles",
-        "Rust (#![forbid(unsafe_code)], 10^7 Markov)  |  ISO C11 (ASan/UBSan + libFuzzer)\n"
-        "Python Oracle + Hypothesis (600+ props) + 10/10 (100%) Mutation Kill Rate",
-        "#e6fffa", "#2c7a7b", title_fs=9.0, body_fs=7.7)
+        "Rust (#![forbid(unsafe_code)], 6/6 tests)  |  ISO C11 (ASan/UBSan + 7-law libFuzzer)\n"
+        "Python Oracle + Hypothesis (600+ props) + 12/12 pytest + 10/10 (100%) Mutation",
+        "#e6fffa", "#2c7a7b", title_fs=8.8, body_fs=7.4)
 
     arrow(36, 12.2, 25.5, 9.1, "#2d3748")
     arrow(64, 12.2, 74.5, 9.1, "#2c7a7b")
@@ -727,8 +727,8 @@ def make_social_preview() -> None:
     fig.text(0.5, 0.80, "Thin Vieta Reflection Groups  •  Lattice Sandpile Identities  •  Markov-Hurwitz Spectra",
              ha="center", va="center", color="#94a3b8", fontsize=13.5, family="sans-serif")
     fig.text(0.5, 0.055,
-             "16 Machine-Checked Lean 4.35.0 Statements (19 Decls)  |  Zero Mathlib  |  6 Independent Kernels  |  Rust + C11 + Python",
-             ha="center", va="center", color="#38bdf8", fontsize=10.8, fontweight="bold", family="sans-serif")
+             "16 Lean 4.35.0 Statements (19 Exports, 818 Audited)  |  Zero Mathlib  |  6 Independent Kernels  |  Rust + C11 + Python",
+             ha="center", va="center", color="#38bdf8", fontsize=10.5, fontweight="bold", family="sans-serif")
 
     fig.savefig(MEDIA_DIR / "social-preview.png", dpi=100, facecolor="#0b1120")
     plt.close(fig)

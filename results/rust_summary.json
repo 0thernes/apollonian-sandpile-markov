@@ -3,7 +3,7 @@
     "hkrs_root1": {"quads": 399, "bends": 204, "squares": 0, "chi_m1": 1596, "chi_p1": 0, "mod24": [0, 5, 8, 12, 20, 21]},
     "hkrs_root2": {"quads": 263, "bends": 156, "squares": 0, "chi_m1": 1052, "chi_p1": 0, "mod24": [0, 8, 9, 12, 17, 20]},
     "hkrs_root3": {"quads": 142, "bends": 115, "squares": 0, "chi_m1": 568, "chi_p1": 0, "mod24": [0, 4, 12, 13, 16, 21]},
-    "unobstructed_4899": {"quads": 275, "bends": 177, "squares": 8, "mod24": [0, 8, 9, 12, 17, 20]},
+    "square_contrast_4899": {"quads": 275, "bends": 177, "squares": 8, "mod24": [0, 8, 9, 12, 17, 20]},
     "octahedral_obstructed": {"sextuples": 93, "bends": 230, "pow2_squares": 0, "mod8_locked": true, "odd_jacobi_m1": true, "mod24": [0, 1, 2, 8, 9, 10, 16, 17, 18]},
     "octahedral_strip": {"sextuples": 97, "bends": 138, "squares": 16, "double_squares": 15, "mod24": [0, 1, 2, 8, 9, 10, 16, 17, 18]},
     "soddy3d_contrast": {"quintuples": 193, "bends": 68, "squares": 5, "all_q0": true}

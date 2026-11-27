@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import json
 import math
+import os
 import shutil
 import subprocess
 import sys
@@ -143,9 +144,52 @@ def test_negative_inputs_rejected() -> None:
         av.jacobi(3, 4)
     with pytest.raises(ValueError):
         av.jacobi(3, -5)
+    with pytest.raises(ValueError):
+        av.descartes_q((1, 2, 3))
+    with pytest.raises(ValueError):
+        av.apollonian_refl((-3, 5, 8, 8), -1)
+    with pytest.raises(ValueError):
+        av.apollonian_refl((-3, 5, 8, 8), 4)
+    with pytest.raises(ValueError):
+        av.is_octahedral((1, 2, 3, 4, 5))
+    with pytest.raises(ValueError):
+        av.oct_refl((-6, 10, 17, 40, 24, 17), 8)
+    with pytest.raises(ValueError):
+        av.stabilize_sandpile("HEX", 3, [0] * 9)
+    with pytest.raises(ValueError):
+        av.stabilize_sandpile("Z2", 0, [])
+    with pytest.raises(ValueError):
+        av.stabilize_sandpile("Z2", 3, [0] * 8)
+    with pytest.raises(ValueError):
+        av.dhar_identity("INVALID", 3)
+    with pytest.raises(ValueError):
+        av.dhar_identity("A2", 0)
+    with pytest.raises(ValueError):
+        av.audit_markov_tree(0)
     assert av.is_perfect_square(-4) is False
     assert av.is_perfect_square(0) is True
     assert av.is_perfect_square(15) is False
+    assert av.signed_odd_part(0) == 0
+    assert av.signed_odd_part(-24) == -3
+
+
+def test_python_module_cli_entrypoint(tmp_path: Path) -> None:
+    out_file = tmp_path / "oracle_cli_report.json"
+    env = os.environ.copy()
+    env["PYTHONPATH"] = str(ROOT / "python")
+    proc = subprocess.run(
+        [sys.executable, "-m", "asm_verify", "--json", str(out_file)],
+        capture_output=True,
+        text=True,
+        check=True,
+        env=env,
+    )
+    meta = json.loads(proc.stdout)
+    assert meta["oracle_status"] == "PASS"
+    assert meta["version"] == "2.1.0"
+    payload = json.loads(out_file.read_text(encoding="utf-8"))
+    assert payload["pillar1"]["square_contrast_4899"]["squares"][0] == 9
+    assert payload["pillar3"]["cluster_5step_at_111"] == [2, 5, 29, 433, 37_666]
 
 
 # --- 4. Differential Rust <-> Python <-> C11 cross-verification ---
@@ -161,7 +205,7 @@ def test_differential_rust_python_consistency() -> None:
     assert rs["pillar1"]["hkrs_root1"]["quads"] == py["pillar1"]["hkrs_root1"]["quads_visited"]
     assert rs["pillar1"]["hkrs_root2"]["quads"] == py["pillar1"]["hkrs_root2"]["quads_visited"]
     assert rs["pillar1"]["hkrs_root3"]["quads"] == py["pillar1"]["hkrs_root3"]["quads_visited"]
-    assert rs["pillar1"]["unobstructed_4899"]["quads"] == py["pillar1"]["unobstructed_4899"]["quads_visited"]
+    assert rs["pillar1"]["square_contrast_4899"]["quads"] == py["pillar1"]["square_contrast_4899"]["quads_visited"]
     assert rs["pillar1"]["octahedral_obstructed"]["sextuples"] == py["pillar1"]["octahedral_obstructed"]["sextuples_visited"]
     assert rs["pillar1"]["octahedral_obstructed"]["mod24"] == py["pillar1"]["octahedral_obstructed"]["mod24"]
     assert rs["pillar2"]["z2_15x15"]["sum_chips"] == py["pillar2"]["z2_15x15_sum"]

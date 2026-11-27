@@ -18,7 +18,7 @@ fuzz:
     clang -std=c11 -O2 -Wall -Wextra -Werror -fsanitize=fuzzer,address,undefined native/fuzz_libfuzzer.c -o native/fuzz_libfuzzer && ./native/fuzz_libfuzzer -max_total_time=5
 
 python:
-    PYTHONPATH=python python python/asm_verify/__init__.py
+    PYTHONPATH=python python -m asm_verify
 
 lint:
     ruff check python tests scripts examples
@@ -32,7 +32,7 @@ mutate:
     PYTHONPATH=python python scripts/mutate.py
 
 lean:
-    cd lean && lake build && lake env lean VerifyAxioms.lean > /tmp/local_axioms.txt && diff -u --strip-trailing-cr ../results/lean_axioms.txt /tmp/local_axioms.txt && lake env leanchecker --fresh Solution && lake env leanchecker --fresh PalomarSolution
+    cd lean && lake build && lake env lean VerifyAxioms.lean > /tmp/local_axioms.txt && diff -u --strip-trailing-cr ../results/lean_axioms.txt /tmp/local_axioms.txt && lake env lean VerifyAllDecls.lean && lake env leanchecker --fresh Solution && lake env leanchecker --fresh PalomarSolution
 
 figures:
     python scripts/make_figures.py

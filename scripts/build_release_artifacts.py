@@ -8,6 +8,7 @@ import gzip
 import hashlib
 import io
 import re
+import shutil
 import subprocess
 import tarfile
 import tempfile
@@ -25,6 +26,16 @@ def write_manifest(path: Path, rels: list[str]) -> None:
         lines.append(f"{h}  {rel}")
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_bytes(("\n".join(lines) + "\n").encode("utf-8"))
+
+
+def find_openssl() -> str | None:
+    cand = shutil.which("openssl")
+    if cand:
+        return cand
+    git_openssl = Path(r"C:\Program Files\Git\usr\bin\openssl.exe")
+    if git_openssl.exists():
+        return str(git_openssl)
+    return None
 
 
 def main() -> int:
@@ -86,8 +97,9 @@ def main() -> int:
     data_manifest = ROOT / "data" / "MANIFEST.sha256"
     write_manifest(data_manifest, data_rels)
 
-    # 4. Stamp data/MANIFEST.sha256 with DigiCert RFC 3161 (.tsr)
+    # 4. Stamp data/MANIFEST.sha256 with DigiCert RFC 3161 (.tsr) & verify ASN.1 reply via openssl
     digest = hashlib.sha256(data_manifest.read_bytes()).digest()
+    digest_hex = digest.hex()
     alg_id = bytes.fromhex("300d06096086480165030402010500")
     msg_imprint = b"\x30" + bytes([len(alg_id) + 2 + len(digest)]) + alg_id + b"\x04\x20" + digest
     body = bytes.fromhex("020101") + msg_imprint + bytes.fromhex("0101ff")
@@ -103,8 +115,33 @@ def main() -> int:
     if not (tsr_bytes[0] == 0x30 and len(tsr_bytes) > 500 and digest in tsr_bytes):
         print("ERROR: invalid RFC 3161 TSR returned by DigiCert")
         return 1
-    (ROOT / "data" / "MANIFEST.sha256.tsr").write_bytes(tsr_bytes)
+    tsr_path = ROOT / "data" / "MANIFEST.sha256.tsr"
+    tsr_path.write_bytes(tsr_bytes)
     print(f"DigiCert RFC 3161 TSR written: {len(tsr_bytes)} bytes")
+
+    openssl_bin = find_openssl()
+    if openssl_bin:
+        proc = subprocess.run(
+            [openssl_bin, "ts", "-reply", "-in", str(tsr_path), "-text"],
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        reply_out = proc.stdout
+        if "Status: Granted." not in reply_out:
+            print("ERROR: openssl ts -reply did not report 'Status: Granted.'")
+            return 1
+        # Reconstruct exact hex imprint from OpenSSL `0000 - xx xx ...   <ascii>` lines
+        hex_chunks = re.findall(
+            r"^\s*[0-9a-fA-F]{4}\s*-\s*([0-9a-fA-F -]+?)\s{2,}",
+            reply_out,
+            flags=re.MULTILINE,
+        )
+        parsed_imprint = re.sub(r"[^0-9a-fA-F]", "", "".join(hex_chunks)).lower()
+        if parsed_imprint != digest_hex:
+            print(f"ERROR: openssl ts -reply imprint mismatch: {parsed_imprint} != {digest_hex}")
+            return 1
+        print(f"OpenSSL RFC 3161 TSR ASN.1 reply check: PASS (Status: Granted., SHA-256={parsed_imprint[:16]}...)")
 
     # 5. Stamp data/MANIFEST.sha256 with 3 independent Bitcoin OpenTimestamps calendars (.ots)
     calendars = [

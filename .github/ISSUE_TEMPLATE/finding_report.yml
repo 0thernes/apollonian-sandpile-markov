@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: CC-BY-4.0
 name: Mathematical / Proof Finding Report
 description: Report a bug, error, mathematical gap, soundness hole, or reproduction failure
 labels: ["bug"]

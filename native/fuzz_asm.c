@@ -1,5 +1,5 @@
 /* SPDX-License-Identifier: Apache-2.0
- * 100,000-iteration deterministic fuzz harness for Apollonian-Sandpile-Markov (ISO C11, v2.0.0).
+ * 100,000-iteration deterministic fuzz harness for Apollonian-Sandpile-Markov (ISO C11, v2.1.0).
  * Fuzzes ALL 7 algebraic laws: Gauss QR + supplementary laws, SL2(Z) Fricke trace identity,
  * Descartes involutions, Octahedral 8-face involutions, 3D Soddy 5-sphere involutions,
  * A_2 even-Laplacian witness uA2_lap4 == 4, and 5-step Markov cluster Laurent cancellations.
@@ -146,6 +146,6 @@ int main(void) {
         if (p1*p4 != x1_4*x2_2*x3_2*p2*p2 + p3*p3) return 8;
         if (p2*p5 != x1_6*x2_4*x3_2*p3*p3 + p4*p4) return 9;
     }
-    printf("{\"fuzz_status\":\"PASS\",\"version\":\"2.0.0\",\"laws_checked\":7,\"iterations\":100000}\n");
+    printf("{\"fuzz_status\":\"PASS\",\"version\":\"2.1.0\",\"laws_checked\":7,\"iterations\":100000}\n");
     return 0;
 }

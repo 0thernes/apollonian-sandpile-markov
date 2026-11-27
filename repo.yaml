@@ -36,11 +36,11 @@ items:
   A04: {status: done, evidence: "README.md ## Usage & Examples section + CLI/Rust/C11/Python/Lean usage + justfile"}
   A05: {status: done, evidence: "docs/media/social-preview.png + 4 visually verified vector PDF figures + live 4-mode interactive Observatory"}
   A06: {status: done, evidence: "Dual license: LICENSE (CC-BY-4.0 prose/paper/data) and LICENSE-CODE (Apache-2.0 code)"}
-  A07: {status: done, evidence: "CHANGELOG.md in Keep a Changelog format covering v1.0.0 and v2.0.0"}
-  A08: {status: done, evidence: "VERSION (2.0.0) synced across pyproject.toml, rust/Cargo.toml, CITATION.cff, CITATION.bib, .zenodo.json, lean/lakefile.toml, lean/formalization.yaml + v2.0.0 tag"}
-  A09: {status: done, evidence: "cargo test --release (3/3), C11 ASan/UBSan + 100k 7-law fuzz + libFuzzer, pytest (11/11), mutate.py (10/10 = 100%), Lean 4.35.0 (19/19)"}
-  A10: {status: done, evidence: ".github/workflows/ci.yml (informational multi-OS CI with 6 Lean kernels, negative kernel gate, Rust, C11 ASan/UBSan + libFuzzer, Python, Tectonic, SLSA)"}
-  A11: {status: done, evidence: "GitHub Releases v1.0.0 & v2.0.0 with frozen PDF, clean-room arXiv tarball, SHA256SUMS, and dual .tsr/.ots timestamps attached"}
+  A07: {status: done, evidence: "CHANGELOG.md in Keep a Changelog format covering v1.0.0, v2.0.0, and v2.1.0"}
+  A08: {status: done, evidence: "VERSION (2.1.0) synced across pyproject.toml, rust/Cargo.toml, CITATION.cff, CITATION.bib, .zenodo.json, lean/lakefile.toml, lean/formalization.yaml + v2.1.0 tag"}
+  A09: {status: done, evidence: "cargo test --release (6/6), C11 ASan/UBSan + 100k 7-law fuzz + 7-law libFuzzer, pytest (12/12), mutate.py (10/10 = 100%), Lean 4.35.0 (19 exports + 818 decls via VerifyAllDecls.lean)"}
+  A10: {status: done, evidence: ".github/workflows/ci.yml (informational multi-OS CI with 6 Lean kernels, VerifyAllDecls.lean, negative kernel gate, Rust, C11 ASan/UBSan + 7-law libFuzzer, Python, Tectonic, OpenSSL TSR, SLSA)"}
+  A11: {status: done, evidence: "GitHub Releases v1.0.0, v2.0.0 & v2.1.0 with frozen PDF, clean-room arXiv tarball, SHA256SUMS, and dual .tsr/.ots timestamps attached"}
   A12: {status: done, evidence: ".gitignore excluding .venv, rust/target, lean/.lake, paper/build, native binaries"}
   A13: {status: done, evidence: ".gitattributes (LF/CRLF/binary) and .editorconfig"}
   A14: {status: done, evidence: "CONTRIBUTING.md with zero-Mathlib proof, mutation, SPDX, and taxonomy guidelines"}
@@ -50,8 +50,8 @@ items:
   A18: {status: done, evidence: ".github/ISSUE_TEMPLATE/finding_report.yml with 10-class Build Standard dropdown"}
   A19: {status: done, evidence: "GitHub About description, homepage URL, and research topics configured via gh repo edit"}
   A20: {status: done, evidence: "docs/ with architecture.md, configuration.md, operations.md, statement-fidelity.md, literature-log.md, adr/, faq.md, glossary.md, threat-model.md, benchmarks.md, run-log.md, reviews/, index.html, media/"}
-  A21: {status: done, evidence: "docs/adr/0001-zero-mathlib-six-kernel-and-vieta-unification.md"}
-  A22: {status: done, evidence: "CITATION.cff + CITATION.bib + .zenodo.json (ORCID 0009-0006-8168-9648)"}
+  A21: {status: done, evidence: "docs/adr/0001-zero-mathlib-six-kernel-and-vieta-unification.md and docs/adr/0002-direct-detmat-and-statement-audit-remediation.md"}
+  A22: {status: done, evidence: "CITATION.cff (with SWHID) + CITATION.bib + .zenodo.json (ORCID 0009-0006-8168-9648)"}
   A23: {status: done, evidence: "Clean commit history on main under Alexander Stephen Donahue <0_0@0thernes.art>"}
   A24: {status: done, evidence: ".gitleaks.toml + CI secret scan + no build artifacts or secrets committed"}
   A25: {status: done, evidence: "Cross-platform CI matrix (ubuntu-latest, windows-latest) for Rust and Python + Ubuntu C11/libFuzzer/Lean/Tectonic"}
@@ -67,10 +67,10 @@ items:
   A35: {status: done, evidence: "docs/operations.md documenting offsite git bundle backup, Software Heritage SWHID, 0thernes-research-archive submodule mirror, and GitHub Releases"}
   A36: {status: done, evidence: "justfile deploy/rollback recipes + single-workflow static Pages deployment (.github/workflows/pages.yml)"}
   A37: {status: done, evidence: "docs/benchmarks.md recording measured runtime budgets across Lean, Rust, Python, figures, and Tectonic"}
-  A38: {status: done, evidence: "studio/index.html, blueprint/index.html, and docs/index.html include strict CSP meta tags, skip-links, ARIA roles/live regions, keyboard focus, and high-contrast palettes"}
-  A39: {status: done, evidence: "SPDX license headers on all source files; THIRD_PARTY_NOTICES.md; zero external Lean/Rust/C11 dependencies; 23 verified references"}
+  A38: {status: done, evidence: "studio/index.html, blueprint/index.html, and docs/index.html include strict CSP meta tags, .skip-link + #main-content landmarks, ARIA roles/pressed/live regions, :focus-visible outlines, safe DOM creation (zero innerHTML), and high-contrast palettes"}
+  A39: {status: done, evidence: "SPDX license headers on all source files; THIRD_PARTY_NOTICES.md; zero external Lean/Rust/C11 dependencies; 23 live-verified references (update-to + updated-by + title/author)"}
   A40: {status: n/a, note: "Repository ships no runtime AI/ML models or LLM API calls; authoring AI disclosure is in paper/main.tex and lean/formalization.yaml (DEVIATIONS.md)"}
-  A41: {status: done, evidence: "UPGRADING.md + Semantic Versioning (VERSION=2.0.0) + CHANGELOG.md + ERRATA.md correction policy"}
+  A41: {status: done, evidence: "UPGRADING.md + Semantic Versioning (VERSION=2.1.0) + CHANGELOG.md + ERRATA.md correction policy"}
   A42: {status: done, evidence: "Maintenance status declared in README.md and SUPPORT.md"}
   A43: {status: done, evidence: "examples/quickstart_demo.py exercising all three pillars offline"}
   A44: {status: done, evidence: "docs/faq.md and docs/glossary.md"}
@@ -92,7 +92,7 @@ items:
   B15: {status: done, evidence: "Coverage-guided libFuzzer harness (native/fuzz_libfuzzer.c under clang -fsanitize=fuzzer,address,undefined) + 100k 7-law C11 fuzzer (native/fuzz_asm.c)"}
   B16: {status: done, evidence: "Rust #![forbid(unsafe_code)] + ISO C11 with -fsanitize=address,undefined + libFuzzer + Lean kernel typecheckers"}
   B17: {status: done, evidence: "ruff check (0 errors), cargo clippy --all-targets -- -D warnings (0 warnings), and gcc/clang -Wall -Wextra -Werror enforced in CI"}
-  B18: {status: done, evidence: "mypy across all 8 Python files (0 errors) + Rust static typing + ISO C11 strict warnings + Lean dependent types"}
+  B18: {status: done, evidence: "mypy across all 10 Python files (0 errors) + Rust static typing + ISO C11 strict warnings + Lean dependent types"}
   B19: {status: n/a, note: "All verification and visualization routines are single-threaded and deterministic (DEVIATIONS.md)"}
   B20: {status: done, evidence: "Exact i128/int64 Bareiss integer determinants cross-checked against Lean 4 block-diagonalizations (T2b, T2f) and exact <1e-14 3D Soddy coordinates"}
   B21: {status: n/a, note: "No distributed runtime service shipped (DEVIATIONS.md)"}

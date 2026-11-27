@@ -38,7 +38,7 @@ fn main() {
             "    \"hkrs_root1\": {{\"quads\": {}, \"bends\": {}, \"squares\": {}, \"chi_m1\": {}, \"chi_p1\": {}, \"mod24\": {:?}}},\n",
             "    \"hkrs_root2\": {{\"quads\": {}, \"bends\": {}, \"squares\": {}, \"chi_m1\": {}, \"chi_p1\": {}, \"mod24\": {:?}}},\n",
             "    \"hkrs_root3\": {{\"quads\": {}, \"bends\": {}, \"squares\": {}, \"chi_m1\": {}, \"chi_p1\": {}, \"mod24\": {:?}}},\n",
-            "    \"unobstructed_4899\": {{\"quads\": {}, \"bends\": {}, \"squares\": {}, \"mod24\": {:?}}},\n",
+            "    \"square_contrast_4899\": {{\"quads\": {}, \"bends\": {}, \"squares\": {}, \"mod24\": {:?}}},\n",
             "    \"octahedral_obstructed\": {{\"sextuples\": {}, \"bends\": {}, \"pow2_squares\": {}, \"mod8_locked\": {}, \"odd_jacobi_m1\": {}, \"mod24\": {:?}}},\n",
             "    \"octahedral_strip\": {{\"sextuples\": {}, \"bends\": {}, \"squares\": {}, \"double_squares\": {}, \"mod24\": {:?}}},\n",
             "    \"soddy3d_contrast\": {{\"quintuples\": {}, \"bends\": {}, \"squares\": {}, \"all_q0\": {}}}\n",

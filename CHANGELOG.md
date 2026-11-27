@@ -3,6 +3,24 @@
 
 All notable changes to `apollonian-sandpile-markov` (`0TH-2026-018`) are documented in this file following [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and [Semantic Versioning](https://semver.org/).
 
+## [2.1.0] - 2026-11-26
+
+### Added & Hardened — 3-Cycle Adversarial Audit (`28` Findings Resolved Across Lean, Rust, C11, Python, Paper, Web, CI & Docs)
+- **Lean 4.35.0 Formal Hardening (`lean/`):**
+  - Added `lean/VerifyAllDecls.lean`, a Lean 4 metaprogram running `Lean.collectAxioms` exhaustively across all **818 declarations** under `ApollonianSandpileMarkov.*` (strictly within `[propext, Classical.choice, Quot.sound]`, zero forbidden axioms).
+  - Expanded `NonVacuity.lean` with constructive witnesses for `rootHKRS2`, `rootHKRS3`, `lapZ2 uZ2_lap3a ≤ 3`, and `cohnA0.det = 1 ∧ cohnB0.det = 1`.
+  - Expanded `Adversarial.lean` from 6 to **9 machine-checked refutations** (`adv7_t2d_mean_equation_necessary`, `adv8_t2a_legal_trace_necessary`, `adv9_octahedral_strip_hits_square_and_double_square`).
+- **Oracles, Fuzzing & Tests (`rust/`, `native/`, `python/`, `tests/`):**
+  - Added `python/asm_verify/__main__.py` (`python -m asm_verify --json ...`), strict `ValueError` validation across all Python oracle entrypoints, renamed the final legacy JSON key `"unobstructed_4899"` → `"square_contrast_4899"`, and expanded `tests/test_all.py` to `12/12` passing tests (`10/10` mutants killed).
+  - Made Rust `exact_det_bareiss` total for `n = 0` with square-matrix assertion, guarded `smallest_prime_factor`, and expanded Rust tests from `3/3` to `6/6` (including `#[should_panic]` negative tests).
+  - Expanded `native/fuzz_libfuzzer.c` from 3 to **all 7 algebraic laws**.
+- **Audit Gates, Citations, Paper, Web & CI:**
+  - Fixed `scripts/audit_repo.py` to validate `repo.yaml` unconditionally against committed `repo-standard.schema.json`, added Palomar + Lean forbidden-token (`axiom`, `implemented_by`, `@[extern`), markdown relative-link, HTML CSP/a11y/zero-`innerHTML`, blueprint declaration-existence, and SWHID checks.
+  - Hardened `scripts/check_citations.py` to inspect BOTH `update-to` AND `updated-by` (plus `relation.is-retracted-by`) in Crossref and verify title/author surname overlap across all 23 live Crossref/arXiv entries.
+  - Hardened `scripts/check_readme_axioms.py` to strict allowlist parsing of every `depends on axioms: [...]` block.
+  - Switched `paper/main.tex` bibliography to `plainurl` (visible clickable DOIs in the PDF), aligned `pdftitle`, cited SWHID in `CITATION.cff`, `.zenodo.json`, `CITATION.bib`, and §5.4.
+  - Added `.skip-link`, `#main-content`, `:focus-visible`, `aria-pressed`, and safe DOM creation (eliminating `.innerHTML` and inline styles) across `docs/index.html` and `blueprint/index.html`; upgraded CI to `actions/checkout@v5`, `actions/setup-python@v6`, `VerifyAllDecls.lean`, `openssl ts -reply` RFC 3161 check, and strict Python secret scan; added `docs/adr/0002-direct-detmat-and-statement-audit-remediation.md`; fixed broken relative link in `SUPPORT.md`, dead `oracle.py` path in `README.md`, and stale pre-audit wording in `docs/glossary.md`, `docs/architecture.md`, `docs/threat-model.md`, and `docs/benchmarks.md`.
+
 ## [2.0.0] - 2026-11-26
 
 ### Added & Resolved — Full Statement-Audit Remediation (13 Paper + 9 Code Items), Direct 9×9 Lean Determinants (`T2b`/`T2f`), Coverage-Guided `libFuzzer`, Dual Timestamps & 10/10 Mutation

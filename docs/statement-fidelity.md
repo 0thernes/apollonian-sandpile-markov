@@ -1,7 +1,7 @@
 <!-- SPDX-License-Identifier: CC-BY-4.0 -->
-# Statement Fidelity Audit (`docs/statement-fidelity.md`, v2.0.0)
+# Statement Fidelity Audit (`docs/statement-fidelity.md`, v2.1.0)
 
-Each headline theorem in `paper/main.tex` (`v2.0.0`) is listed below with its exact Lean 4.35.0 proposition in `lean/Challenge.lean` and `lean/PalomarChallenge.lean`. Release `v2.0.0` resolved all 13 paper items and all 9 formal-code items from the 2026-11-26 independent statement audit (see `ERRATA.md`).
+Each headline theorem in `paper/main.tex` (`v2.1.0`) is listed below with its exact Lean 4.35.0 proposition in `lean/Challenge.lean` and `lean/PalomarChallenge.lean`. Releases `v2.0.0`–`v2.1.0` resolved all 13 paper items and all 9 formal-code items from the 2026-11-26 independent statement audit (see [`ERRATA.md`](../ERRATA.md)) and added exhaustive 818-declaration `Lean.collectAxioms` auditing (`VerifyAllDecls.lean`).
 
 | Paper Theorem | Lean Proposition (`ApollonianSandpileMarkov.Challenge.*`) | Exact Fidelity Check (`v2.0.0`) |
 | :--- | :--- | :--- |
@@ -21,5 +21,5 @@ Each headline theorem in `paper/main.tex` (`v2.0.0`) is listed below with its ex
 | Sec 4.3 (`T3c`) | `T3c_HenselSqrtNeg1PrimePowerUniqueness` | Quantifies universally over all odd primes `p`, all `k ≥ 1`, and all `r1, r2 : Int`. |
 | Thm 4.2 (`T3d`) | `T3d_ClusterAlgebraMarkovLaurentPositivity` | Quantifies universally over all symbolic integers `x1 x2 x3 : Int`, proving BOTH non-monomial polynomial identities `P1*P4 = ...` and `P2*P5 = ...`, positivity of values for `x_i ≥ 1` (coefficient positivity by inspection only), and `(1,1,1)` specialization `(2,5,29,433,37666)` along one five-step mutation path. |
 | Thm 4.3 (`T3e`) | `T3e_MarkovHurwitzN4CompleteClassification` | Quantifies universally over all `a x1 x2 x3 x4 : Nat`; proves the classical Hurwitz (1907) admissible coefficients with parity (`a=1` all `≡ 2 mod 4`, `a=4` all odd, no solutions for `a ∈ {2,3}` and `a ≥ 5`); the Vieta-orbit description of all solutions is not exported. |
-| Witnesses | `NonVacuity.nonvac_all_hypotheses` | Constructive premise witnesses across all pillars, including explicit joint witness for the `T2d` hypothesis bundle (`u(x,y)=x^2, M=1, A=1, K=4, ψ=0`) and `IsStabilizingOdometer` on `gridGraph 2` and `a2GridGraph 3` (`v2.0.0`). |
-| Refutations | `Adversarial.all_adversarial_refutations` | Six refutations of false variants (`adv1_square_contrast_hits_square` through `adv6_hurwitz4_no_a3_solution`); `adv6` is a corollary of `T3e`. |
+| Witnesses | `NonVacuity.nonvac_all_hypotheses` | Constructive premise witnesses across all pillars, including all three HKRS roots (`rootHKRS1`–`rootHKRS3`), `lapZ2 uZ2_lap3a ≤ 3`, joint `T2d` hypothesis bundle (`u(x,y)=x^2, M=1, A=1, K=4, ψ=0`), `IsStabilizingOdometer` on `gridGraph 2` and `a2GridGraph 3`, and Cohn seed determinants (`v2.1.0`). |
+| Refutations | `Adversarial.all_adversarial_refutations` | Nine refutations of false strengthenings and dropped-hypothesis variants (`adv1_square_contrast_hits_square` through `adv9_octahedral_strip_hits_square_and_double_square`, including `T2d` mean-equation necessity and `T2a` `LegalTrace` necessity in `v2.1.0`; `adv6` is a corollary of `T3e`). |

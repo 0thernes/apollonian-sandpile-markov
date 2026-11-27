@@ -1,5 +1,5 @@
 <!-- SPDX-License-Identifier: CC-BY-4.0 -->
-# Limitations & Falsification Criteria (`LIMITATIONS.md`, v2.0.0)
+# Limitations & Falsification Criteria (`LIMITATIONS.md`, v2.1.0)
 
 ## Scope Boundaries
 

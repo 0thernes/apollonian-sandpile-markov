@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
-"""Automated Build Standard v1.2.0 & Playbook v1.3 repository hygiene auditor (v2.0.0)."""
+"""Automated Build Standard v1.2.0 & Playbook v1.3 repository hygiene auditor (v2.1.0)."""
 
 from __future__ import annotations
 
@@ -53,6 +53,7 @@ REQUIRED_FILES = [
     "pyproject.toml",
     "requirements.txt",
     "repo.yaml",
+    "repo-standard.schema.json",
     "MANIFEST.sha256",
     "SHA256SUMS",
     "data/MANIFEST.sha256",
@@ -64,16 +65,21 @@ REQUIRED_FILES = [
     "docs/faq.md",
     "docs/glossary.md",
     "docs/run-log.md",
+    "docs/adr/0001-zero-mathlib-six-kernel-and-vieta-unification.md",
+    "docs/adr/0002-direct-detmat-and-statement-audit-remediation.md",
     "docs/reviews/2026-11-26-10-pass-red-team-review.md",
     "lean/lean-toolchain",
     "lean/lakefile.toml",
     "lean/comparator.json",
     "lean/formalization.yaml",
     "lean/VerifyAxioms.lean",
+    "lean/VerifyAllDecls.lean",
     "rust/Cargo.toml",
     "native/asm_verify.c",
     "native/fuzz_asm.c",
     "native/fuzz_libfuzzer.c",
+    "python/asm_verify/__init__.py",
+    "python/asm_verify/__main__.py",
     "studio/index.html",
     "blueprint/index.html",
     "docs/index.html",
@@ -91,6 +97,57 @@ BANNED_FILES = [
     ".github/PULL_REQUEST_TEMPLATE.md",
     ".github/FUNDING.yml",
 ]
+
+
+def strip_lean_comments(src: str) -> str:
+    no_block = re.sub(r"/-.*?-/", "", src, flags=re.DOTALL)
+    return "\n".join(ln for ln in no_block.splitlines() if not ln.strip().startswith("--"))
+
+
+def check_markdown_links(errors: list[str]) -> None:
+    link_pat = re.compile(r"!?\[[^\]]*\]\(([^)]+)\)")
+    for md in ROOT.rglob("*.md"):
+        if any(part in {".git", ".lake", "target", "node_modules", ".venv"} for part in md.parts):
+            continue
+        text = md.read_text(encoding="utf-8", errors="ignore")
+        # Ignore fenced code blocks
+        cleaned = re.sub(r"```.*?```", "", text, flags=re.DOTALL)
+        for m in link_pat.finditer(cleaned):
+            raw_target = m.group(1).strip()
+            if not raw_target or raw_target.startswith(("#", "http://", "https://", "mailto:")):
+                continue
+            target_path = raw_target.split("#", 1)[0].split("?", 1)[0].strip()
+            if not target_path:
+                continue
+            resolved = (md.parent / target_path).resolve()
+            if not resolved.exists():
+                errors.append(f"Broken relative markdown link in {md.relative_to(ROOT)}: {raw_target}")
+
+
+def check_html_security_and_a11y(errors: list[str]) -> None:
+    for rel in ("docs/index.html", "studio/index.html", "blueprint/index.html"):
+        p = ROOT / rel
+        if not p.exists():
+            continue
+        html = p.read_text(encoding="utf-8")
+        if "Content-Security-Policy" not in html or "default-src 'none'" not in html:
+            errors.append(f"Missing strict CSP header in {rel}")
+        if 'class="skip-link"' not in html or 'id="main-content"' not in html:
+            errors.append(f"Missing skip-link or #main-content landmark in {rel}")
+    bp = ROOT / "blueprint" / "index.html"
+    if bp.exists():
+        bp_text = bp.read_text(encoding="utf-8")
+        if ".innerHTML" in bp_text:
+            errors.append("Unsafe .innerHTML assignment detected in blueprint/index.html")
+        # Verify every Lean declaration listed in blueprint/index.html exists in lean/
+        lean_corpus = "\n".join(
+            lf.read_text(encoding="utf-8", errors="ignore")
+            for lf in (ROOT / "lean").rglob("*.lean")
+            if ".lake" not in lf.parts
+        )
+        for decl in re.findall(r'decl:\s*"([A-Za-z0-9_]+)"', bp_text):
+            if not re.search(rf"\b(?:theorem|def)\s+{re.escape(decl)}\b", lean_corpus):
+                errors.append(f"Blueprint declaration {decl!r} not found in lean/ sources")
 
 
 def main() -> int:
@@ -112,11 +169,14 @@ def main() -> int:
     if gemini_md.exists() and "@./AGENTS.md" not in gemini_md.read_text(encoding="utf-8"):
         errors.append("GEMINI.md missing @./AGENTS.md pointer")
 
+    # Unconditional repo.yaml validation against committed repo-standard.schema.json
     repo_yaml_path = ROOT / "repo.yaml"
+    schema_path = ROOT / "repo-standard.schema.json"
     if repo_yaml_path.exists():
         data = yaml.safe_load(repo_yaml_path.read_text(encoding="utf-8"))
-        schema_path = Path(r"I:\All GH Repos\Repo Checklist\build-standard\repo-standard.schema.json")
-        if schema_path.exists():
+        if not schema_path.exists():
+            errors.append("Missing committed repo-standard.schema.json for repo.yaml validation")
+        else:
             schema = json.loads(schema_path.read_text(encoding="utf-8"))
             try:
                 jsonschema.validate(instance=data, schema=schema)
@@ -155,6 +215,11 @@ def main() -> int:
             if re.search(r"0thernes\s+LLC", txt, re.IGNORECASE):
                 errors.append(f"Playbook v1.3 policy violation ('0thernes LLC' found) in {rel}")
 
+    # CITATION.cff SWHID archival identifier check
+    cff_path = ROOT / "CITATION.cff"
+    if cff_path.exists() and "swh:1:" not in cff_path.read_text(encoding="utf-8"):
+        errors.append("CITATION.cff missing Software Heritage swh:1: archival identifier")
+
     # Dual cryptographic timestamp integrity check (RFC 3161 .tsr + OpenTimestamps .ots)
     data_manifest = ROOT / "data" / "MANIFEST.sha256"
     if data_manifest.exists():
@@ -170,26 +235,45 @@ def main() -> int:
             if not ots_bytes.startswith(b"\x00OpenTimestamps\x00\x00Proof\x00\xbf\x89\xe2\xe8\x84\xe8\x92\x94") or digest not in ots_bytes:
                 errors.append("data/MANIFEST.sha256.ots is invalid or does not embed current data/MANIFEST.sha256 digest")
 
-    # Zero sorry / admit / native_decide in verified Lean proof files (PalomarChallenge.lean is the contract file)
+    # Lean 4 Playbook §1 forbidden-token & Palomar structural audit
     lean_dir = ROOT / "lean"
     for lf in lean_dir.rglob("*.lean"):
-        if ".lake" in lf.parts or lf.name == "PalomarChallenge.lean":
+        if ".lake" in lf.parts:
             continue
-        code_lines = [ln for ln in lf.read_text(encoding="utf-8").splitlines() if not ln.strip().startswith("--")]
-        body = "\n".join(code_lines)
-        for bad in ("sorry", "admit", "native_decide"):
-            if re.search(rf"\b{bad}\b", body):
-                stripped = re.sub(r"/-.*?-/", "", body, flags=re.DOTALL)
-                if re.search(rf"\b{bad}\b", stripped):
-                    errors.append(f"Forbidden token {bad!r} in Lean source {lf.relative_to(ROOT)}")
+        raw = lf.read_text(encoding="utf-8")
+        lines = raw.splitlines()
+        if not any(ln.strip() == "module" for ln in lines[:5]):
+            errors.append(f"Missing Lean 4 `module` header in {lf.relative_to(ROOT)}")
+        if len(lines) > 10_000:
+            errors.append(f"Lean file exceeds 10,000 lines ({len(lines)}): {lf.relative_to(ROOT)}")
+        if lf.name in ("Challenge.lean", "PalomarChallenge.lean"):
+            if len(lines) > 1_000 or lf.stat().st_size > 100 * 1024:
+                errors.append(f"Challenge file exceeds Palomar 1,000-line / 100 KiB limit: {lf.relative_to(ROOT)}")
+        stripped = strip_lean_comments(raw)
+        always_forbidden = ("admit", "native_decide", "implemented_by")
+        for bad in always_forbidden:
+            if re.search(rf"\b{bad}\b", stripped):
+                errors.append(f"Forbidden token {bad!r} in Lean source {lf.relative_to(ROOT)}")
+        if "@[extern" in stripped:
+            errors.append(f"Forbidden @[extern attribute in Lean source {lf.relative_to(ROOT)}")
+        if re.search(r"^\s*(?:private\s+|public\s+)?axiom\b", stripped, flags=re.MULTILINE):
+            errors.append(f"Custom `axiom` declaration in Lean source {lf.relative_to(ROOT)}")
+        if lf.name != "PalomarChallenge.lean" and re.search(r"\bsorry\b", stripped):
+            errors.append(f"Forbidden token 'sorry' in built Lean source {lf.relative_to(ROOT)}")
 
-    # Version consistency across VERSION, pyproject.toml, rust/Cargo.toml, CITATION.cff, lean/lakefile.toml, lean/formalization.yaml
+    # Markdown relative-link integrity & HTML security/a11y/blueprint checks
+    check_markdown_links(errors)
+    check_html_security_and_a11y(errors)
+
+    # Version consistency across VERSION and all package/citation/formal manifests
     if (ROOT / "VERSION").exists():
         ver = (ROOT / "VERSION").read_text(encoding="utf-8").strip()
         for rel, pat in [
             ("pyproject.toml", rf'version\s*=\s*"{re.escape(ver)}"'),
             ("rust/Cargo.toml", rf'version\s*=\s*"{re.escape(ver)}"'),
             ("CITATION.cff", rf'version:\s*"{re.escape(ver)}"'),
+            ("CITATION.bib", rf"version\s*=\s*\{{{re.escape(ver)}\}}"),
+            (".zenodo.json", rf'"version":\s*"{re.escape(ver)}"'),
             ("lean/lakefile.toml", rf'version\s*=\s*"{re.escape(ver)}"'),
             ("lean/formalization.yaml", rf'release_version:\s*"{re.escape(ver)}"'),
         ]:
@@ -203,7 +287,10 @@ def main() -> int:
             print(f"  - {e}")
         return 1
 
-    print("AUDIT PASSED: all required files, 90 repo.yaml items, dual timestamps, zero banned/sorry tokens, no-LLC policy, and version sync verified.")
+    print(
+        "AUDIT PASSED: all required files, repo.yaml schema (90/90), Palomar & Lean forbidden-token scan, "
+        "markdown links, HTML CSP/a11y/blueprint declarations, dual timestamps, SWHID, no-LLC policy, and version sync verified."
+    )
     return 0
 
 

@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "apollonian-sandpile-markov"
-version = "2.0.0"
+version = "2.1.0"
 description = "Independent exact verification oracle for Apollonian-Octahedral reciprocity, Z^2/A_2 sandpiles, and Markov-Hurwitz spectra"
 readme = "README.md"
 license = { text = "Apache-2.0" }

@@ -1,7 +1,7 @@
 <!-- SPDX-License-Identifier: CC-BY-4.0 -->
-# Literature & Citation Verification Log (`docs/literature-log.md`, v2.0.0)
+# Literature & Citation Verification Log (`docs/literature-log.md`, v2.1.0)
 
-All **23 citations** in `paper/references.bib` were audited live against Crossref DOI and arXiv APIs via `python scripts/check_citations.py` on 2026-11-26 (`23 passed, 0 failed, 0 retractions`):
+All **23 citations** in `paper/references.bib` were audited live against Crossref DOI (`update-to` AND `updated-by` retraction checks + title/author surname overlap) and arXiv APIs via `python scripts/check_citations.py` on 2026-11-26 (`23 passed, 0 failed, 0 retractions`); the compiled white paper uses `plainurl` so all DOIs render visibly and clickably:
 
 - **Pillar I (Apollonian, Bianchi Octahedral, Soddy & Reciprocity):**
   - `hkrs2024` (`10.4007/annals.2024.200.2.6` / `arXiv:2307.02749`) — Haag, Kertzer, Rickards, Stange (2024)

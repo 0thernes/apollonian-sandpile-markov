@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
-"""Independent arbitrary-precision Python oracle for Apollonian-Sandpile-Markov (v2.0.0)."""
+"""Independent arbitrary-precision Python oracle for Apollonian-Sandpile-Markov (v2.1.0)."""
 
 from __future__ import annotations
 
@@ -45,11 +45,15 @@ def signed_odd_part(a: int) -> int:
 
 
 def descartes_q(q: Sequence[int]) -> int:
+    if len(q) != 4:
+        raise ValueError("Descartes quadruple must have length 4")
     s = sum(q)
     return s * s - 2 * sum(v * v for v in q)
 
 
 def apollonian_refl(q: tuple[int, int, int, int], idx: int) -> tuple[int, int, int, int]:
+    if not (0 <= idx <= 3):
+        raise ValueError(f"Apollonian reflection index must be in 0..3, got {idx}")
     arr = list(q)
     arr[idx] = 2 * (sum(q) - q[idx]) - q[idx]
     return (arr[0], arr[1], arr[2], arr[3])
@@ -88,6 +92,8 @@ def audit_apollonian_packing(root: tuple[int, int, int, int], max_bend: int) -> 
 
 
 def is_octahedral(x: Sequence[int]) -> bool:
+    if len(x) != 6:
+        raise ValueError("Octahedral sextuple must have length 6")
     s = x[0] + x[3]
     return (
         x[1] + x[4] == s
@@ -99,6 +105,8 @@ def is_octahedral(x: Sequence[int]) -> bool:
 def oct_refl(
     x: tuple[int, int, int, int, int, int], mask: int
 ) -> tuple[int, int, int, int, int, int]:
+    if not (0 <= mask <= 7):
+        raise ValueError(f"Octahedral reflection mask must be in 0..7, got {mask}")
     s1, s2, s3 = bool(mask & 1), bool(mask & 2), bool(mask & 4)
     s = x[0] + x[3]
     f1 = x[3] if s1 else x[0]
@@ -153,6 +161,12 @@ def audit_octahedral_packing(
 
 
 def stabilize_sandpile(lattice: str, n: int, init: Sequence[int]) -> tuple[list[int], list[int]]:
+    if lattice not in ("Z2", "A2"):
+        raise ValueError(f"Unsupported lattice {lattice!r}; expected 'Z2' or 'A2'")
+    if n < 1:
+        raise ValueError(f"Grid size n must be >= 1, got {n}")
+    if len(init) != n * n:
+        raise ValueError(f"Initial configuration length must equal n*n ({n * n}), got {len(init)}")
     deg = 4 if lattice == "Z2" else 6
     deltas = [(-1, 0), (1, 0), (0, -1), (0, 1)]
     if lattice == "A2":
@@ -182,6 +196,10 @@ def stabilize_sandpile(lattice: str, n: int, init: Sequence[int]) -> tuple[list[
 
 
 def dhar_identity(lattice: str, n: int) -> list[int]:
+    if lattice not in ("Z2", "A2"):
+        raise ValueError(f"Unsupported lattice {lattice!r}; expected 'Z2' or 'A2'")
+    if n < 1:
+        raise ValueError(f"Grid size n must be >= 1, got {n}")
     deg = 4 if lattice == "Z2" else 6
     mu = deg - 1
     s1, _ = stabilize_sandpile(lattice, n, [2 * mu] * (n * n))
@@ -190,6 +208,8 @@ def dhar_identity(lattice: str, n: int) -> list[int]:
 
 
 def audit_markov_tree(max_val: int) -> dict[str, Any]:
+    if max_val < 1:
+        raise ValueError(f"max_val must be >= 1, got {max_val}")
     visited = {(1, 1, 1)}
     queue = deque([(1, 1, 1)])
     max_counts: dict[int, int] = {}
@@ -259,7 +279,7 @@ def full_oracle_report() -> dict[str, Any]:
             "hkrs_root1": a1,
             "hkrs_root2": a2,
             "hkrs_root3": a3,
-            "unobstructed_4899": au,
+            "square_contrast_4899": au,
             "octahedral_obstructed": oct_obs,
             "octahedral_strip": oct_str,
         },
@@ -282,7 +302,7 @@ def main() -> None:
     out = Path(__file__).resolve().parents[2] / "results" / "exact_verification_report.json"
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
-    print(json.dumps({"oracle_status": "PASS", "version": "2.0.0", "output": str(out)}))
+    print(json.dumps({"oracle_status": "PASS", "version": "2.1.0", "output": str(out)}))
 
 
 if __name__ == "__main__":

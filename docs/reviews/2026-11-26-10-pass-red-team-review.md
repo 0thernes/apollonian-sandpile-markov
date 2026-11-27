@@ -1,7 +1,7 @@
 <!-- SPDX-License-Identifier: CC-BY-4.0 -->
 # Playbook v1.3 Ten-Pass Hostile Red-Team Review (`2026-11-26`)
 
-- **Target:** `apollonian-sandpile-markov` (`0TH-2026-018`, upgrading `v1.0.0 → v2.0.0`)
+- **Target:** `apollonian-sandpile-markov` (`0TH-2026-018`, upgrading `v1.0.0 → v2.0.0 → v2.1.0`)
 - **Review Status:** Internal structured red-team audit + automated six-kernel formal verification (external journal peer review pending; honestly disclosed in `LIMITATIONS.md` and `paper/main.tex`).
 - **Frameworks Applied:** Build Standard for LLMs `v1.2.0` (90 items `A01`–`B45`, 10 finding classes) and Defensible Independent AI Research Playbook `v1.3` (43-item checklist + 10-pass red-team protocol + Aaronson's Eight Signs).
 
@@ -26,5 +26,5 @@
 
 ## Playbook v1.3 Gold-Standard Checklist Status
 
-- **Complete (Verified):** Zero-Mathlib Lean 4.35.0, 6 independent kernels, `leanchecker --fresh`, `lake comparator --paranoid`, live negative kernel rejection gate, `NonVacuity` + `Adversarial` modules, verbatim `README.md` axioms, 3 independent computational languages (Rust `#![forbid(unsafe_code)]`, ISO C11 ASan/UBSan + 7-law fuzz + `libFuzzer`, Python `ruff`/`mypy`/Hypothesis/10-mutant 100%), zero-warning AMS-LaTeX PDF + clean-room `mtime=0` arXiv tarball, 23/23 live non-retracted citations, 4 visually inspected figures, exact `< 1e-14` 3D Soddy studio geometry, numbered Claims Ledger + Threats to Validity + CRediT + COI + Export-Control note, dual DigiCert RFC 3161 `.tsr` + Bitcoin `.ots` timestamps, SLSA build provenance, Software Heritage SWHID, `0thernes-research-archive` registration (`0TH-2026-018`), and 100.0% `Audit-Repo.ps1` / `audit-repo.sh`.
+- **Complete (Verified, `v2.1.0`):** Zero-Mathlib Lean 4.35.0, 6 independent kernels, `leanchecker --fresh`, exhaustive 818-declaration `Lean.collectAxioms` metaprogram (`VerifyAllDecls.lean`), `lake comparator --paranoid`, live negative kernel rejection gate, expanded `NonVacuity` + 9-refutation `Adversarial` modules, verbatim `README.md` strict-allowlist axioms, 3 independent computational languages (Rust `#![forbid(unsafe_code)]` 6/6 tests, ISO C11 ASan/UBSan + 7-law fuzz + 7-law `libFuzzer`, Python `ruff`/`mypy`/10 files/`python -m asm_verify`/12-test Hypothesis/10-mutant 100%), zero-warning AMS-LaTeX PDF (`plainurl` clickable DOIs) + clean-room `mtime=0` arXiv tarball, 23/23 live non-retracted citations (`update-to` + `updated-by` + title/author overlap), 4 visually inspected figures, exact `< 1e-14` 3D Soddy studio geometry, numbered Claims Ledger + Threats to Validity + CRediT + COI + Export-Control note, dual DigiCert RFC 3161 `.tsr` (OpenSSL `Status: Granted.`) + Bitcoin `.ots` timestamps, SLSA build provenance, Software Heritage SWHID (`CITATION.cff`/`.zenodo.json`), `0thernes-research-archive` registration (`0TH-2026-018`), and 100.0% `audit-repo.sh` (`76/76`, Core `31/31`, `0` fail).
 - **Explicitly Pending External Steps (Never Fabricated):** arXiv submission (requires author endorsement/upload), Zenodo DOI deposit (author web upload), and external third-party human peer review / replication.

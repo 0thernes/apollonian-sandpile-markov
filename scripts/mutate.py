@@ -38,6 +38,10 @@ def main() -> int:
             pkg = td_path / "python" / "asm_verify"
             pkg.mkdir(parents=True)
             (pkg / "__init__.py").write_text(mutated, encoding="utf-8")
+            (pkg / "__main__.py").write_text(
+                (ROOT / "python" / "asm_verify" / "__main__.py").read_text(encoding="utf-8"),
+                encoding="utf-8",
+            )
             tests_copy = td_path / "tests"
             tests_copy.mkdir()
             (tests_copy / "test_all.py").write_text(
