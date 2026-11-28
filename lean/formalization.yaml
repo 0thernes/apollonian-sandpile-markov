@@ -20,9 +20,14 @@ project:
     mod-32 theorem for all positive Markov solutions, 5-step Markov quiver exchange
     identities, and Hurwitz's (1907) complete n=4 Vieta-orbit classification.
   authors:
-    - "Alexander Stephen Donahue (ORCID: 0009-0006-8168-9648)"
+    - name: "Alexander Stephen Donahue"
+      orcid: "0009-0006-8168-9648"
+      affiliation: "Independent Researcher, Spokane, WA, USA"
   responsible_maintainers:
-    - "Alexander Stephen Donahue (@0thernes, 0_0@0thernes.art, ORCID: 0009-0006-8168-9648)"
+    - name: "Alexander Stephen Donahue"
+      github: "0thernes"
+      orcid: "0009-0006-8168-9648"
+      email: "0_0@0thernes.art"
   license: "Apache-2.0"
 
 classification:
@@ -107,7 +112,7 @@ sources:
       - "Alexander Stephen Donahue"
     id: "https://github.com/0thernes/apollonian-sandpile-markov"
     type: "original-proof"
-    relationship: "formalizes"
+    relationship: "other"
     author_endorsement: "participated"
     note: "Elementary A2 even-Laplacian parity lemma (T2d; no prior published statement found) and octahedral mod-8 residue locking on (-6,10,17,40,24,17) (T1d; cf. Shi et al., arXiv:2510.21702)."
 
