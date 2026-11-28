@@ -224,24 +224,32 @@ inductive ReachesSink {n : Nat} (G : SandpileGraph n) : Nat → Fin n → Prop
 def HasReachableSink {n : Nat} (G : SandpileGraph n) : Prop :=
   ∀ i : Fin n, ∃ d : Nat, ReachesSink G d i
 
+def gridAdj (k : Nat) (i j : Fin (k * k)) : Nat :=
+  let r1 := i.val / k; let c1 := i.val % k
+  let r2 := j.val / k; let c2 := j.val % k
+  let dr := if r1 ≥ r2 then r1 - r2 else r2 - r1
+  let dc := if c1 ≥ c2 then c1 - c2 else c2 - c1
+  if dr + dc == 1 then 1 else 0
+
+theorem gridAdj_diag (k : Nat) (i : Fin (k * k)) : gridAdj k i i = 0 := by
+  unfold gridAdj; simp
+
+theorem gridAdj_symm (k : Nat) (i j : Fin (k * k)) : gridAdj k i j = gridAdj k j i := by
+  unfold gridAdj
+  dsimp only
+  have h1 : (if i.val / k ≥ j.val / k then i.val / k - j.val / k else j.val / k - i.val / k) =
+            (if j.val / k ≥ i.val / k then j.val / k - i.val / k else i.val / k - j.val / k) := by
+    split <;> split <;> omega
+  have h2 : (if i.val % k ≥ j.val % k then i.val % k - j.val % k else j.val % k - i.val % k) =
+            (if j.val % k ≥ i.val % k then j.val % k - i.val % k else i.val % k - j.val % k) := by
+    split <;> split <;> omega
+  rw [h1, h2]
+
 def gridGraph (k : Nat) : SandpileGraph (k * k) where
-  adj i j :=
-    let r1 := i.val / k; let c1 := i.val % k
-    let r2 := j.val / k; let c2 := j.val % k
-    let dr := if r1 ≥ r2 then r1 - r2 else r2 - r1
-    let dc := if c1 ≥ c2 then c1 - c2 else c2 - c1
-    if dr + dc == 1 then 1 else 0
+  adj := gridAdj k
   deg _ := 4
-  adj_diag i := by simp
-  adj_symm i j := by
-    dsimp only
-    have h1 : (if i.val / k ≥ j.val / k then i.val / k - j.val / k else j.val / k - i.val / k) =
-              (if j.val / k ≥ i.val / k then j.val / k - i.val / k else i.val / k - j.val / k) := by
-      split <;> split <;> omega
-    have h2 : (if i.val % k ≥ j.val % k then i.val % k - j.val % k else j.val % k - i.val % k) =
-              (if j.val % k ≥ i.val % k then j.val % k - i.val % k else i.val % k - j.val % k) := by
-      split <;> split <;> omega
-    rw [h1, h2]
+  adj_diag := gridAdj_diag k
+  adj_symm := gridAdj_symm k
 
 def gridLap (k : Nat) (i j : Fin (k * k)) : Int :=
   if i = j then 4 else - ((gridGraph k).adj i j : Int)
@@ -400,30 +408,37 @@ def cycleNormals : List Vec2 → List Vec2
   | [] => []
   | v0 :: vs => chainNormals v0 (vs ++ [v0])
 
+def a2GridAdj (k : Nat) (i j : Fin (k * k)) : Nat :=
+  let r1 := i.val / k; let c1 := i.val % k
+  let r2 := j.val / k; let c2 := j.val % k
+  let dr := if r1 ≥ r2 then r1 - r2 else r2 - r1
+  let dc := if c1 ≥ c2 then c1 - c2 else c2 - c1
+  if dr + dc == 1 then 1
+  else if (r1 + 1 == r2 && c2 + 1 == c1) || (r2 + 1 == r1 && c1 + 1 == c2) then 1
+  else 0
+
+theorem a2GridAdj_diag (k : Nat) (i : Fin (k * k)) : a2GridAdj k i i = 0 := by
+  unfold a2GridAdj
+  have h1 : ¬ (i.val / k + 1 == i.val / k) := by simp only [beq_iff_eq]; omega
+  have h2 : ¬ (i.val % k + 1 == i.val % k) := by simp only [beq_iff_eq]; omega
+  simp [h1, h2]
+
+theorem a2GridAdj_symm (k : Nat) (i j : Fin (k * k)) : a2GridAdj k i j = a2GridAdj k j i := by
+  unfold a2GridAdj
+  dsimp only
+  have h1 : (if i.val / k ≥ j.val / k then i.val / k - j.val / k else j.val / k - i.val / k) =
+            (if j.val / k ≥ i.val / k then j.val / k - i.val / k else i.val / k - j.val / k) := by
+    split <;> split <;> omega
+  have h2 : (if i.val % k ≥ j.val % k then i.val % k - j.val % k else j.val % k - i.val % k) =
+            (if j.val % k ≥ i.val % k then j.val % k - i.val % k else i.val % k - j.val % k) := by
+    split <;> split <;> omega
+  rw [h1, h2, Bool.or_comm]
+
 def a2GridGraph (k : Nat) : SandpileGraph (k * k) where
-  adj i j :=
-    let r1 := i.val / k; let c1 := i.val % k
-    let r2 := j.val / k; let c2 := j.val % k
-    let dr := if r1 ≥ r2 then r1 - r2 else r2 - r1
-    let dc := if c1 ≥ c2 then c1 - c2 else c2 - c1
-    if dr + dc == 1 then 1
-    else if (r1 + 1 == r2 && c2 + 1 == c1) || (r2 + 1 == r1 && c1 + 1 == c2) then 1
-    else 0
+  adj := a2GridAdj k
   deg _ := 6
-  adj_diag i := by
-    dsimp only
-    have h1 : ¬ (i.val / k + 1 == i.val / k) := by simp only [beq_iff_eq]; omega
-    have h2 : ¬ (i.val % k + 1 == i.val % k) := by simp only [beq_iff_eq]; omega
-    simp [h1, h2]
-  adj_symm i j := by
-    dsimp only
-    have h1 : (if i.val / k ≥ j.val / k then i.val / k - j.val / k else j.val / k - i.val / k) =
-              (if j.val / k ≥ i.val / k then j.val / k - i.val / k else i.val / k - j.val / k) := by
-      split <;> split <;> omega
-    have h2 : (if i.val % k ≥ j.val % k then i.val % k - j.val % k else j.val % k - i.val % k) =
-              (if j.val % k ≥ i.val % k then j.val % k - i.val % k else i.val % k - j.val % k) := by
-      split <;> split <;> omega
-    rw [h1, h2, Bool.or_comm]
+  adj_diag := a2GridAdj_diag k
+  adj_symm := a2GridAdj_symm k
 
 def a2GridLap (k : Nat) (i j : Fin (k * k)) : Int :=
   if i = j then 6 else - ((a2GridGraph k).adj i j : Int)
