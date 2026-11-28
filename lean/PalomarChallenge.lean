@@ -222,6 +222,20 @@ inductive ReachesSink {n : Nat} (G : SandpileGraph n) : Nat → Fin n → Prop
 def HasReachableSink {n : Nat} (G : SandpileGraph n) : Prop :=
   ∀ i : Fin n, ∃ d : Nat, ReachesSink G d i
 
+theorem natAbsDiff_symm (a b : Nat) :
+    (if a ≥ b then a - b else b - a) = (if b ≥ a then b - a else a - b) :=
+  Or.elim (Nat.lt_trichotomy a b)
+    (fun hlt => (ite_eq_right (Nat.not_le_of_lt hlt)).trans (ite_eq_left (Nat.le_of_lt hlt)).symm)
+    (fun h => Or.elim h
+      (fun heq => heq ▸ rfl)
+      (fun hgt => (ite_eq_left (Nat.le_of_lt hgt)).trans (ite_eq_right (Nat.not_le_of_lt hgt)).symm))
+
+theorem self_absDiff (a : Nat) : (if a ≥ a then a - a else a - a) = 0 :=
+  (ite_eq_left (Nat.le_refl a)).trans (Nat.sub_self a)
+
+theorem succ_beq_self (a : Nat) : (a + 1 == a) = false :=
+  beq_false_of_ne (Nat.ne_of_gt (Nat.lt_succ_self a))
+
 def gridAdj (k : Nat) (i j : Fin (k * k)) : Nat :=
   let r1 := i.val / k; let c1 := i.val % k
   let r2 := j.val / k; let c2 := j.val % k
@@ -229,19 +243,13 @@ def gridAdj (k : Nat) (i j : Fin (k * k)) : Nat :=
   let dc := if c1 ≥ c2 then c1 - c2 else c2 - c1
   if dr + dc == 1 then 1 else 0
 
-theorem gridAdj_diag (k : Nat) (i : Fin (k * k)) : gridAdj k i i = 0 := by
-  unfold gridAdj; simp
+theorem gridAdj_diag (k : Nat) (i : Fin (k * k)) : gridAdj k i i = 0 :=
+  congrArg (fun x => if x == 1 then 1 else 0)
+    (congr (congrArg Nat.add (self_absDiff (i.val / k))) (self_absDiff (i.val % k)))
 
-theorem gridAdj_symm (k : Nat) (i j : Fin (k * k)) : gridAdj k i j = gridAdj k j i := by
-  unfold gridAdj
-  dsimp only
-  have h1 : (if i.val / k ≥ j.val / k then i.val / k - j.val / k else j.val / k - i.val / k) =
-            (if j.val / k ≥ i.val / k then j.val / k - i.val / k else i.val / k - j.val / k) := by
-    split <;> split <;> omega
-  have h2 : (if i.val % k ≥ j.val % k then i.val % k - j.val % k else j.val % k - i.val % k) =
-            (if j.val % k ≥ i.val % k then j.val % k - i.val % k else i.val % k - j.val % k) := by
-    split <;> split <;> omega
-  rw [h1, h2]
+theorem gridAdj_symm (k : Nat) (i j : Fin (k * k)) : gridAdj k i j = gridAdj k j i :=
+  congrArg (fun x => if x == 1 then 1 else 0)
+    (congr (congrArg Nat.add (natAbsDiff_symm (i.val / k) (j.val / k))) (natAbsDiff_symm (i.val % k) (j.val % k)))
 
 def gridGraph (k : Nat) : SandpileGraph (k * k) where
   adj := gridAdj k
@@ -260,8 +268,8 @@ def det3 (m : Fin 3 → Fin 3 → Int) : Int :=
   m 0 2 * det2 (m 1 0) (m 1 1) (m 2 0) (m 2 1)
 
 def minor4 (m : Fin 4 → Fin 4 → Int) (col : Fin 4) (r c : Fin 3) : Int :=
-  let r' : Fin 4 := ⟨r.val + 1, by omega⟩
-  let c' : Fin 4 := if c.val < col.val then ⟨c.val, by omega⟩ else ⟨c.val + 1, by omega⟩
+  let r' : Fin 4 := ⟨r.val + 1, Nat.succ_lt_succ r.isLt⟩
+  let c' : Fin 4 := if c.val < col.val then ⟨c.val, Nat.lt_trans c.isLt (Nat.lt_succ_self 3)⟩ else ⟨c.val + 1, Nat.succ_lt_succ c.isLt⟩
   m r' c'
 
 def det4 (m : Fin 4 → Fin 4 → Int) : Int :=
@@ -269,7 +277,7 @@ def det4 (m : Fin 4 → Fin 4 → Int) : Int :=
   m 0 2 * det3 (minor4 m 2) - m 0 3 * det3 (minor4 m 3)
 
 def skipFin {n : Nat} (k : Fin (n + 1)) (i : Fin n) : Fin (n + 1) :=
-  if i.val < k.val then ⟨i.val, by omega⟩ else ⟨i.val + 1, by omega⟩
+  if i.val < k.val then ⟨i.val, Nat.lt_trans i.isLt (Nat.lt_succ_self n)⟩ else ⟨i.val + 1, Nat.succ_lt_succ i.isLt⟩
 
 def minorMat {n : Nat} (M : Fin (n + 1) → Fin (n + 1) → Int) (r c : Fin (n + 1)) :
     Fin n → Fin n → Int :=
@@ -306,11 +314,11 @@ def modeIdx (k : Fin 9) : Fin 3 × Fin 3 :=
 
 def q9Mat (i j : Fin 9) : Int :=
   let (a, b) := modeIdx j
-  p3Mat ⟨i.val / 3, by omega⟩ a * p3Mat ⟨i.val % 3, by omega⟩ b
+  p3Mat ⟨i.val / 3, Nat.div_lt_of_lt_mul i.isLt⟩ a * p3Mat ⟨i.val % 3, Nat.mod_lt i.val (Nat.succ_pos 2)⟩ b
 
 def q9Inv4 (i j : Fin 9) : Int :=
   let (a, b) := modeIdx i
-  p3Inv2 a ⟨j.val / 3, by omega⟩ * p3Inv2 b ⟨j.val % 3, by omega⟩
+  p3Inv2 a ⟨j.val / 3, Nat.div_lt_of_lt_mul j.isLt⟩ * p3Inv2 b ⟨j.val % 3, Nat.mod_lt j.val (Nat.succ_pos 2)⟩
 
 def b2Block (r c : Fin 2) : Int :=
   match r.val, c.val with
@@ -329,11 +337,14 @@ def b4Block (r c : Fin 4) : Int :=
 def blockDiag9 (i j : Fin 9) : Int :=
   if i.val = 0 ∧ j.val = 0 then 4
   else if h1 : 1 ≤ i.val ∧ i.val ≤ 2 ∧ 1 ≤ j.val ∧ j.val ≤ 2 then
-    b2Block ⟨i.val - 1, by omega⟩ ⟨j.val - 1, by omega⟩
+    b2Block ⟨i.val - 1, Nat.sub_lt_left_of_lt_add h1.1 (Nat.lt_succ_of_le h1.2.1)⟩
+            ⟨j.val - 1, Nat.sub_lt_left_of_lt_add h1.2.2.1 (Nat.lt_succ_of_le h1.2.2.2)⟩
   else if h2 : 3 ≤ i.val ∧ i.val ≤ 4 ∧ 3 ≤ j.val ∧ j.val ≤ 4 then
-    b2Block ⟨i.val - 3, by omega⟩ ⟨j.val - 3, by omega⟩
+    b2Block ⟨i.val - 3, Nat.sub_lt_left_of_lt_add h2.1 (Nat.lt_succ_of_le h2.2.1)⟩
+            ⟨j.val - 3, Nat.sub_lt_left_of_lt_add h2.2.2.1 (Nat.lt_succ_of_le h2.2.2.2)⟩
   else if h3 : 5 ≤ i.val ∧ 5 ≤ j.val then
-    b4Block ⟨i.val - 5, by omega⟩ ⟨j.val - 5, by omega⟩
+    b4Block ⟨i.val - 5, Nat.sub_lt_left_of_lt_add h3.1 i.isLt⟩
+            ⟨j.val - 5, Nat.sub_lt_left_of_lt_add h3.2 j.isLt⟩
   else 0
 
 def matMul9 (A B : Fin 9 → Fin 9 → Int) (i j : Fin 9) : Int :=
@@ -415,22 +426,19 @@ def a2GridAdj (k : Nat) (i j : Fin (k * k)) : Nat :=
   else if (r1 + 1 == r2 && c2 + 1 == c1) || (r2 + 1 == r1 && c1 + 1 == c2) then 1
   else 0
 
-theorem a2GridAdj_diag (k : Nat) (i : Fin (k * k)) : a2GridAdj k i i = 0 := by
-  unfold a2GridAdj
-  have h1 : ¬ (i.val / k + 1 == i.val / k) := by simp only [beq_iff_eq]; omega
-  have h2 : ¬ (i.val % k + 1 == i.val % k) := by simp only [beq_iff_eq]; omega
-  simp [h1, h2]
+theorem a2GridAdj_diag (k : Nat) (i : Fin (k * k)) : a2GridAdj k i i = 0 :=
+  congr
+    (congrArg (fun s b => if s == 1 then 1 else if (b && (i.val % k + 1 == i.val % k)) || (b && (i.val % k + 1 == i.val % k)) then 1 else 0)
+      (congr (congrArg Nat.add (self_absDiff (i.val / k))) (self_absDiff (i.val % k))))
+    (succ_beq_self (i.val / k))
 
-theorem a2GridAdj_symm (k : Nat) (i j : Fin (k * k)) : a2GridAdj k i j = a2GridAdj k j i := by
-  unfold a2GridAdj
-  dsimp only
-  have h1 : (if i.val / k ≥ j.val / k then i.val / k - j.val / k else j.val / k - i.val / k) =
-            (if j.val / k ≥ i.val / k then j.val / k - i.val / k else i.val / k - j.val / k) := by
-    split <;> split <;> omega
-  have h2 : (if i.val % k ≥ j.val % k then i.val % k - j.val % k else j.val % k - i.val % k) =
-            (if j.val % k ≥ i.val % k then j.val % k - i.val % k else i.val % k - j.val % k) := by
-    split <;> split <;> omega
-  rw [h1, h2, Bool.or_comm]
+theorem a2GridAdj_symm (k : Nat) (i j : Fin (k * k)) : a2GridAdj k i j = a2GridAdj k j i :=
+  let hsum := congr (congrArg Nat.add (natAbsDiff_symm (i.val / k) (j.val / k))) (natAbsDiff_symm (i.val % k) (j.val % k))
+  let hor := Bool.or_comm
+    ((i.val / k + 1 == j.val / k) && (j.val % k + 1 == i.val % k))
+    ((j.val / k + 1 == i.val / k) && (i.val % k + 1 == j.val % k))
+  let res := congr (congrArg (fun (s : Nat) (b : Bool) => if s == 1 then 1 else if b then 1 else 0) hsum) hor
+  res
 
 def a2GridGraph (k : Nat) : SandpileGraph (k * k) where
   adj := a2GridAdj k
@@ -490,11 +498,14 @@ def b4A2 (r c : Fin 4) : Int :=
 def blockDiagA2 (i j : Fin 9) : Int :=
   if i.val = 0 ∧ j.val = 0 then 7
   else if h1 : 1 ≤ i.val ∧ i.val ≤ 2 ∧ 1 ≤ j.val ∧ j.val ≤ 2 then
-    b2aA2 ⟨i.val - 1, by omega⟩ ⟨j.val - 1, by omega⟩
+    b2aA2 ⟨i.val - 1, Nat.sub_lt_left_of_lt_add h1.1 (Nat.lt_succ_of_le h1.2.1)⟩
+          ⟨j.val - 1, Nat.sub_lt_left_of_lt_add h1.2.2.1 (Nat.lt_succ_of_le h1.2.2.2)⟩
   else if h2 : 3 ≤ i.val ∧ i.val ≤ 4 ∧ 3 ≤ j.val ∧ j.val ≤ 4 then
-    b2bA2 ⟨i.val - 3, by omega⟩ ⟨j.val - 3, by omega⟩
+    b2bA2 ⟨i.val - 3, Nat.sub_lt_left_of_lt_add h2.1 (Nat.lt_succ_of_le h2.2.1)⟩
+          ⟨j.val - 3, Nat.sub_lt_left_of_lt_add h2.2.2.1 (Nat.lt_succ_of_le h2.2.2.2)⟩
   else if h3 : 5 ≤ i.val ∧ 5 ≤ j.val then
-    b4A2 ⟨i.val - 5, by omega⟩ ⟨j.val - 5, by omega⟩
+    b4A2 ⟨i.val - 5, Nat.sub_lt_left_of_lt_add h3.1 i.isLt⟩
+         ⟨j.val - 5, Nat.sub_lt_left_of_lt_add h3.2 j.isLt⟩
   else 0
 
 def idA2_2x2 : Config 4 := fun i =>
