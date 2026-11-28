@@ -2,6 +2,7 @@
   "title": "Thin Vieta Reflection Groups, Apollonian–Octahedral Obstructions, Lattice Sandpile Identities, and Markov–Hurwitz Spectra: A Zero-Mathlib Six-Kernel Formalization",
   "upload_type": "publication",
   "publication_type": "preprint",
+  "publication_date": "2026-11-27",
   "version": "3.0.0",
   "description": "Zero-Mathlib Lean 4.35.0 formalization of 16 statements (T1a-T3e + T2f, 19 exported audited declarations, 884 declarations exhaustively checked via Lean.collectAxioms, 10 adversarial false-variant & hypothesis-necessity refutations) covering HKRS (2024) Apollonian square obstructions on three roots, octahedral mod-8 locking, general d-dimensional Soddy-Gosset integrality dichotomy (LMW 2002), universal Abelian sandpile confluence & finite termination on sinked dissipative graphs, direct 9x9 Z^2 and A_2 Laplacian determinants & Dhar traces, an elementary A_2 even-Laplacian parity lemma, Markov's classical descent theorem & Zhang's (2007) even mod-32 theorem for all positive Markov solutions, 5-step Markov quiver identities, and Hurwitz's (1907) complete n=4 Vieta-orbit classification — verified across 6 formal kernels and 3 independent computational oracles (zero-unsafe Rust, ISO C11 ASan/UBSan + 7-law libFuzzer, Python/Hypothesis/100% mutation). No open problem is solved.",
   "creators": [

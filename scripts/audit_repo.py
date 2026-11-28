@@ -72,6 +72,7 @@ REQUIRED_FILES = [
     "lean/lean-toolchain",
     "lean/lakefile.toml",
     "lean/comparator.json",
+    "formalization.yaml",
     "lean/formalization.yaml",
     "lean/VerifyAxioms.lean",
     "lean/VerifyAllDecls.lean",
@@ -208,6 +209,7 @@ def main() -> int:
         "CITATION.cff",
         "CITATION.bib",
         ".zenodo.json",
+        "formalization.yaml",
         "lean/formalization.yaml",
         "paper/main.tex",
         "docs/index.html",
@@ -281,6 +283,7 @@ def main() -> int:
             ("CITATION.bib", rf"version\s*=\s*\{{{re.escape(ver)}\}}"),
             (".zenodo.json", rf'"version":\s*"{re.escape(ver)}"'),
             ("lean/lakefile.toml", rf'version\s*=\s*"{re.escape(ver)}"'),
+            ("formalization.yaml", rf'release_version:\s*"{re.escape(ver)}"'),
             ("lean/formalization.yaml", rf'release_version:\s*"{re.escape(ver)}"'),
         ]:
             p = ROOT / rel
