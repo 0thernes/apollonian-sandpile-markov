@@ -283,8 +283,8 @@ def main() -> int:
             ("CITATION.bib", rf"version\s*=\s*\{{{re.escape(ver)}\}}"),
             (".zenodo.json", rf'"version":\s*"{re.escape(ver)}"'),
             ("lean/lakefile.toml", rf'version\s*=\s*"{re.escape(ver)}"'),
-            ("formalization.yaml", rf'release_version:\s*"{re.escape(ver)}"'),
-            ("lean/formalization.yaml", rf'release_version:\s*"{re.escape(ver)}"'),
+            ("formalization.yaml", rf'release_version:\s*"?{re.escape(ver)}"?'),
+            ("lean/formalization.yaml", rf'release_version:\s*"?{re.escape(ver)}"?'),
         ]:
             p = ROOT / rel
             if p.exists() and not re.search(pat, p.read_text(encoding="utf-8")):
